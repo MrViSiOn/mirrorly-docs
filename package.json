@@ -1,0 +1,53 @@
+{
+  "name": "mirrorly-project",
+  "version": "1.0.0",
+  "description": "Mirrorly - Plugin WordPress con IA para visualización de productos",
+  "private": true,
+  "workspaces": [
+    "api",
+    "wordpress-plugin"
+  ],
+  "scripts": {
+    "dev:api": "cd api && npm run dev",
+    "dev:plugin": "cd wordpress-plugin && npm run dev",
+    "build": "npm run build:api && npm run build:plugin",
+    "build:api": "cd api && npm run build",
+    "build:plugin": "cd wordpress-plugin && npm run build",
+    "test": "npm run test:api && npm run test:plugin",
+    "test:api": "cd api && npm test",
+    "test:plugin": "cd wordpress-plugin && npm test",
+    "lint": "npm run lint:api && npm run lint:plugin",
+    "lint:api": "cd api && npm run lint",
+    "lint:plugin": "cd wordpress-plugin && npm run lint",
+    "clean": "npm run clean:api && npm run clean:plugin",
+    "clean:api": "cd api && rm -rf dist node_modules",
+    "clean:plugin": "cd wordpress-plugin && rm -rf build node_modules",
+    "deploy:api": "cd api && npm run deploy",
+    "release:plugin": "cd wordpress-plugin && npm run release",
+    "setup": "node scripts/setup-dev.js",
+    "setup:api": "cd api && npm install",
+    "setup:plugin": "cd wordpress-plugin && npm install",
+    "build:all": "node scripts/build-all.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/mirrorly-project.git"
+  },
+  "keywords": [
+    "wordpress",
+    "woocommerce",
+    "ai",
+    "image-generation",
+    "ecommerce"
+  ],
+  "author": "Your Name",
+  "license": "GPL-2.0-or-later"
+}
