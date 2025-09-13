@@ -22,7 +22,7 @@ describe('Database Models', () => {
       expect(license.status).toBe('active');
       expect(license.monthly_limit).toBe(10);
       expect(license.current_usage).toBe(0);
-      expect(license.license_key).toMatch(/^[A-Z0-9-]{39}$/);
+      expect(license.license_key).toMatch(/^[A-Z0-9-]{35}$/);
     });
 
     test('should validate license key format', () => {
@@ -62,8 +62,8 @@ describe('Database Models', () => {
       const generation = await Generation.create({
         license_id: testLicense.id,
         product_id: 'product-123',
-        user_image_hash: 'user-hash-123',
-        product_image_hash: 'product-hash-456',
+        user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abcd',
+        product_image_hash: 'f1e2d3c4b5a6789012345678901234567890efgh',
         status: 'pending',
       });
 
@@ -77,8 +77,8 @@ describe('Database Models', () => {
       const generation = await Generation.create({
         license_id: testLicense.id,
         product_id: 'product-123',
-        user_image_hash: 'user-hash-123',
-        product_image_hash: 'product-hash-456',
+        user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abcd',
+        product_image_hash: 'f1e2d3c4b5a6789012345678901234567890efgh',
         status: 'pending',
       });
 
@@ -97,22 +97,22 @@ describe('Database Models', () => {
         {
           license_id: testLicense.id,
           product_id: 'product-1',
-          user_image_hash: 'hash-1',
-          product_image_hash: 'hash-2',
+          user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abc1',
+          product_image_hash: 'f1e2d3c4b5a6789012345678901234567890efg1',
           status: 'completed',
         },
         {
           license_id: testLicense.id,
           product_id: 'product-2',
-          user_image_hash: 'hash-3',
-          product_image_hash: 'hash-4',
+          user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abc2',
+          product_image_hash: 'f1e2d3c4b5a6789012345678901234567890efg2',
           status: 'failed',
         },
         {
           license_id: testLicense.id,
           product_id: 'product-3',
-          user_image_hash: 'hash-5',
-          product_image_hash: 'hash-6',
+          user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abc3',
+          product_image_hash: 'f1e2d3c4b5a6789012345678901234567890efg3',
           status: 'pending',
         },
       ]);

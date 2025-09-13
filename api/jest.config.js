@@ -7,7 +7,9 @@ module.exports = {
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: 'tsconfig.json'
+    }],
   },
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -25,4 +27,8 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000,
+  // Configuración para debugging
+  verbose: true,
+  detectOpenHandles: true,
+  forceExit: true
 };
