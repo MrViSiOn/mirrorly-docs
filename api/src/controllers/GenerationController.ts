@@ -6,6 +6,7 @@ import { ImageProcessor } from '../services/ImageProcessor';
 import { Generation } from '../models/Generation';
 import { AuthenticatedRequest } from '../middleware/AuthMiddleware';
 import { GenerationOptions } from '../types/google-ai';
+import { loggingService } from '../services/LoggingService';
 
 /**
  * Controlador para la generación de imágenes con Google AI
@@ -60,6 +61,10 @@ export class GenerationController {
 
       // Verificar límites de rate limiting
       const rateLimitCheck = await RateLimitService.checkLimits(licenseId);
+
+      // Log rate limit check
+      loggingService.logRateLimit(licenseId, req.originalUrl, !rateLimitCheck.allowed);
+
       if (!rateLimitCheck.allowed) {
         res.status(429).json({
           error: 'LIMIT_001',
@@ -142,6 +147,19 @@ export class GenerationController {
           error_message: result.error
         });
 
+        // Log failed generation
+        loggingService.logGeneration({
+          generationId: generation.id.toString(),
+          licenseId: licenseId,
+          licenseType: license.type,
+          imageSize: userImageFile.size + productImageFile.size,
+          processingTime: Date.now() - startTime,
+          googleAIModel: 'gemini-pro-vision',
+          promptLength: 0,
+          success: false,
+          error: result.error
+        });
+
         res.status(500).json({
           error: 'GAI_001',
           message: 'Image generation failed',
@@ -164,6 +182,18 @@ export class GenerationController {
       await RateLimitService.incrementUsage(licenseId);
 
       const totalTime = Date.now() - startTime;
+
+      // Log successful generation
+      loggingService.logGeneration({
+        generationId: generation.id.toString(),
+        licenseId: licenseId,
+        licenseType: license.type,
+        imageSize: userImageFile.size + productImageFile.size,
+        processingTime: totalTime,
+        googleAIModel: result.metadata?.model || 'gemini-pro-vision',
+        promptLength: result.usedPrompt?.length || 0,
+        success: true
+      });
 
       // Respuesta exitosa
       res.status(200).json({
@@ -194,9 +224,15 @@ export class GenerationController {
       });
 
     } catch (error) {
-      console.error('Generation error:', error);
-
       const totalTime = Date.now() - startTime;
+
+      loggingService.error('Image generation failed', error as Error, {
+        requestId: req.id,
+        method: req.method,
+        endpoint: req.originalUrl,
+        processingTime: totalTime,
+        licenseId: (req as AuthenticatedRequest).licenseId
+      });
 
       res.status(500).json({
         error: 'INTERNAL_ERROR',
@@ -257,7 +293,12 @@ export class GenerationController {
       });
 
     } catch (error) {
-      console.error('Get generation status error:', error);
+      loggingService.error('Failed to get generation status', error as Error, {
+        requestId: req.id,
+        generationId: req.params.id,
+        licenseId: (req as AuthenticatedRequest).licenseId
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to get generation status',
@@ -317,7 +358,11 @@ export class GenerationController {
       });
 
     } catch (error) {
-      console.error('Get current limits error:', error);
+      loggingService.error('Failed to get current limits', error as Error, {
+        requestId: req.id,
+        licenseId: (req as AuthenticatedRequest).licenseId
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to get current limits',
@@ -376,7 +421,11 @@ export class GenerationController {
       });
 
     } catch (error) {
-      console.error('Get auth status error:', error);
+      loggingService.error('Failed to get authentication status', error as Error, {
+        requestId: req.id,
+        licenseId: (req as AuthenticatedRequest).licenseId
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to get authentication status',

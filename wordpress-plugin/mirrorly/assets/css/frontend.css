@@ -1,0 +1,782 @@
+/**
+ * Mirrorly Frontend Styles
+ */
+
+/* CSS Variables for theming - can be overridden by PRO customization */
+:root {
+  --mirrorly-primary: #007cba;
+  --mirrorly-secondary: #ffffff;
+  --mirrorly-text: #333333;
+  --mirrorly-border: #e1e1e1;
+  --mirrorly-background: #ffffff;
+  --mirrorly-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --mirrorly-radius: 8px;
+  --mirrorly-font-size: 14px;
+  --mirrorly-button-radius: 6px;
+  --mirrorly-animation-duration: 0.3s;
+}
+
+/* Dynamic styling classes for PRO customization */
+.mirrorly-widget.shadow-none {
+  --mirrorly-shadow: none;
+}
+
+.mirrorly-widget.shadow-light {
+  --mirrorly-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mirrorly-widget.shadow-medium {
+  --mirrorly-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mirrorly-widget.shadow-heavy {
+  --mirrorly-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.mirrorly-widget.font-size-small {
+  --mirrorly-font-size: 13px;
+}
+
+.mirrorly-widget.font-size-medium {
+  --mirrorly-font-size: 14px;
+}
+
+.mirrorly-widget.font-size-large {
+  --mirrorly-font-size: 16px;
+}
+
+.mirrorly-widget.button-style-square {
+  --mirrorly-button-radius: 0px;
+}
+
+.mirrorly-widget.button-style-rounded {
+  --mirrorly-button-radius: 6px;
+}
+
+.mirrorly-widget.button-style-pill {
+  --mirrorly-button-radius: 25px;
+}
+
+/* Main Widget Container */
+.mirrorly-widget {
+  background: var(--mirrorly-background);
+  border: 1px solid var(--mirrorly-border);
+  border-radius: var(--mirrorly-radius);
+  padding: 20px;
+  margin: 20px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: var(--mirrorly-font-size);
+  box-shadow: var(--mirrorly-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--mirrorly-animation-duration) ease;
+}
+
+/* Widget entrance animations */
+.mirrorly-widget.animation-fade {
+  animation: mirrorly-fadeIn 0.5s ease-out;
+}
+
+.mirrorly-widget.animation-slide {
+  animation: mirrorly-slideIn 0.5s ease-out;
+}
+
+.mirrorly-widget.animation-bounce {
+  animation: mirrorly-bounceIn 0.6s ease-out;
+}
+
+/* Header Section */
+.mirrorly-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mirrorly-title {
+  color: var(--mirrorly-text);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.mirrorly-usage-info {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.mirrorly-remaining strong {
+  color: var(--mirrorly-primary);
+}
+
+.mirrorly-limit-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.mirrorly-limit-notice .mirrorly-error {
+  color: #dc3232;
+  margin: 0 0 10px 0;
+  font-weight: 500;
+}
+
+.mirrorly-upgrade-link {
+  color: var(--mirrorly-primary);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.mirrorly-upgrade-link:hover {
+  text-decoration: underline;
+}
+
+/* Upload Section */
+.mirrorly-upload-section {
+  margin-bottom: 20px;
+}
+
+.mirrorly-upload-area {
+  border: 2px dashed #ddd;
+  border-radius: var(--mirrorly-radius);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  position: relative;
+}
+
+.mirrorly-upload-area:hover {
+  border-color: var(--mirrorly-primary);
+  background: #f0f8ff;
+}
+
+.mirrorly-upload-area.dragover {
+  border-color: var(--mirrorly-primary);
+  background: #e6f3ff;
+  transform: scale(1.02);
+}
+
+.mirrorly-upload-content {
+  pointer-events: none;
+}
+
+.mirrorly-upload-icon {
+  color: #999;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.mirrorly-upload-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.mirrorly-upload-text {
+  font-size: 16px;
+  color: var(--mirrorly-text);
+  margin: 0 0 5px 0;
+  font-weight: 500;
+}
+
+.mirrorly-upload-hint {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Preview Section */
+.mirrorly-preview-section {
+  margin-bottom: 20px;
+}
+
+.mirrorly-preview-container {
+  text-align: center;
+}
+
+.mirrorly-preview-container img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: var(--mirrorly-radius);
+  box-shadow: var(--mirrorly-shadow);
+  margin-bottom: 15px;
+  object-fit: cover;
+}
+
+.mirrorly-preview-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.mirrorly-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--mirrorly-button-radius);
+  font-size: var(--mirrorly-font-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--mirrorly-animation-duration) ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  min-width: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mirrorly-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mirrorly-btn-primary {
+  background: var(--mirrorly-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 124, 186, 0.3);
+}
+
+.mirrorly-btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--mirrorly-primary) 90%, black);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 124, 186, 0.4);
+}
+
+.mirrorly-btn-secondary {
+  background: #f5f5f5;
+  color: var(--mirrorly-text);
+  border: 1px solid #ddd;
+}
+
+.mirrorly-btn-secondary:hover:not(:disabled) {
+  background: #e9e9e9;
+  border-color: #ccc;
+}
+
+.mirrorly-btn-outline {
+  background: transparent;
+  color: var(--mirrorly-primary);
+  border: 1px solid var(--mirrorly-primary);
+}
+
+.mirrorly-btn-outline:hover:not(:disabled) {
+  background: var(--mirrorly-primary);
+  color: white;
+}
+
+/* Generation Section */
+.mirrorly-generation-section {
+  margin-bottom: 20px;
+}
+
+.mirrorly-loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.mirrorly-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--mirrorly-primary);
+  border-radius: 50%;
+  animation: mirrorly-spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes mirrorly-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.mirrorly-loading-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--mirrorly-text);
+  margin: 0 0 5px 0;
+}
+
+.mirrorly-loading-hint {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Result Section */
+.mirrorly-result {
+  text-align: center;
+}
+
+.mirrorly-result-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--mirrorly-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.mirrorly-result-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Error Section */
+.mirrorly-error {
+  text-align: center;
+  padding: 20px;
+}
+
+.mirrorly-error-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.mirrorly-error-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.mirrorly-error-message {
+  color: #dc3232;
+  font-size: 16px;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+/* Footer */
+.mirrorly-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.mirrorly-upgrade-notice {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Progress Bar */
+.mirrorly-progress {
+  width: 100%;
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.mirrorly-progress-bar {
+  height: 100%;
+  background: var(--mirrorly-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* Animations */
+@keyframes mirrorly-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mirrorly-slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes mirrorly-bounceIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes mirrorly-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes mirrorly-shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Utility animation classes */
+.mirrorly-fade-in {
+  animation: mirrorly-fadeIn 0.5s ease-out;
+}
+
+.mirrorly-slide-in {
+  animation: mirrorly-slideIn 0.5s ease-out;
+}
+
+.mirrorly-bounce-in {
+  animation: mirrorly-bounceIn 0.6s ease-out;
+}
+
+.mirrorly-pulse {
+  animation: mirrorly-pulse 2s ease-in-out infinite;
+}
+
+.mirrorly-shake {
+  animation: mirrorly-shake 0.5s ease-in-out;
+}
+
+/* Smooth transitions for interactive elements */
+.mirrorly-btn,
+.mirrorly-upload-area,
+.mirrorly-preview-container img {
+  transition: all var(--mirrorly-animation-duration) ease;
+}
+
+/* Hover effects with smooth transitions */
+.mirrorly-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.mirrorly-upload-area:hover {
+  transform: translateY(-1px);
+}
+
+/* Focus states for accessibility */
+.mirrorly-btn:focus,
+.mirrorly-upload-area:focus-within {
+  outline: 2px solid var(--mirrorly-primary);
+  outline-offset: 2px;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 1024px) {
+  .mirrorly-widget {
+    margin: 15px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .mirrorly-widget {
+    padding: 15px;
+    margin: 15px 0;
+  }
+
+  .mirrorly-title {
+    font-size: calc(var(--mirrorly-font-size) + 2px);
+  }
+
+  .mirrorly-upload-area {
+    padding: 30px 15px;
+  }
+
+  .mirrorly-upload-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mirrorly-upload-text {
+    font-size: var(--mirrorly-font-size);
+  }
+
+  .mirrorly-preview-actions,
+  .mirrorly-result-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mirrorly-btn {
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+  }
+
+  .mirrorly-preview-container img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+
+  /* Reduce animations on mobile for better performance */
+  .mirrorly-widget.animation-bounce {
+    animation: mirrorly-fadeIn 0.3s ease-out;
+  }
+}
+
+@media (max-width: 480px) {
+  .mirrorly-widget {
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .mirrorly-upload-area {
+    padding: 20px 10px;
+  }
+
+  .mirrorly-btn {
+    padding: 10px 16px;
+    font-size: calc(var(--mirrorly-font-size) - 1px);
+    min-width: 100px;
+  }
+
+  .mirrorly-title {
+    font-size: calc(var(--mirrorly-font-size) + 1px);
+  }
+
+  .mirrorly-preview-container img {
+    max-width: 120px;
+    max-height: 120px;
+  }
+
+  /* Simplify shadows on small screens */
+  .mirrorly-widget {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 360px) {
+  .mirrorly-widget {
+    padding: 10px;
+    margin: 8px 0;
+  }
+
+  .mirrorly-upload-area {
+    padding: 15px 8px;
+  }
+
+  .mirrorly-btn {
+    padding: 8px 12px;
+    font-size: calc(var(--mirrorly-font-size) - 2px);
+  }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+  .mirrorly-widget {
+    border-width: 0.5px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .mirrorly-widget {
+    --mirrorly-background: #2c2c2c;
+    --mirrorly-text: #ffffff;
+    --mirrorly-border: #444444;
+    background: var(--mirrorly-background);
+    color: var(--mirrorly-text);
+  }
+
+  .mirrorly-upload-area {
+    background: #333333;
+    border-color: #555555;
+  }
+
+  .mirrorly-upload-area:hover {
+    background: #404040;
+  }
+
+  .mirrorly-btn-secondary {
+    background: #444444;
+    color: #ffffff;
+    border-color: #666666;
+  }
+
+  .mirrorly-btn-secondary:hover:not(:disabled) {
+    background: #555555;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .mirrorly-widget {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .mirrorly-btn,
+  .mirrorly-upload-area {
+    display: none;
+  }
+}
+
+/* Accessibility Enhancements */
+.mirrorly-btn:focus {
+  outline: 2px solid var(--mirrorly-primary);
+  outline-offset: 2px;
+}
+
+.mirrorly-upload-area:focus-within {
+  border-color: var(--mirrorly-primary);
+  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+}
+
+/* Screen Reader Only */
+.mirrorly-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Loading States */
+.mirrorly-widget.loading {
+  pointer-events: none;
+}
+
+.mirrorly-widget.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+}
+
+/* Performance Optimizations */
+.mirrorly-widget {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+.mirrorly-widget.animating {
+  will-change: transform, opacity;
+}
+
+/* Modern CSS Features */
+@supports (backdrop-filter: blur(2px)) {
+  .mirrorly-widget.loading::after {
+    backdrop-filter: blur(2px);
+    background: rgba(255, 255, 255, 0.6);
+  }
+}
+
+@supports (color-mix(in srgb, var(--mirrorly-primary) 90%, black)) {
+  .mirrorly-btn-primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--mirrorly-primary) 90%, black);
+  }
+}
+
+/* Container Queries for better responsive design */
+@container (max-width: 400px) {
+  .mirrorly-widget {
+    padding: 12px;
+  }
+
+  .mirrorly-btn {
+    width: 100%;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+  .mirrorly-widget,
+  .mirrorly-btn,
+  .mirrorly-upload-area,
+  .mirrorly-preview-container img {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .mirrorly-widget.animation-fade,
+  .mirrorly-widget.animation-slide,
+  .mirrorly-widget.animation-bounce {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .mirrorly-widget {
+    border-width: 2px;
+    border-color: ButtonText;
+  }
+
+  .mirrorly-btn-primary {
+    border: 2px solid ButtonText;
+  }
+}
+
+/* Forced Colors Mode Support */
+@media (forced-colors: active) {
+  .mirrorly-widget {
+    border-color: ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .mirrorly-btn-primary {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonBorder;
+  }
+}

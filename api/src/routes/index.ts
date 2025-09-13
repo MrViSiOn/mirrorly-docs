@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth';
 import licenseRoutes from './license';
 import generationRoutes from './generation';
+import dashboardRoutes from './dashboard';
 
 const router = Router();
 
@@ -20,6 +21,9 @@ router.use('/generate', generationRoutes);
 
 // Limits routes (alias for generation limits)
 router.use('/limits', generationRoutes);
+
+// Dashboard and monitoring routes
+router.use('/dashboard', dashboardRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {
@@ -48,6 +52,13 @@ router.get('/', (req, res) => {
         'POST /generate/image': 'Generate image with AI (requires API key + images)',
         'GET /generate/status/{id}': 'Get generation status by ID (requires API key)',
         'GET /limits/current': 'Get current usage limits (requires API key)'
+      },
+      dashboard: {
+        'GET /dashboard': 'View HTML dashboard (monitoring)',
+        'GET /dashboard/data': 'Get dashboard data as JSON',
+        'GET /dashboard/health': 'Get system health status',
+        'GET /dashboard/metrics': 'Get metrics for external monitoring',
+        'DELETE /dashboard/metrics': 'Clear metrics (admin only)'
       }
     },
     authentication: {

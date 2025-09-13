@@ -1,21 +1,191 @@
 # Mirrorly WordPress Plugin
 
-Plugin para WordPress/WooCommerce que permite a los usuarios visualizarse usando productos mediante inteligencia artificial.
+Plugin de WordPress/WooCommerce que permite a los usuarios visualizarse usando productos mediante inteligencia artificial. Integra con la API centralizada de Mirrorly para generar imágenes realistas donde el cliente aparece "usando" o "portando" el producto seleccionado.
 
-## Características
+## 🚀 Características
 
-### Versión FREE
-- Hasta 10 generaciones por mes
-- Máximo 3 productos habilitados
-- Funcionalidad básica de visualización
+- **Versiones FREE y PRO**: Modelo freemium con funcionalidades escalables
+- **Integración WooCommerce**: Seamless integration con productos existentes
+- **Widget Frontend**: Interfaz intuitiva para subida de imágenes
+- **Panel de Administración**: Configuración completa desde wp-admin
+- **Personalización Avanzada**: Estilos y colores personalizables (PRO)
+- **Rate Limiting**: Control automático de uso según licencia
+- **Responsive Design**: Compatible con todos los dispositivos
+- **Multiidioma**: Preparado para traducción
 
-### Versión PRO
-- Generaciones ampliadas según plan
-- Productos ilimitados
-- Personalización avanzada de estilos
-- Selección específica de productos
+## 📋 Requisitos
 
-## Estructura del Plugin
+### WordPress/WooCommerce
+- **WordPress** >= 5.8
+- **WooCommerce** >= 6.0
+- **PHP** >= 7.4 (8.0+ recomendado)
+- **MySQL** >= 5.7
+
+### Servidor
+- **cURL** habilitado
+- **GD Library** o **ImageMagick**
+- **file_uploads** habilitado
+- **max_file_uploads** >= 20
+- **upload_max_filesize** >= 10M
+- **post_max_size** >= 10M
+
+### API Externa
+- Acceso a la API de Mirrorly
+- API Key válida (FREE o PRO)
+
+## 🔧 Instalación
+
+### Instalación Manual
+
+1. **Descargar el plugin**
+   ```bash
+   # Desde el repositorio
+   wget https://github.com/your-org/mirrorly-project/releases/latest/download/mirrorly.zip
+   ```
+
+2. **Subir a WordPress**
+   - Ir a `Plugins > Añadir nuevo > Subir plugin`
+   - Seleccionar el archivo `mirrorly.zip`
+   - Hacer clic en "Instalar ahora"
+   - Activar el plugin
+
+3. **Configuración inicial**
+   - Ir a `Mirrorly > Configuración`
+   - Introducir API Key
+   - Configurar opciones básicas
+
+### Instalación desde WordPress.org
+
+```bash
+# Buscar "Mirrorly" en el directorio de plugins de WordPress
+# O instalar desde wp-admin > Plugins > Añadir nuevo
+```
+
+### Instalación para Desarrollo
+
+```bash
+# Clonar el repositorio completo
+git clone https://github.com/your-org/mirrorly-project.git
+cd mirrorly-project
+
+# Instalar dependencias
+npm install
+
+# Build del plugin
+npm run build:plugin
+
+# El plugin estará en wordpress-plugin/build/mirrorly/
+```
+
+## ⚙️ Configuración
+
+### 1. Configuración Básica
+
+Después de activar el plugin:
+
+1. **Ir a Mirrorly > Configuración**
+2. **Introducir API Key**
+   - Para versión FREE: Registrarse en [mirrorly.com/free](https://mirrorly.com/free)
+   - Para versión PRO: Adquirir licencia en [mirrorly.com/pro](https://mirrorly.com/pro)
+3. **Configurar mensaje personalizado** (opcional)
+4. **Guardar cambios**
+
+### 2. Configuración de Productos
+
+Para cada producto que quieras habilitar:
+
+1. **Editar producto en WooCommerce**
+2. **Buscar metabox "Mirrorly"**
+3. **Activar funcionalidad**
+4. **Seleccionar imagen del producto** para usar con IA
+5. **Configurar mensaje personalizado** (opcional)
+6. **Actualizar producto**
+
+### 3. Configuración PRO (Solo versión PRO)
+
+Funcionalidades adicionales disponibles:
+
+- **Personalización de estilos**: Colores, fuentes, tamaños
+- **Selección masiva de productos**: Activar en múltiples productos
+- **Mensajes personalizados por producto**
+- **Límites extendidos**: Más generaciones por mes
+- **Soporte prioritario**
+
+## 🎨 Personalización
+
+### Estilos CSS
+
+El plugin incluye CSS básico que puede ser personalizado:
+
+```css
+/* Widget principal */
+.mirrorly-widget {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+/* Botón de subida */
+.mirrorly-upload-btn {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Resultado */
+.mirrorly-result {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.mirrorly-result img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+```
+
+### Hooks y Filtros
+
+El plugin proporciona varios hooks para personalización:
+
+```php
+// Modificar mensaje del widget
+add_filter('mirrorly_widget_message', function($message, $product_id) {
+    return "¡Prueba cómo te queda este {$product->get_name()}!";
+}, 10, 2);
+
+// Personalizar estilos del widget
+add_filter('mirrorly_widget_styles', function($styles) {
+    $styles['primary_color'] = '#ff6b35';
+    return $styles;
+});
+
+// Modificar configuración de subida
+add_filter('mirrorly_upload_config', function($config) {
+    $config['max_file_size'] = 5 * 1024 * 1024; // 5MB
+    $config['allowed_types'] = ['jpg', 'jpeg', 'png'];
+    return $config;
+});
+
+// Acción después de generación exitosa
+add_action('mirrorly_generation_success', function($result, $product_id, $user_id) {
+    // Enviar email, guardar estadísticas, etc.
+}, 10, 3);
+
+// Acción después de error en generación
+add_action('mirrorly_generation_error', function($error, $product_id, $user_id) {
+    // Log error, notificar admin, etc.
+}, 10, 3);
+```
+
+## 🔧 Desarrollo
+
+### Estructura de Archivos
 
 ```
 mirrorly/
@@ -24,211 +194,164 @@ mirrorly/
 │   ├── class-mirrorly.php       # Clase principal
 │   ├── class-admin.php          # Panel de administración
 │   ├── class-frontend.php       # Funcionalidad frontend
-│   ├── class-api-client.php     # Cliente para API central
+│   ├── class-api-client.php     # Cliente API
 │   ├── class-license.php        # Gestión de licencias
 │   └── class-product-meta.php   # Metabox de productos
 ├── assets/
-│   ├── css/                     # Estilos fuente
-│   ├── js/                      # JavaScript fuente
-│   └── dist/                    # Assets compilados
+│   ├── css/
+│   │   ├── admin.css           # Estilos admin
+│   │   └── frontend.css        # Estilos frontend
+│   ├── js/
+│   │   ├── admin.js            # JavaScript admin
+│   │   └── frontend.js         # JavaScript frontend
+│   └── images/                 # Imágenes del plugin
 ├── templates/
-│   ├── frontend-widget.php      # Widget del producto
-│   └── admin-settings.php       # Página de configuración
-└── languages/                   # Archivos de traducción
+│   ├── admin/
+│   │   └── settings-page.php   # Página de configuración
+│   └── frontend/
+│       └── product-widget.php  # Widget del producto
+├── languages/                  # Archivos de traducción
+├── tests/                      # Tests PHPUnit
+└── README.txt                  # README para WordPress.org
 ```
 
-## Instalación
-
-### Para Desarrollo
+### Scripts de Desarrollo
 
 ```bash
-# Instalar dependencias
-npm install
-
 # Desarrollo con watch mode
-npm run dev
+npm run dev:plugin
 
 # Build para producción
-npm run build
-```
+npm run build:plugin
 
-### Para Producción
+# Generar archivo .zip para distribución
+npm run release:plugin
 
-1. Descargar el archivo `mirrorly.zip` de la release
-2. Subir a WordPress via Admin > Plugins > Añadir nuevo
-3. Activar el plugin
-4. Configurar API key en Mirrorly > Configuración
-
-## Configuración
-
-### Requisitos
-
-- WordPress >= 5.8
-- WooCommerce >= 6.0
-- PHP >= 7.4
-- API key de la API Mirrorly
-
-### Configuración Inicial
-
-1. **Obtener API Key**: Registrarse en el servicio Mirrorly
-2. **Configurar Plugin**:
-   - Ir a `Mirrorly > Configuración`
-   - Introducir API key
-   - Seleccionar tipo de licencia (FREE/PRO)
-3. **Habilitar Productos**:
-   - Editar productos en WooCommerce
-   - Activar Mirrorly en el metabox del producto
-   - Seleccionar imagen de referencia
-
-## Uso
-
-### Para Administradores
-
-1. **Panel de Configuración**: `wp-admin > Mirrorly > Configuración`
-2. **Configuración por Producto**: En el editor de productos WooCommerce
-3. **Personalización PRO**: Colores, estilos y mensajes personalizados
-
-### Para Usuarios Finales
-
-1. Visitar página de producto habilitado
-2. Subir imagen personal en el widget Mirrorly
-3. Esperar procesamiento (30-60 segundos)
-4. Ver resultado y descargar/compartir
-
-## Desarrollo
-
-### Scripts Disponibles
-
-```bash
-# Desarrollo con hot reload
-npm run dev
-
-# Build para producción
-npm run build
-
-# Tests PHP
-npm run test
+# Ejecutar tests
+npm run test:plugin
 
 # Linting
-npm run lint
-npm run lint:fix
-
-# Generar release
-npm run release
+npm run lint:plugin
 ```
 
 ### Testing
 
+El plugin incluye tests PHPUnit:
+
 ```bash
-# Tests unitarios PHP
+# Ejecutar todos los tests
 ./vendor/bin/phpunit
 
-# Tests de integración
-npm run test:integration
+# Test específico
+./vendor/bin/phpunit tests/test-api-client.php
+
+# Coverage
+./vendor/bin/phpunit --coverage-html coverage/
 ```
 
-### Estructura de Archivos
+## 🚀 Deployment
 
-- **PHP**: Clases en `includes/`, siguiendo estándares WordPress
-- **JavaScript**: Módulos ES6 en `assets/js/`
-- **CSS**: Estilos SCSS en `assets/css/`
-- **Templates**: Plantillas PHP en `templates/`
+### Para WordPress.org
 
-## API Integration
+```bash
+# Generar release
+npm run release:plugin
 
-El plugin se comunica con la API REST centralizada para:
-
-- Validación de licencias
-- Control de límites de uso
-- Generación de imágenes con IA
-- Gestión de rate limiting
-
-### Endpoints Utilizados
-
-- `POST /auth/validate-license` - Validar licencia
-- `POST /generate/image` - Generar imagen
-- `GET /limits/current` - Consultar límites
-
-## Hooks y Filtros
-
-### Actions
-
-```php
-// Personalizar widget frontend
-add_action('mirrorly_before_widget', 'custom_function');
-add_action('mirrorly_after_widget', 'custom_function');
-
-// Personalizar proceso de generación
-add_action('mirrorly_before_generation', 'custom_function');
-add_action('mirrorly_after_generation', 'custom_function');
+# El archivo mirrorly.zip estará en wordpress-plugin/build/
+# Subir a WordPress.org SVN repository
 ```
 
-### Filters
+### Para Distribución Privada
 
-```php
-// Modificar configuración del widget
-add_filter('mirrorly_widget_config', 'custom_config');
+```bash
+# Build del plugin
+npm run build:plugin
 
-// Personalizar mensajes
-add_filter('mirrorly_messages', 'custom_messages');
+# Comprimir directorio
+cd wordpress-plugin/build
+zip -r mirrorly-v1.0.0.zip mirrorly/
 
-// Modificar límites (solo para desarrollo)
-add_filter('mirrorly_limits', 'custom_limits');
+# Distribuir archivo .zip
 ```
 
-## Personalización
+## 📊 Límites y Planes
 
-### Estilos CSS
+### Versión FREE
+- **Productos**: Máximo 3 productos con funcionalidad activa
+- **Generaciones**: 10 por mes
+- **Rate Limit**: 1 generación cada 60 segundos
+- **Soporte**: Comunidad
 
-```css
-/* Personalizar widget */
-.mirrorly-widget {
-    /* Tus estilos aquí */
-}
+### Versión PRO Básico
+- **Productos**: Ilimitados
+- **Generaciones**: 100 por mes
+- **Rate Limit**: 1 generación cada 30 segundos
+- **Personalización**: Estilos y colores
+- **Soporte**: Email
 
-/* Personalizar botones */
-.mirrorly-button {
-    /* Tus estilos aquí */
-}
-```
+### Versión PRO Premium
+- **Productos**: Ilimitados
+- **Generaciones**: 500 por mes
+- **Rate Limit**: 1 generación cada 15 segundos
+- **Personalización**: Completa
+- **Soporte**: Prioritario
 
-### JavaScript
-
-```javascript
-// Eventos personalizados
-jQuery(document).on('mirrorly:generation_start', function(e, data) {
-    // Tu código aquí
-});
-
-jQuery(document).on('mirrorly:generation_complete', function(e, data) {
-    // Tu código aquí
-});
-```
-
-## Troubleshooting
+## 🔍 Troubleshooting
 
 ### Problemas Comunes
 
-1. **Error de API Key**: Verificar configuración en panel de admin
-2. **Límites Excedidos**: Consultar uso actual en configuración
-3. **Imágenes no se procesan**: Verificar conectividad con API
-4. **Plugin no aparece**: Verificar compatibilidad con WooCommerce
+**1. "API Key inválida"**
+- Verificar que la API Key esté correctamente introducida
+- Comprobar que no haya espacios extra
+- Verificar que la licencia esté activa
 
-### Debug Mode
+**2. "Límite de generaciones excedido"**
+- Verificar el plan actual en Mirrorly > Estado
+- Esperar al siguiente período de facturación
+- Considerar upgrade a plan superior
+
+**3. "Error al subir imagen"**
+- Verificar que el archivo sea JPG, JPEG o PNG
+- Comprobar que el tamaño sea menor a 10MB
+- Verificar permisos de escritura en wp-content/uploads
+
+**4. "Timeout en generación"**
+- La generación puede tomar 30-60 segundos
+- Verificar conexión a internet
+- Comprobar estado de la API en status.mirrorly.com
+
+### Logs y Debugging
 
 ```php
-// En wp-config.php
-define('MIRRORLY_DEBUG', true);
+// Habilitar debug en wp-config.php
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+
+// Los logs estarán en wp-content/debug.log
 ```
 
-### Logs
+### Soporte
 
-Los logs se guardan en `wp-content/debug.log` cuando está habilitado el debug.
+- **Documentación**: [docs.mirrorly.com](https://docs.mirrorly.com)
+- **FAQ**: [mirrorly.com/faq](https://mirrorly.com/faq)
+- **Soporte**: [support@mirrorly.com](mailto:support@mirrorly.com)
+- **GitHub Issues**: [github.com/your-org/mirrorly-project/issues](https://github.com/your-org/mirrorly-project/issues)
 
-## Contribución
+## 📄 Licencia
+
+GPL-2.0-or-later - Ver archivo [LICENSE](../LICENSE) para detalles.
+
+## 🤝 Contribución
 
 Ver [CONTRIBUTING.md](../CONTRIBUTING.md) en el directorio raíz del proyecto.
 
-## Licencia
+## 📝 Changelog
 
-GPL-2.0-or-later - Compatible con WordPress.
+### v1.0.0
+- Lanzamiento inicial
+- Integración con Google Generative AI
+- Versiones FREE y PRO
+- Panel de administración completo
+- Widget frontend responsive
+- Sistema de rate limiting
+- Personalización de estilos (PRO)

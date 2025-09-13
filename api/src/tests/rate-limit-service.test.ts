@@ -1,7 +1,7 @@
 import { RateLimitService } from '../services/RateLimitService';
 import { License } from '../models/License';
 import { RateLimit } from '../models/RateLimit';
-import sequelize from '../config/database';
+import sequelize from '../config/db';
 
 describe('RateLimitService', () => {
   let testLicense: License;

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { License } from '../models/License';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
+import { loggingService } from '../services/LoggingService';
 
 /**
  * Controller for authentication and license management
@@ -59,6 +60,14 @@ export class AuthController {
       // Create FREE license
       const license = await License.createFreeLicense(normalizedDomain);
 
+      // Log successful registration
+      loggingService.info('FREE license registered', {
+        requestId: req.id,
+        licenseId: license.id,
+        domain: normalizedDomain,
+        licenseType: 'free'
+      });
+
       // Generate JWT token for immediate use
       const token = AuthMiddleware.generateJWT(license.id, license.domain);
 
@@ -83,7 +92,11 @@ export class AuthController {
       });
 
     } catch (error) {
-      console.error('Register FREE license error:', error);
+      loggingService.error('Failed to register FREE license', error as Error, {
+        requestId: req.id,
+        domain: req.body.domain
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to register FREE license',
@@ -159,6 +172,15 @@ export class AuthController {
           existingDomain.status = 'active';
           await existingDomain.save();
 
+          // Log license upgrade
+          loggingService.info('License upgraded to PRO', {
+            requestId: req.id,
+            licenseId: existingDomain.id,
+            domain: normalizedDomain,
+            licenseType: type,
+            previousType: 'free'
+          });
+
           const token = AuthMiddleware.generateJWT(existingDomain.id, existingDomain.domain);
 
           res.status(200).json({
@@ -207,6 +229,14 @@ export class AuthController {
         expires_at: expires_at ? new Date(expires_at) : undefined
       });
 
+      // Log successful PRO registration
+      loggingService.info('PRO license registered', {
+        requestId: req.id,
+        licenseId: license.id,
+        domain: normalizedDomain,
+        licenseType: type
+      });
+
       // Generate JWT token
       const token = AuthMiddleware.generateJWT(license.id, license.domain);
 
@@ -232,7 +262,12 @@ export class AuthController {
       });
 
     } catch (error) {
-      console.error('Register PRO license error:', error);
+      loggingService.error('Failed to register PRO license', error as Error, {
+        requestId: req.id,
+        domain: req.body.domain,
+        licenseType: req.body.type
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to register PRO license',
@@ -276,6 +311,8 @@ export class AuthController {
           .replace(/\/$/, '');
 
         if (license.domain !== normalizedDomain) {
+          loggingService.logLicenseValidation(license.id, normalizedDomain, false, 'Domain not authorized');
+
           res.status(403).json({
             error: 'AUTH_003',
             message: 'Domain not authorized for this license',
@@ -305,6 +342,9 @@ export class AuthController {
         await license.resetMonthlyUsage();
       }
 
+      // Log successful validation
+      loggingService.logLicenseValidation(license.id, license.domain, true);
+
       // Generate new token
       const token = AuthMiddleware.generateJWT(license.id, license.domain);
 
@@ -330,7 +370,12 @@ export class AuthController {
       });
 
     } catch (error) {
-      console.error('Validate license error:', error);
+      loggingService.error('License validation failed', error as Error, {
+        requestId: req.id,
+        licenseKey: req.body.license_key,
+        domain: req.body.domain
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'License validation failed',
@@ -397,7 +442,11 @@ export class AuthController {
       });
 
     } catch (error) {
-      console.error('Get auth status error:', error);
+      loggingService.error('Failed to get authentication status', error as Error, {
+        requestId: req.id,
+        licenseId: req.license?.id
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to get authentication status',
@@ -434,7 +483,11 @@ export class AuthController {
       });
 
     } catch (error) {
-      console.error('Refresh token error:', error);
+      loggingService.error('Failed to refresh token', error as Error, {
+        requestId: req.id,
+        licenseId: req.license?.id
+      });
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to refresh token',

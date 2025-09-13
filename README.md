@@ -1,36 +1,90 @@
 # Mirrorly Project
 
-Plugin WordPress con inteligencia artificial para visualización de productos en WooCommerce.
+Plugin WordPress con inteligencia artificial para visualización de productos en WooCommerce que permite a los usuarios ver cómo se verían usando productos de moda, bisutería y accesorios.
 
-## Estructura del Proyecto
+## 🚀 Características Principales
+
+- **Inteligencia Artificial Avanzada**: Integración con Google Generative AI para generación realista de imágenes
+- **Versiones FREE y PRO**: Modelo freemium con funcionalidades escalables
+- **Integración WooCommerce**: Seamless integration con tiendas existentes
+- **Rate Limiting Inteligente**: Control de uso y prevención de abuso
+- **API REST Centralizada**: Arquitectura escalable y mantenible
+- **Personalización Avanzada**: Estilos y configuraciones personalizables (PRO)
+
+## 📁 Estructura del Proyecto
 
 ```
 mirrorly-project/
 ├── api/                          # API Node.js/TypeScript
 │   ├── src/
-│   ├── tests/
+│   │   ├── controllers/          # Controladores REST
+│   │   ├── models/              # Modelos de datos (Sequelize)
+│   │   ├── services/            # Lógica de negocio
+│   │   ├── middleware/          # Middleware personalizado
+│   │   ├── routes/              # Definición de rutas
+│   │   └── config/              # Configuración de la aplicación
+│   ├── tests/                   # Tests unitarios e integración
+│   ├── dist/                    # Código compilado
+│   ├── uploads/                 # Archivos temporales
+│   ├── logs/                    # Logs de la aplicación
 │   ├── package.json
-│   └── tsconfig.json
+│   ├── tsconfig.json
+│   ├── Dockerfile
+│   └── ecosystem.config.js      # Configuración PM2
 ├── wordpress-plugin/             # Plugin WordPress
 │   ├── mirrorly/
-│   │   ├── mirrorly.php
-│   │   ├── includes/
-│   │   ├── assets/
-│   │   └── templates/
-│   └── build/                    # Plugin empaquetado para distribución
-├── docs/                         # Documentación compartida
-├── scripts/                      # Scripts de build y deployment
-└── README.md                     # Documentación principal
+│   │   ├── mirrorly.php         # Archivo principal del plugin
+│   │   ├── includes/            # Clases PHP del plugin
+│   │   ├── assets/              # CSS, JS, imágenes
+│   │   ├── templates/           # Templates PHP
+│   │   ├── languages/           # Archivos de traducción
+│   │   └── tests/               # Tests PHPUnit
+│   ├── build/                   # Plugin empaquetado (.zip)
+│   ├── package.json
+│   └── webpack.config.js        # Build configuration
+├── docs/                        # Documentación compartida
+│   ├── ARCHITECTURE.md          # Documentación de arquitectura
+│   ├── DEVELOPMENT.md           # Guía de desarrollo
+│   ├── API.md                   # Documentación de API endpoints
+│   └── USER_GUIDE.md            # Guía de usuario
+├── scripts/                     # Scripts de build y deployment
+│   ├── build-all.js            # Build completo
+│   ├── setup-dev.js            # Setup de desarrollo
+│   ├── deploy-api.js           # Deployment de API
+│   └── release-plugin.js       # Release del plugin
+├── .github/                     # GitHub Actions CI/CD
+│   └── workflows/
+├── package.json                 # Workspace root
+├── docker-compose.yml           # Desarrollo local
+└── README.md                    # Documentación principal
 ```
 
-## Requisitos del Sistema
+## 📋 Requisitos del Sistema
 
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-- PHP >= 7.4
-- WordPress >= 5.8
-- WooCommerce >= 6.0
-- MySQL >= 5.7
+### Para Desarrollo
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0
+- **PHP** >= 7.4
+- **Composer** >= 2.0
+- **MySQL** >= 5.7 o **MariaDB** >= 10.3
+- **Docker** (opcional, para desarrollo containerizado)
+
+### Para Producción
+- **Servidor Linux** (Ubuntu 20.04+ recomendado)
+- **Node.js** >= 18.0.0 (para API)
+- **PM2** (para gestión de procesos)
+- **Nginx** (proxy reverso recomendado)
+- **SSL Certificate** (requerido para producción)
+
+### WordPress/WooCommerce
+- **WordPress** >= 5.8
+- **WooCommerce** >= 6.0
+- **PHP** >= 7.4 (8.0+ recomendado)
+- **MySQL** >= 5.7
+
+### APIs Externas
+- **Google Generative AI API Key** (requerida)
+- Cuenta de Google Cloud con facturación habilitada
 
 ## Instalación y Configuración
 

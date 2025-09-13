@@ -1,5 +1,5 @@
 import { License, Generation, RateLimit } from '../models';
-import sequelize from '../config/database';
+import sequelize from '../config/db';
 
 describe('Database Models', () => {
   beforeAll(async () => {

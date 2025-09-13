@@ -1,6 +1,17 @@
 # Mirrorly API
 
-API REST centralizada para el plugin Mirrorly de WordPress. Gestiona autenticación, licencias, rate limiting e integración con Google Generative AI.
+API REST centralizada para el plugin Mirrorly de WordPress. Gestiona autenticación, licencias, rate limiting e integración con Google Generative AI para generar imágenes realistas donde los usuarios aparecen usando productos de e-commerce.
+
+## 🚀 Características
+
+- **Google Generative AI Integration**: Flujo de dos pasos para generación optimizada
+- **Sistema de Licencias**: Gestión completa de licencias FREE y PRO
+- **Rate Limiting Avanzado**: Control granular de uso por licencia y tiempo
+- **Procesamiento de Imágenes**: Optimización automática con Sharp
+- **Logging Completo**: Winston para logging estructurado y monitoreo
+- **Seguridad Robusta**: Validación, sanitización y protección contra ataques
+- **Performance Optimizada**: Cache, compresión y optimización de queries
+- **Escalabilidad**: Arquitectura stateless preparada para múltiples instancias
 
 ## Estructura del Proyecto
 
@@ -35,21 +46,75 @@ cp .env.example .env
 nano .env
 ```
 
-## Configuración
+## ⚙️ Configuración
 
-### Variables de Entorno Requeridas
+### Variables de Entorno
 
-- `GOOGLE_AI_API_KEY`: API key de Google Generative AI
-- `DB_*`: Configuración de base de datos MySQL
-- `JWT_SECRET`: Clave secreta para JWT
+Copiar `.env.example` a `.env` y configurar:
+
+```bash
+# Configuración del servidor
+NODE_ENV=development
+PORT=3000
+HOST=localhost
+
+# Base de datos MySQL
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=mirrorly_dev
+DB_USER=root
+DB_PASS=your_password
+DB_DIALECT=mysql
+
+# Google Generative AI
+GOOGLE_AI_API_KEY=your_google_ai_api_key
+
+# Seguridad
+JWT_SECRET=your_super_secret_jwt_key_here
+ENCRYPTION_KEY=your_32_character_encryption_key
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# File Upload
+MAX_FILE_SIZE=10485760
+UPLOAD_PATH=./uploads
+TEMP_PATH=./temp
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE=./logs/app.log
+
+# Cache
+CACHE_TTL=300
+REDIS_URL=redis://localhost:6379
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
+```
 
 ### Base de Datos
 
-La API usa MySQL con Sequelize ORM. Las migraciones se ejecutan automáticamente.
+La API usa MySQL con Sequelize ORM. Las migraciones se ejecutan automáticamente en el primer inicio.
 
 ```sql
-CREATE DATABASE mirrorly_dev;
+-- Crear base de datos
+CREATE DATABASE mirrorly_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Crear usuario (opcional)
+CREATE USER 'mirrorly'@'localhost' IDENTIFIED BY 'secure_password';
+GRANT ALL PRIVILEGES ON mirrorly_dev.* TO 'mirrorly'@'localhost';
+FLUSH PRIVILEGES;
 ```
+
+### Google Generative AI Setup
+
+1. Crear proyecto en [Google Cloud Console](https://console.cloud.google.com/)
+2. Habilitar Generative AI API
+3. Crear API Key en "Credentials"
+4. Configurar facturación (requerida para uso en producción)
+5. Agregar la API key al archivo `.env`
 
 ## Desarrollo
 
