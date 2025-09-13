@@ -1,0 +1,442 @@
+import { Request, Response } from 'express';
+import multer from 'multer';
+import { GoogleAIService } from '../services/GoogleAIService';
+import { RateLimitService } from '../services/RateLimitService';
+import { ImageProcessor } from '../services/ImageProcessor';
+import { Generation } from '../models/Generation';
+import { AuthenticatedRequest } from '../middleware/AuthMiddleware';
+import { GenerationOptions } from '../types/google-ai';
+
+/**
+ * Controlador para la generación de imágenes con Google AI
+ * Maneja el flujo completo: validación, rate limiting, procesamiento y generación
+ */
+export class GenerationController {
+  private googleAI: GoogleAIService;
+  private imageProcessor: ImageProcessor;
+
+  constructor() {
+    // Inicializar servicios
+    this.googleAI = new GoogleAIService({
+      apiKey: process.env.GOOGLE_AI_API_KEY!
+    });
+    this.imageProcessor = new ImageProcessor();
+  }
+
+  /**
+   * POST /generate/image
+   * Endpoint principal para generar imágenes con IA
+   */
+  async generateImage(req: Request, res: Response): Promise<void> {
+    const startTime = Date.now();
+
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { license, licenseId } = authReq;
+
+      if (!license || !licenseId) {
+        res.status(401).json({
+          error: 'AUTH_001',
+          message: 'Authentication required',
+          code: 'MISSING_LICENSE'
+        });
+        return;
+      }
+
+      // Validar archivos de imagen
+      const files = req.files as { [fieldname: string]: any[] };
+      const userImageFile = files?.userImage?.[0];
+      const productImageFile = files?.productImage?.[0];
+
+      if (!userImageFile || !productImageFile) {
+        res.status(400).json({
+          error: 'IMG_001',
+          message: 'Both user image and product image are required',
+          code: 'MISSING_IMAGES',
+          required: ['userImage', 'productImage']
+        });
+        return;
+      }
+
+      // Verificar límites de rate limiting
+      const rateLimitCheck = await RateLimitService.checkLimits(licenseId);
+      if (!rateLimitCheck.allowed) {
+        res.status(429).json({
+          error: 'LIMIT_001',
+          message: rateLimitCheck.reason || 'Rate limit exceeded',
+          code: 'RATE_LIMIT_EXCEEDED',
+          details: {
+            currentUsage: rateLimitCheck.currentUsage,
+            monthlyLimit: rateLimitCheck.monthlyLimit,
+            remainingGenerations: rateLimitCheck.remainingGenerations,
+            resetDate: rateLimitCheck.resetDate,
+            retryAfterMs: rateLimitCheck.remainingTimeMs
+          }
+        });
+        return;
+      }
+
+      // Validar y procesar imágenes
+      const userImageValidation = await this.imageProcessor.validateImage(userImageFile.buffer);
+      if (!userImageValidation.valid) {
+        res.status(400).json({
+          error: 'IMG_001',
+          message: 'Invalid user image',
+          code: 'INVALID_USER_IMAGE',
+          errors: userImageValidation.errors
+        });
+        return;
+      }
+
+      const productImageValidation = await this.imageProcessor.validateImage(productImageFile.buffer);
+      if (!productImageValidation.valid) {
+        res.status(400).json({
+          error: 'IMG_001',
+          message: 'Invalid product image',
+          code: 'INVALID_PRODUCT_IMAGE',
+          errors: productImageValidation.errors
+        });
+        return;
+      }
+
+      // Crear registro de generación
+      const generation = await Generation.create({
+        license_id: licenseId,
+        product_id: req.body.productId || 'unknown',
+        user_image_hash: this.generateImageHash(userImageFile.buffer),
+        product_image_hash: this.generateImageHash(productImageFile.buffer),
+        status: 'processing'
+      });
+
+      // Procesar imágenes para optimizar costos de API
+      const processedUserImage = await this.imageProcessor.compressForAPI(userImageFile.buffer);
+      const processedProductImage = await this.imageProcessor.compressForAPI(productImageFile.buffer);
+
+      if (!processedUserImage.success || !processedProductImage.success) {
+        await generation.update({ status: 'failed' });
+        res.status(500).json({
+          error: 'IMG_003',
+          message: 'Failed to process images',
+          code: 'IMAGE_PROCESSING_FAILED'
+        });
+        return;
+      }
+
+      // Preparar opciones de generación
+      const generationOptions: GenerationOptions = {
+        style: req.body.style || 'professional',
+        quality: req.body.quality || 'high',
+        productType: req.body.productType || 'automático'
+      };
+
+      // Generar imagen con Google AI (flujo de dos pasos)
+      const result = await this.googleAI.generateImage(
+        processedUserImage.processedImage!,
+        processedProductImage.processedImage!,
+        generationOptions
+      );
+
+      if (!result.success) {
+        await generation.update({
+          status: 'failed',
+          error_message: result.error
+        });
+
+        res.status(500).json({
+          error: 'GAI_001',
+          message: 'Image generation failed',
+          code: 'GOOGLE_AI_ERROR',
+          details: result.error
+        });
+        return;
+      }
+
+      // Actualizar registro con resultado exitoso
+      await generation.update({
+        status: 'completed',
+        result_image_url: result.imageUrl,
+        processing_time_ms: result.processingTime,
+        used_prompt: result.usedPrompt,
+        completed_at: new Date()
+      });
+
+      // Incrementar contadores de uso
+      await RateLimitService.incrementUsage(licenseId);
+
+      const totalTime = Date.now() - startTime;
+
+      // Respuesta exitosa
+      res.status(200).json({
+        success: true,
+        generationId: generation.id,
+        imageUrl: result.imageUrl,
+        processingTime: totalTime,
+        metadata: {
+          ...result.metadata,
+          compressionStats: {
+            userImage: {
+              originalSize: userImageFile.size,
+              processedSize: processedUserImage.processedImage!.length,
+              compressionRatio: processedUserImage.compressionRatio
+            },
+            productImage: {
+              originalSize: productImageFile.size,
+              processedSize: processedProductImage.processedImage!.length,
+              compressionRatio: processedProductImage.compressionRatio
+            }
+          }
+        },
+        usage: {
+          currentUsage: license.current_usage + 1,
+          monthlyLimit: license.monthly_limit,
+          remaining: license.monthly_limit - (license.current_usage + 1)
+        }
+      });
+
+    } catch (error) {
+      console.error('Generation error:', error);
+
+      const totalTime = Date.now() - startTime;
+
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Image generation failed',
+        code: 'GENERATION_INTERNAL_ERROR',
+        processingTime: totalTime,
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+      });
+    }
+  }
+
+  /**
+   * GET /generate/status/:id
+   * Consultar estado de una generación específica
+   */
+  async getGenerationStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { licenseId } = authReq;
+      const { id } = req.params;
+
+      if (!licenseId) {
+        res.status(401).json({
+          error: 'AUTH_001',
+          message: 'Authentication required',
+          code: 'MISSING_LICENSE'
+        });
+        return;
+      }
+
+      // Buscar generación por ID y licencia
+      const generation = await Generation.findOne({
+        where: {
+          id: parseInt(id),
+          license_id: licenseId
+        }
+      });
+
+      if (!generation) {
+        res.status(404).json({
+          error: 'NOT_FOUND',
+          message: 'Generation not found',
+          code: 'GENERATION_NOT_FOUND'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        id: generation.id,
+        status: generation.status,
+        productId: generation.product_id,
+        createdAt: generation.created_at,
+        completedAt: generation.completed_at,
+        processingTime: generation.processing_time_ms,
+        imageUrl: generation.result_image_url,
+        errorMessage: generation.error_message,
+        usedPrompt: generation.used_prompt
+      });
+
+    } catch (error) {
+      console.error('Get generation status error:', error);
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to get generation status',
+        code: 'STATUS_INTERNAL_ERROR'
+      });
+    }
+  }
+
+  /**
+   * GET /limits/current
+   * Consultar límites actuales de uso
+   */
+  async getCurrentLimits(req: Request, res: Response): Promise<void> {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { license, licenseId } = authReq;
+
+      if (!license || !licenseId) {
+        res.status(401).json({
+          error: 'AUTH_001',
+          message: 'Authentication required',
+          code: 'MISSING_LICENSE'
+        });
+        return;
+      }
+
+      // Obtener estadísticas de uso actuales
+      const usageStats = await RateLimitService.getUsageStats(licenseId);
+
+      if (!usageStats) {
+        res.status(404).json({
+          error: 'NOT_FOUND',
+          message: 'Usage statistics not found',
+          code: 'USAGE_STATS_NOT_FOUND'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        licenseType: license.type,
+        monthlyLimits: {
+          total: usageStats.monthlyLimit,
+          used: usageStats.currentUsage,
+          remaining: usageStats.remainingGenerations,
+          resetDate: usageStats.nextReset
+        },
+        rateLimits: {
+          seconds: usageStats.rateLimitSeconds,
+          timeUntilNextRequest: usageStats.timeUntilNextRequest,
+          lastRequest: usageStats.lastRequest
+        },
+        canGenerate: usageStats.remainingGenerations > 0 && usageStats.timeUntilNextRequest <= 0,
+        restrictions: {
+          maxProducts: RateLimitService.getLimitConfig(license.type).maxProducts,
+          imageMaxSizeKB: RateLimitService.getLimitConfig(license.type).imageMaxSizeKB
+        }
+      });
+
+    } catch (error) {
+      console.error('Get current limits error:', error);
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to get current limits',
+        code: 'LIMITS_INTERNAL_ERROR'
+      });
+    }
+  }
+
+  /**
+   * GET /auth/status
+   * Validar estado de autenticación y licencia
+   */
+  async getAuthStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const { license } = authReq;
+
+      if (!license) {
+        res.status(401).json({
+          error: 'AUTH_001',
+          message: 'Authentication required',
+          code: 'MISSING_LICENSE'
+        });
+        return;
+      }
+
+      // Verificar si la licencia necesita reset de uso
+      if (license.shouldResetUsage()) {
+        await license.resetMonthlyUsage();
+      }
+
+      res.status(200).json({
+        authenticated: true,
+        license: {
+          id: license.id,
+          type: license.type,
+          status: license.status,
+          domain: license.domain,
+          createdAt: license.created_at,
+          expiresAt: license.expires_at,
+          isExpired: license.isExpired(),
+          daysUntilExpiration: license.expires_at ? Math.ceil((license.expires_at.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null
+        },
+        usage: {
+          monthlyLimit: license.monthly_limit,
+          currentUsage: license.current_usage,
+          remaining: license.monthly_limit - license.current_usage,
+          lastReset: license.last_reset
+        },
+        features: {
+          canGenerate: license.current_usage < license.monthly_limit && license.status === 'active',
+          maxProducts: license.type === 'free' ? 3 : -1,
+          customization: license.type !== 'free',
+          priority: license.type === 'pro_premium'
+        }
+      });
+
+    } catch (error) {
+      console.error('Get auth status error:', error);
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to get authentication status',
+        code: 'AUTH_STATUS_INTERNAL_ERROR'
+      });
+    }
+  }
+
+  /**
+   * Configurar multer para manejo de archivos
+   */
+  static getMulterConfig(): multer.Multer {
+    const storage = multer.memoryStorage();
+
+    return multer({
+      storage,
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+        files: 2 // máximo 2 archivos (user + product image)
+      },
+      fileFilter: (req, file, cb) => {
+        // Validar tipos de archivo
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+        if (allowedMimes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error(`Invalid file type: ${file.mimetype}. Allowed types: ${allowedMimes.join(', ')}`));
+        }
+      }
+    });
+  }
+
+  /**
+   * Generar hash de imagen para tracking
+   */
+  private generateImageHash(imageBuffer: Buffer): string {
+    const crypto = require('crypto');
+    return crypto.createHash('sha256').update(imageBuffer).digest('hex').substring(0, 16);
+  }
+
+  /**
+   * Validar configuración del controlador
+   */
+  public validateConfiguration(): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (!process.env.GOOGLE_AI_API_KEY) {
+      errors.push('GOOGLE_AI_API_KEY environment variable is required');
+    }
+
+    // Validar configuración de Google AI
+    const googleAIValidation = this.googleAI.validateConfig();
+    if (!googleAIValidation.valid) {
+      errors.push(...googleAIValidation.errors.map(err => `Google AI: ${err}`));
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+}

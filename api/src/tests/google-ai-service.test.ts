@@ -17,13 +17,13 @@ jest.mock('@google/generative-ai', () => ({
 
 describe('GoogleAIService', () => {
   let googleAIService: GoogleAIService;
-  let imageProcessor: ImageProcessor;
+  // let imageProcessor: ImageProcessor; // Not used in current tests
 
   beforeEach(() => {
     googleAIService = new GoogleAIService({
       apiKey: 'test-api-key'
     });
-    imageProcessor = new ImageProcessor();
+    // imageProcessor = new ImageProcessor(); // Not used in current tests
   });
 
   describe('Configuration Validation', () => {

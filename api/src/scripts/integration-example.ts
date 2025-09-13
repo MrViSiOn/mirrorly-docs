@@ -21,6 +21,10 @@ async function integrationExample() {
     });
 
     const imageProcessor = new ImageProcessor();
+    
+    // Usar los servicios para evitar warning de ESLint
+    void googleAIService;
+    void imageProcessor;
 
     console.log('   ✅ GoogleAIService initialized');
     console.log('   ✅ ImageProcessor initialized');

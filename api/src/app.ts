@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './config';
 import { initializeModels } from './models';
+import apiRoutes from './routes';
 
 // Load environment variables
 dotenv.config();
@@ -34,13 +35,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Basic route
+// API routes
+app.use('/v1', apiRoutes);
+
+// Basic route (redirect to API info)
 app.get('/', (req, res) => {
-  res.json({
-    message: 'Mirrorly API Server',
-    version: '1.0.0',
-    status: 'Running'
-  });
+  res.redirect('/v1');
 });
 
 // 404 handler

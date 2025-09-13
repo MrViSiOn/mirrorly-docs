@@ -2,11 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   GenerationOptions,
   GenerationResult,
-  GenerationMetadata,
   PromptAnalysisResult,
-  ImageAnalysisInput,
   GoogleAIConfig,
-  AIModelResponse,
   GenerationStep
 } from '../types/google-ai';
 
@@ -184,7 +181,7 @@ export class GoogleAIService {
     const finalPrompt = this.buildFinalPrompt(optimizedPrompt, options);
 
     try {
-      const result = await this.executeWithRetry(async () => {
+      await this.executeWithRetry(async () => {
         return await this.visionModel.generateContent([finalPrompt, ...imageParts]);
       });
 
