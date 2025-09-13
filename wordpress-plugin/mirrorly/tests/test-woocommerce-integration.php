@@ -277,7 +277,7 @@ class Test_WooCommerce_Integration extends Mirrorly_Test_Case {
 
 		Mirrorly_Test_Helpers::enable_mirrorly_for_product( $this->product_id );
 
-		global $product as $global_product;
+		global $product;
 		$global_product = $product;
 
 		ob_start();
@@ -314,7 +314,7 @@ class Test_WooCommerce_Integration extends Mirrorly_Test_Case {
 		// Test that pricing doesn't affect Mirrorly functionality
 		Mirrorly_Test_Helpers::enable_mirrorly_for_product( $this->product_id );
 
-		global $product as $global_product;
+		global $product;
 		$global_product = $product;
 
 		ob_start();
@@ -378,7 +378,7 @@ class Test_WooCommerce_Integration extends Mirrorly_Test_Case {
 		$found_product = false;
 		while ( $search_query->have_posts() ) {
 			$search_query->the_post();
-			if ( get_the_ID() == $this->product_id ) {
+			if ( $this->product_id === get_the_ID() ) {
 				$found_product = true;
 				break;
 			}

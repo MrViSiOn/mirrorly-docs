@@ -1,6 +1,8 @@
 <?php
 /**
  * Admin Stats Template
+ *
+ * @package Mirrorly
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -9,19 +11,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="wrap">
-	<h1><?php _e( 'Estadísticas de Mirrorly', 'mirrorly' ); ?></h1>
+	<h1><?php esc_html_e( 'Estadísticas de Mirrorly', 'mirrorly' ); ?></h1>
 
 	<div class="mirrorly-stats-grid">
 		<div class="mirrorly-stats-main">
 
 			<!-- Usage Overview -->
 			<div class="mirrorly-stats-card">
-				<h2><?php _e( 'Resumen de Uso', 'mirrorly' ); ?></h2>
+				<h2><?php esc_html_e( 'Resumen de Uso', 'mirrorly' ); ?></h2>
 
 				<?php if ( is_wp_error( $usage_stats ) ) : ?>
 					<div class="mirrorly-error-message">
 						<p><?php echo esc_html( $usage_stats->get_error_message() ); ?></p>
-						<p><a href="<?php echo admin_url( 'admin.php?page=mirrorly-settings' ); ?>"><?php _e( 'Verificar configuración', 'mirrorly' ); ?></a></p>
+						<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=mirrorly-settings' ) ); ?>"><?php esc_html_e( 'Verificar configuración', 'mirrorly' ); ?></a></p>
 					</div>
 				<?php else : ?>
 					<div class="mirrorly-usage-metrics">
@@ -29,24 +31,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<div class="mirrorly-metric-value">
 								<?php echo isset( $usage_stats['currentUsage'] ) ? esc_html( $usage_stats['currentUsage'] ) : '0'; ?>
 							</div>
-							<div class="mirrorly-metric-label"><?php _e( 'Generaciones este mes', 'mirrorly' ); ?></div>
+							<div class="mirrorly-metric-label"><?php esc_html_e( 'Generaciones este mes', 'mirrorly' ); ?></div>
 						</div>
 
 						<div class="mirrorly-metric">
 							<div class="mirrorly-metric-value">
 								<?php
 								$remaining = $license->get_remaining_generations();
-								echo $remaining === 'unlimited' ? '∞' : esc_html( $remaining );
+								echo 'unlimited' === $remaining ? '∞' : esc_html( $remaining );
 								?>
 							</div>
-							<div class="mirrorly-metric-label"><?php _e( 'Generaciones restantes', 'mirrorly' ); ?></div>
+							<div class="mirrorly-metric-label"><?php esc_html_e( 'Generaciones restantes', 'mirrorly' ); ?></div>
 						</div>
 
 						<div class="mirrorly-metric">
 							<div class="mirrorly-metric-value">
 								<?php echo isset( $usage_stats['totalGenerations'] ) ? esc_html( $usage_stats['totalGenerations'] ) : '0'; ?>
 							</div>
-							<div class="mirrorly-metric-label"><?php _e( 'Total generaciones', 'mirrorly' ); ?></div>
+							<div class="mirrorly-metric-label"><?php esc_html_e( 'Total generaciones', 'mirrorly' ); ?></div>
 						</div>
 
 						<div class="mirrorly-metric">
@@ -54,14 +56,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								$license_status = $license->get_license_status();
 								$monthly_limit  = $license_status['limits']['monthly_generations'];
-								echo $monthly_limit === -1 ? '∞' : esc_html( $monthly_limit );
+								echo -1 === $monthly_limit ? '∞' : esc_html( $monthly_limit );
 								?>
 							</div>
-							<div class="mirrorly-metric-label"><?php _e( 'Límite mensual', 'mirrorly' ); ?></div>
+							<div class="mirrorly-metric-label"><?php esc_html_e( 'Límite mensual', 'mirrorly' ); ?></div>
 						</div>
 					</div>
 
-					<?php if ( isset( $usage_stats['currentUsage'] ) && $license_status['limits']['monthly_generations'] !== -1 ) : ?>
+					<?php if ( isset( $usage_stats['currentUsage'] ) && -1 !== $license_status['limits']['monthly_generations'] ) : ?>
 						<div class="mirrorly-usage-bar">
 							<div class="mirrorly-usage-progress">
 								<?php
@@ -71,7 +73,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<div class="mirrorly-usage-fill" style="width: <?php echo esc_attr( $percentage ); ?>%"></div>
 							</div>
 							<div class="mirrorly-usage-text">
-								<?php printf( __( '%d%% del límite mensual utilizado', 'mirrorly' ), round( $percentage ) ); ?>
+								<?php
+								/* translators: %d: Percentage of monthly limit used */
+								printf( esc_html__( '%d%% del límite mensual utilizado', 'mirrorly' ), esc_html( round( $percentage ) ) );
+								?>
 							</div>
 						</div>
 					<?php endif; ?>
@@ -80,7 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<!-- Recent Generations -->
 			<div class="mirrorly-stats-card">
-				<h2><?php _e( 'Generaciones Recientes', 'mirrorly' ); ?></h2>
+				<h2><?php esc_html_e( 'Generaciones Recientes', 'mirrorly' ); ?></h2>
 
 				<?php
 				global $wpdb;
@@ -88,29 +93,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				$recent_generations = $wpdb->get_results(
 					$wpdb->prepare(
-						"
-                    SELECT g.*, p.post_title as product_name
-                    FROM {$table_name} g
+						"SELECT g.*, p.post_title as product_name
+                    FROM {$wpdb->prefix}mirrorly_generations g
                     LEFT JOIN {$wpdb->posts} p ON g.product_id = p.ID
                     ORDER BY g.created_at DESC
-                    LIMIT %d
-                ",
+                    LIMIT %d",
 						10
 					)
 				);
 				?>
 
 				<?php if ( empty( $recent_generations ) ) : ?>
-					<p class="mirrorly-no-data"><?php _e( 'No hay generaciones recientes.', 'mirrorly' ); ?></p>
+					<p class="mirrorly-no-data"><?php esc_html_e( 'No hay generaciones recientes.', 'mirrorly' ); ?></p>
 				<?php else : ?>
 					<div class="mirrorly-generations-table">
 						<table class="wp-list-table widefat fixed striped">
 							<thead>
 								<tr>
-									<th><?php _e( 'Producto', 'mirrorly' ); ?></th>
-									<th><?php _e( 'Estado', 'mirrorly' ); ?></th>
-									<th><?php _e( 'Fecha', 'mirrorly' ); ?></th>
-									<th><?php _e( 'Usuario', 'mirrorly' ); ?></th>
+									<th><?php esc_html_e( 'Producto', 'mirrorly' ); ?></th>
+									<th><?php esc_html_e( 'Estado', 'mirrorly' ); ?></th>
+									<th><?php esc_html_e( 'Fecha', 'mirrorly' ); ?></th>
+									<th><?php esc_html_e( 'Usuario', 'mirrorly' ); ?></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -118,11 +121,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<tr>
 										<td>
 											<?php if ( $generation->product_name ) : ?>
-												<a href="<?php echo get_edit_post_link( $generation->product_id ); ?>">
+												<a href="<?php echo esc_url( get_edit_post_link( $generation->product_id ) ); ?>">
 													<?php echo esc_html( $generation->product_name ); ?>
 												</a>
 											<?php else : ?>
-												<?php printf( __( 'Producto #%d', 'mirrorly' ), $generation->product_id ); ?>
+												<?php
+												/* translators: %d: Product ID */
+												printf( esc_html__( 'Producto #%d', 'mirrorly' ), esc_html( $generation->product_id ) );
+												?>
 											<?php endif; ?>
 										</td>
 										<td>
@@ -130,16 +136,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 												<?php
 												switch ( $generation->status ) {
 													case 'completed':
-														_e( 'Completado', 'mirrorly' );
+														esc_html_e( 'Completado', 'mirrorly' );
 														break;
 													case 'failed':
-														_e( 'Fallido', 'mirrorly' );
+														esc_html_e( 'Fallido', 'mirrorly' );
 														break;
 													case 'processing':
-														_e( 'Procesando', 'mirrorly' );
+														esc_html_e( 'Procesando', 'mirrorly' );
 														break;
 													default:
-														_e( 'Pendiente', 'mirrorly' );
+														esc_html_e( 'Pendiente', 'mirrorly' );
 												}
 												?>
 											</span>
@@ -151,9 +157,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 											<?php
 											if ( $generation->user_id ) {
 												$user = get_user_by( 'id', $generation->user_id );
-												echo $user ? esc_html( $user->display_name ) : __( 'Usuario eliminado', 'mirrorly' );
+												echo $user ? esc_html( $user->display_name ) : esc_html__( 'Usuario eliminado', 'mirrorly' );
 											} else {
-												_e( 'Invitado', 'mirrorly' );
+												esc_html_e( 'Invitado', 'mirrorly' );
 											}
 											?>
 										</td>
@@ -167,24 +173,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<!-- Popular Products -->
 			<div class="mirrorly-stats-card">
-				<h2><?php _e( 'Productos Más Populares', 'mirrorly' ); ?></h2>
+				<h2><?php esc_html_e( 'Productos Más Populares', 'mirrorly' ); ?></h2>
 
 				<?php
 				$popular_products = $wpdb->get_results(
-					"
-                    SELECT g.product_id, p.post_title as product_name, COUNT(*) as generation_count
-                    FROM {$table_name} g
+					"SELECT g.product_id, p.post_title as product_name, COUNT(*) as generation_count
+                    FROM {$wpdb->prefix}mirrorly_generations g
                     LEFT JOIN {$wpdb->posts} p ON g.product_id = p.ID
                     WHERE g.status = 'completed'
                     GROUP BY g.product_id
                     ORDER BY generation_count DESC
-                    LIMIT 5
-                "
+                    LIMIT 5"
 				);
 				?>
 
 				<?php if ( empty( $popular_products ) ) : ?>
-					<p class="mirrorly-no-data"><?php _e( 'No hay datos de productos populares aún.', 'mirrorly' ); ?></p>
+					<p class="mirrorly-no-data"><?php esc_html_e( 'No hay datos de productos populares aún.', 'mirrorly' ); ?></p>
 				<?php else : ?>
 					<div class="mirrorly-popular-products">
 						<?php foreach ( $popular_products as $product ) : ?>
@@ -192,16 +196,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<div class="mirrorly-product-info">
 									<strong>
 										<?php if ( $product->product_name ) : ?>
-											<a href="<?php echo get_edit_post_link( $product->product_id ); ?>">
+											<a href="<?php echo esc_url( get_edit_post_link( $product->product_id ) ); ?>">
 												<?php echo esc_html( $product->product_name ); ?>
 											</a>
 										<?php else : ?>
-											<?php printf( __( 'Producto #%d', 'mirrorly' ), $product->product_id ); ?>
+											<?php
+											/* translators: %d: Product ID */
+											printf( esc_html__( 'Producto #%d', 'mirrorly' ), esc_html( $product->product_id ) );
+											?>
 										<?php endif; ?>
 									</strong>
 								</div>
 								<div class="mirrorly-product-count">
-									<?php printf( _n( '%d generación', '%d generaciones', $product->generation_count, 'mirrorly' ), $product->generation_count ); ?>
+									<?php
+									/* translators: %d: Number of generations */
+									printf( esc_html( _n( '%d generación', '%d generaciones', $product->generation_count, 'mirrorly' ) ), esc_html( $product->generation_count ) );
+									?>
 								</div>
 							</div>
 						<?php endforeach; ?>
@@ -213,47 +223,47 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="mirrorly-stats-sidebar">
 			<!-- License Info -->
 			<div class="mirrorly-stats-card">
-				<h3><?php _e( 'Información de Licencia', 'mirrorly' ); ?></h3>
+				<h3><?php esc_html_e( 'Información de Licencia', 'mirrorly' ); ?></h3>
 
 				<?php $license_status = $license->get_license_status(); ?>
 
 				<div class="mirrorly-license-info">
 					<p>
-						<strong><?php _e( 'Tipo:', 'mirrorly' ); ?></strong>
+						<strong><?php esc_html_e( 'Tipo:', 'mirrorly' ); ?></strong>
 						<span class="mirrorly-license-type mirrorly-license-<?php echo esc_attr( $license_status['type'] ); ?>">
-							<?php echo $license_status['is_pro'] ? __( 'PRO', 'mirrorly' ) : __( 'FREE', 'mirrorly' ); ?>
+							<?php echo $license_status['is_pro'] ? esc_html__( 'PRO', 'mirrorly' ) : esc_html__( 'FREE', 'mirrorly' ); ?>
 						</span>
 					</p>
 
 					<div class="mirrorly-license-limits">
-						<h4><?php _e( 'Límites actuales:', 'mirrorly' ); ?></h4>
+						<h4><?php esc_html_e( 'Límites actuales:', 'mirrorly' ); ?></h4>
 						<ul>
 							<li>
-								<strong><?php _e( 'Generaciones mensuales:', 'mirrorly' ); ?></strong>
+								<strong><?php esc_html_e( 'Generaciones mensuales:', 'mirrorly' ); ?></strong>
 								<?php
 								$monthly_limit = $license_status['limits']['monthly_generations'];
-								echo $monthly_limit === -1 ? __( 'Ilimitadas', 'mirrorly' ) : $monthly_limit;
+								echo -1 === $monthly_limit ? esc_html__( 'Ilimitadas', 'mirrorly' ) : esc_html( $monthly_limit );
 								?>
 							</li>
 							<li>
-								<strong><?php _e( 'Productos máximos:', 'mirrorly' ); ?></strong>
+								<strong><?php esc_html_e( 'Productos máximos:', 'mirrorly' ); ?></strong>
 								<?php
 								$max_products = $license_status['limits']['max_products'];
-								echo $max_products === -1 ? __( 'Ilimitados', 'mirrorly' ) : $max_products;
+								echo -1 === $max_products ? esc_html__( 'Ilimitados', 'mirrorly' ) : esc_html( $max_products );
 								?>
 							</li>
 							<li>
-								<strong><?php _e( 'Personalización:', 'mirrorly' ); ?></strong>
-								<?php echo $license_status['limits']['custom_styling'] ? __( 'Sí', 'mirrorly' ) : __( 'No', 'mirrorly' ); ?>
+								<strong><?php esc_html_e( 'Personalización:', 'mirrorly' ); ?></strong>
+								<?php echo $license_status['limits']['custom_styling'] ? esc_html__( 'Sí', 'mirrorly' ) : esc_html__( 'No', 'mirrorly' ); ?>
 							</li>
 						</ul>
 					</div>
 
 					<?php if ( ! $license_status['is_pro'] ) : ?>
 						<div class="mirrorly-upgrade-prompt">
-							<p><?php _e( '¿Necesitas más generaciones?', 'mirrorly' ); ?></p>
-							<a href="<?php echo admin_url( 'admin.php?page=mirrorly-settings' ); ?>" class="button button-primary">
-								<?php _e( 'Actualizar a PRO', 'mirrorly' ); ?>
+							<p><?php esc_html_e( '¿Necesitas más generaciones?', 'mirrorly' ); ?></p>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=mirrorly-settings' ) ); ?>" class="button button-primary">
+								<?php esc_html_e( 'Actualizar a PRO', 'mirrorly' ); ?>
 							</a>
 						</div>
 					<?php endif; ?>
@@ -262,30 +272,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<!-- Quick Actions -->
 			<div class="mirrorly-stats-card">
-				<h3><?php _e( 'Acciones Rápidas', 'mirrorly' ); ?></h3>
+				<h3><?php esc_html_e( 'Acciones Rápidas', 'mirrorly' ); ?></h3>
 
 				<div class="mirrorly-quick-actions">
-					<a href="<?php echo admin_url( 'admin.php?page=mirrorly-settings' ); ?>" class="button">
-						<?php _e( 'Configuración', 'mirrorly' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mirrorly-settings' ) ); ?>" class="button">
+						<?php esc_html_e( 'Configuración', 'mirrorly' ); ?>
 					</a>
 
-					<a href="<?php echo admin_url( 'edit.php?post_type=product' ); ?>" class="button">
-						<?php _e( 'Gestionar Productos', 'mirrorly' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" class="button">
+						<?php esc_html_e( 'Gestionar Productos', 'mirrorly' ); ?>
 					</a>
 
 					<a href="https://docs.mirrorly.com" target="_blank" class="button">
-						<?php _e( 'Documentación', 'mirrorly' ); ?>
+						<?php esc_html_e( 'Documentación', 'mirrorly' ); ?>
 					</a>
 
 					<a href="https://mirrorly.com/support" target="_blank" class="button">
-						<?php _e( 'Soporte', 'mirrorly' ); ?>
+						<?php esc_html_e( 'Soporte', 'mirrorly' ); ?>
 					</a>
 				</div>
 			</div>
 
 			<!-- System Status -->
 			<div class="mirrorly-stats-card">
-				<h3><?php _e( 'Estado del Sistema', 'mirrorly' ); ?></h3>
+				<h3><?php esc_html_e( 'Estado del Sistema', 'mirrorly' ); ?></h3>
 
 				<div class="mirrorly-system-status">
 					<?php
@@ -294,21 +304,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 					?>
 
 					<div class="mirrorly-status-item">
-						<span class="mirrorly-status-label"><?php _e( 'Conexión API:', 'mirrorly' ); ?></span>
+						<span class="mirrorly-status-label"><?php esc_html_e( 'Conexión API:', 'mirrorly' ); ?></span>
 						<span class="mirrorly-status-value mirrorly-status-<?php echo is_wp_error( $connection_test ) ? 'error' : 'success'; ?>">
-							<?php echo is_wp_error( $connection_test ) ? __( 'Error', 'mirrorly' ) : __( 'OK', 'mirrorly' ); ?>
+							<?php echo is_wp_error( $connection_test ) ? esc_html__( 'Error', 'mirrorly' ) : esc_html__( 'OK', 'mirrorly' ); ?>
 						</span>
 					</div>
 
 					<div class="mirrorly-status-item">
-						<span class="mirrorly-status-label"><?php _e( 'WooCommerce:', 'mirrorly' ); ?></span>
+						<span class="mirrorly-status-label"><?php esc_html_e( 'WooCommerce:', 'mirrorly' ); ?></span>
 						<span class="mirrorly-status-value mirrorly-status-<?php echo class_exists( 'WooCommerce' ) ? 'success' : 'error'; ?>">
-							<?php echo class_exists( 'WooCommerce' ) ? __( 'Activo', 'mirrorly' ) : __( 'Inactivo', 'mirrorly' ); ?>
+							<?php echo class_exists( 'WooCommerce' ) ? esc_html__( 'Activo', 'mirrorly' ) : esc_html__( 'Inactivo', 'mirrorly' ); ?>
 						</span>
 					</div>
 
 					<div class="mirrorly-status-item">
-						<span class="mirrorly-status-label"><?php _e( 'Versión Plugin:', 'mirrorly' ); ?></span>
+						<span class="mirrorly-status-label"><?php esc_html_e( 'Versión Plugin:', 'mirrorly' ); ?></span>
 						<span class="mirrorly-status-value"><?php echo esc_html( MIRRORLY_VERSION ); ?></span>
 					</div>
 				</div>

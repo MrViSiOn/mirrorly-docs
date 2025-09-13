@@ -9,28 +9,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="wrap">
-	<h1><?php _e( 'Configuración de Mirrorly', 'mirrorly' ); ?></h1>
+	<h1><?php esc_html_e( 'Configuración de Mirrorly', 'mirrorly' ); ?></h1>
 
 	<div class="mirrorly-admin-header">
 		<div class="mirrorly-license-status">
 			<?php if ( $license_status['is_pro'] ) : ?>
 				<div class="mirrorly-status-badge pro">
 					<span class="dashicons dashicons-yes-alt"></span>
-					<?php _e( 'Licencia PRO Activa', 'mirrorly' ); ?>
+					<?php esc_html_e( 'Licencia PRO Activa', 'mirrorly' ); ?>
 				</div>
 			<?php else : ?>
 				<div class="mirrorly-status-badge free">
 					<span class="dashicons dashicons-info"></span>
-					<?php _e( 'Versión FREE', 'mirrorly' ); ?>
+					<?php esc_html_e( 'Versión FREE', 'mirrorly' ); ?>
 				</div>
 			<?php endif; ?>
 
 			<div class="mirrorly-usage-summary">
 				<p>
-					<strong><?php _e( 'Generaciones restantes:', 'mirrorly' ); ?></strong>
+					<strong><?php esc_html_e( 'Generaciones restantes:', 'mirrorly' ); ?></strong>
 					<?php
 					if ( $license_status['remaining_generations'] === 'unlimited' ) {
-						_e( 'Ilimitadas', 'mirrorly' );
+						esc_html_e( 'Ilimitadas', 'mirrorly' );
 					} else {
 						echo esc_html( $license_status['remaining_generations'] );
 					}
@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( ! $license_status['is_pro'] ) : ?>
 					<p class="mirrorly-upgrade-prompt">
 						<a href="#license_key" class="button button-primary">
-							<?php _e( 'Actualizar a PRO', 'mirrorly' ); ?>
+							<?php esc_html_e( 'Actualizar a PRO', 'mirrorly' ); ?>
 						</a>
 					</p>
 				<?php endif; ?>
@@ -61,7 +61,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<tbody>
 						<tr>
 							<th scope="row">
-								<label for="license_key"><?php _e( 'Clave de Licencia PRO', 'mirrorly' ); ?></label>
+								<label for="license_key"><?php esc_html_e( 'Clave de Licencia PRO', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
@@ -70,15 +70,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 								?>
 								<input type="text" id="license_key" name="mirrorly_options[license_key]"
 										value="<?php echo esc_attr( $license_key ); ?>" class="regular-text"
-										placeholder="<?php _e( 'Ingresa tu clave de licencia PRO', 'mirrorly' ); ?>" />
+										placeholder="<?php esc_attr_e( 'Ingresa tu clave de licencia PRO', 'mirrorly' ); ?>" />
 								<button type="button" id="validate-license" class="button">
-									<?php _e( 'Validar', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Validar', 'mirrorly' ); ?>
 								</button>
 								<p class="description">
-									<?php _e( 'Ingresa tu clave de licencia PRO para desbloquear todas las funciones. Déjalo vacío para usar la versión FREE.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Ingresa tu clave de licencia PRO para desbloquear todas las funciones. Déjalo vacío para usar la versión FREE.', 'mirrorly' ); ?>
 									<br>
 									<a href="https://mirrorly.com/pricing" target="_blank">
-										<?php _e( '¿No tienes una licencia PRO? Consigue una aquí', 'mirrorly' ); ?>
+										<?php esc_html_e( '¿No tienes una licencia PRO? Consigue una aquí', 'mirrorly' ); ?>
 									</a>
 								</p>
 								<div id="license-validation-result"></div>
@@ -87,7 +87,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<tr>
 							<th scope="row">
-								<label for="api_key"><?php _e( 'API Key', 'mirrorly' ); ?></label>
+								<label for="api_key"><?php esc_html_e( 'API Key', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
@@ -96,13 +96,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<input type="text" id="api_key" name="mirrorly_options[api_key]"
 										value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" readonly />
 								<button type="button" id="test-connection" class="button">
-									<?php _e( 'Probar Conexión', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Probar Conexión', 'mirrorly' ); ?>
 								</button>
 								<p class="description">
-									<?php _e( 'Tu API key se genera automáticamente al registrar una licencia.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Tu API key se genera automáticamente al registrar una licencia.', 'mirrorly' ); ?>
 									<br>
 									<a href="https://docs.mirrorly.com/setup" target="_blank">
-										<?php _e( 'Ver tutorial de configuración completo', 'mirrorly' ); ?>
+										<?php esc_html_e( 'Ver tutorial de configuración completo', 'mirrorly' ); ?>
 									</a>
 								</p>
 								<div id="connection-test-result"></div>
@@ -111,7 +111,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<tr>
 							<th scope="row">
-								<label for="custom_message"><?php _e( 'Mensaje Personalizado', 'mirrorly' ); ?></label>
+								<label for="custom_message"><?php esc_html_e( 'Mensaje Personalizado', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
@@ -120,14 +120,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<textarea id="custom_message" name="mirrorly_options[custom_message]"
 											rows="3" class="large-text"><?php echo esc_textarea( $custom_message ); ?></textarea>
 								<p class="description">
-									<?php _e( 'Mensaje que aparece en el widget de productos. Puedes personalizarlo por producto individual.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Mensaje que aparece en el widget de productos. Puedes personalizarlo por producto individual.', 'mirrorly' ); ?>
 								</p>
 							</td>
 						</tr>
 
 						<tr>
 							<th scope="row">
-								<label for="widget_position"><?php _e( 'Posición del Widget', 'mirrorly' ); ?></label>
+								<label for="widget_position"><?php esc_html_e( 'Posición del Widget', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
@@ -147,7 +147,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<?php endforeach; ?>
 								</select>
 								<p class="description">
-									<?php _e( 'Dónde mostrar el widget de Mirrorly en las páginas de producto.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Dónde mostrar el widget de Mirrorly en las páginas de producto.', 'mirrorly' ); ?>
 								</p>
 							</td>
 						</tr>

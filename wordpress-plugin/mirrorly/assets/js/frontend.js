@@ -58,7 +58,7 @@
 				// Add animation class after a small delay to ensure proper rendering
 				setTimeout(
 					() => {
-						this.$widget.addClass( 'animation-' + mirrorly_frontend.widget_animation );
+                    this.$widget.addClass( 'animation-' + mirrorly_frontend.widget_animation );
 					},
 					100
 				);
@@ -72,12 +72,12 @@
 			if ('IntersectionObserver' in window && this.$widget.length) {
 				const observer = new IntersectionObserver(
 					(entries) => {
-						entries.forEach(
+                    entries.forEach(
 							entry => {
-								if (entry.isIntersecting) {
-									// Widget is visible, can perform expensive operations
-									this.$widget.addClass( 'visible' );
-								}
+                            if (entry.isIntersecting) {
+                                // Widget is visible, can perform expensive operations
+                                this.$widget.addClass( 'visible' );
+                            }
 							}
 						);
 					},
@@ -96,8 +96,8 @@
 			if (mirrorly_frontend.preload_images) {
 				mirrorly_frontend.preload_images.forEach(
 					src => {
-						const img = new Image();
-						img.src   = src;
+                    const img = new Image();
+                    img.src   = src;
 					}
 				);
 			}
@@ -111,10 +111,10 @@
 			this.$uploadArea.on(
 				'keydown',
 				(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.preventDefault();
-						this.$fileInput.click();
-					}
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.$fileInput.click();
+                }
 				}
 			);
 
@@ -122,9 +122,9 @@
 			$( document ).on(
 				'keydown',
 				(e) => {
-					if (e.key === 'Escape' && this.currentFile && ! this.isGenerating) {
-						this.resetToUpload();
-					}
+                if (e.key === 'Escape' && this.currentFile && ! this.isGenerating) {
+                    this.resetToUpload();
+                }
 				}
 			);
 		},
@@ -433,7 +433,7 @@
 				// Retry after delay
 				setTimeout(
 					() => {
-						this.generateImage();
+                    this.generateImage();
 					},
 					2000 * this.retryCount
 				); // Exponential backoff
@@ -454,15 +454,15 @@
 		 * Simulate progress for better UX
 		 */
 		simulateProgress: function () {
-			let progress   = 0;
-			const interval = setInterval(
+			let progress      = 0;
+			const interval    = setInterval(
 				() => {
-					progress  += Math.random() * 10;
-					if (progress > 70) {
-						clearInterval( interval );
-						return;
-					}
-					this.updateProgress( progress );
+                progress += Math.random() * 10;
+                if (progress > 70) {
+                    clearInterval( interval );
+                    return;
+                }
+                this.updateProgress( progress );
 				},
 				500
 			);
@@ -645,29 +645,29 @@
 			// Hide all sections with fade out
 			Object.values( sections ).forEach(
 				selector => {
-					const $element = $( selector );
-					if ($element.is( ':visible' )) {
-						$element.fadeOut( 200 );
-					}
+                const $element = $( selector );
+                if ($element.is( ':visible' )) {
+                    $element.fadeOut( 200 );
+                }
 				}
 			);
 
 			// Show requested section with fade in
 			setTimeout(
 				() => {
-					const targetSelector = sections[section];
-                if (targetSelector) {
-                    $( targetSelector ).fadeIn(
-                    300,
-                    () => {
-                        // Remove animating class after animation
-                        this.$widget.removeClass( 'animating' );
-                        // Focus management for accessibility
-                        this.manageFocus( section );
-                        }
-                        );
-                }
-                // Special handling for generation section
+                const targetSelector = sections[section];
+					if (targetSelector) {
+						$( targetSelector ).fadeIn(
+						300,
+						() => {
+							// Remove animating class after animation
+							this.$widget.removeClass( 'animating' );
+							// Focus management for accessibility
+							this.manageFocus( section );
+							}
+							);
+					}
+					// Special handling for generation section
 					if (['loading', 'result', 'error'].includes( section )) {
 						$( '#mirrorly-generation-section' ).show();
 					} else {
@@ -841,7 +841,7 @@
 				border - radius: 8px;
 				padding: 20px;
 				max - width: 400px;
-				width: 90 % ;
+				width: 90 %;
 				text - align: center;
 			}
 			.mirrorly - share - content h3 {
