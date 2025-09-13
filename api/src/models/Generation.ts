@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional, BelongsToGetAssociationMixin, Op } from 'sequelize';
-import sequelize from '../config/database';
+import sequelize from '../config/db';
 import { License } from './License';
 
 // Generation attributes interface

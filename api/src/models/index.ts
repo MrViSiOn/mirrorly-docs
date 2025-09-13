@@ -1,4 +1,4 @@
-import sequelize from '../config/database';
+import sequelize from '../config/db';
 import { License } from './License';
 import { Generation } from './Generation';
 import { RateLimit } from './RateLimit';

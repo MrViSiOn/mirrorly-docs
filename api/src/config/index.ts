@@ -1,4 +1,4 @@
-import sequelize, { testConnection, closeConnection } from './database';
+import sequelize, { testConnection, closeConnection } from './db';
 
 // Initialize database connection
 export const initializeDatabase = async (): Promise<void> => {
