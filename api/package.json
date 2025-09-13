@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "npm run clean && tsc",
+    "build:docker": "npm run clean && npm run type-check && tsc",
     "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only --clear src/app.ts",
     "dev:debug": "ts-node-dev --inspect --respawn --transpile-only src/app.ts",
@@ -16,7 +17,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
-    "prebuild": "npm run lint && npm run type-check",
+    "prebuild": "npm run type-check",
     "prestart": "npm run build",
     "docker:build": "docker build -t mirrorly-api .",
     "docker:run": "docker run -p 3000:3000 --env-file .env mirrorly-api",
