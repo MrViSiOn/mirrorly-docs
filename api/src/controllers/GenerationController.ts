@@ -150,7 +150,7 @@ export class GenerationController {
         // Log failed generation
         loggingService.logGeneration({
           generationId: generation.id.toString(),
-          licenseId: licenseId,
+          licenseId: String(licenseId),
           licenseType: license.type,
           imageSize: userImageFile.size + productImageFile.size,
           processingTime: Date.now() - startTime,
@@ -186,7 +186,7 @@ export class GenerationController {
       // Log successful generation
       loggingService.logGeneration({
         generationId: generation.id.toString(),
-        licenseId: licenseId,
+        licenseId: String(licenseId),
         licenseType: license.type,
         imageSize: userImageFile.size + productImageFile.size,
         processingTime: totalTime,
@@ -231,7 +231,7 @@ export class GenerationController {
         method: req.method,
         endpoint: req.originalUrl,
         processingTime: totalTime,
-        licenseId: (req as AuthenticatedRequest).licenseId
+        licenseId: String((req as AuthenticatedRequest).licenseId)
       });
 
       res.status(500).json({
@@ -296,7 +296,7 @@ export class GenerationController {
       loggingService.error('Failed to get generation status', error as Error, {
         requestId: req.id,
         generationId: req.params.id,
-        licenseId: (req as AuthenticatedRequest).licenseId
+        licenseId: String((req as AuthenticatedRequest).licenseId)
       });
 
       res.status(500).json({
@@ -360,7 +360,7 @@ export class GenerationController {
     } catch (error) {
       loggingService.error('Failed to get current limits', error as Error, {
         requestId: req.id,
-        licenseId: (req as AuthenticatedRequest).licenseId
+        licenseId: String((req as AuthenticatedRequest).licenseId)
       });
 
       res.status(500).json({
@@ -423,7 +423,7 @@ export class GenerationController {
     } catch (error) {
       loggingService.error('Failed to get authentication status', error as Error, {
         requestId: req.id,
-        licenseId: (req as AuthenticatedRequest).licenseId
+        licenseId: String((req as AuthenticatedRequest).licenseId)
       });
 
       res.status(500).json({

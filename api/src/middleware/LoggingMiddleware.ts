@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { loggingService } from '../services/LoggingService';
 
+import { License } from '../models/License';
+
 // Extend Request interface to include custom properties
 declare global {
   namespace Express {
@@ -9,7 +11,9 @@ declare global {
       id?: string;
       startTime?: number;
       user?: any;
-      license?: any;
+      license?: License;
+      cacheHit?: boolean;
+      rateLimitData?: any;
     }
   }
 }
@@ -29,7 +33,7 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
   });
 
   // Override res.end to capture response
-  const originalEnd = res.end;
+  const originalEnd = res.end.bind(res);
   res.end = function (chunk?: any, encoding?: any, cb?: any) {
     const responseTime = Date.now() - (req.startTime || Date.now());
 
@@ -37,8 +41,8 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
     loggingService.logRequest(req, res, responseTime);
 
     // Call original end method
-    originalEnd.call(this, chunk, encoding, cb);
-  };
+    return originalEnd(chunk, encoding, cb);
+  } as any;
 
   next();
 };
@@ -60,7 +64,7 @@ export const errorLoggingMiddleware = (
     userAgent: req.get('User-Agent'),
     ip: req.ip || req.connection?.remoteAddress,
     userId: req.user?.id,
-    licenseId: req.license?.id
+    licenseId: req.license?.id ? String(req.license.id) : undefined
   });
 
   next(err);
@@ -69,7 +73,7 @@ export const errorLoggingMiddleware = (
 // Middleware to log slow requests
 export const slowRequestMiddleware = (threshold: number = 5000) => {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const originalEnd = res.end;
+    const originalEnd = res.end.bind(res);
 
     res.end = function (chunk?: any, encoding?: any, cb?: any) {
       const responseTime = Date.now() - (req.startTime || Date.now());
@@ -85,8 +89,8 @@ export const slowRequestMiddleware = (threshold: number = 5000) => {
         });
       }
 
-      originalEnd.call(this, chunk, encoding, cb);
-    };
+      return originalEnd(chunk, encoding, cb);
+    } as any;
 
     next();
   };
@@ -110,7 +114,7 @@ export const usageTrackingMiddleware = (req: Request, res: Response, next: NextF
     timestamp: new Date(),
     userAgent: req.get('User-Agent'),
     userId: req.user?.id,
-    licenseId: req.license?.id
+    licenseId: req.license?.id ? String(req.license.id) : undefined
   });
 
   next();

@@ -19,6 +19,36 @@ export interface LogMetrics {
   googleAIModel?: string;
   promptLength?: number;
   success?: boolean;
+  // Additional properties used throughout the application
+  port?: number;
+  promise?: string;
+  domain?: string;
+  licenseKey?: string;
+  healthStatus?: string;
+  metricsCount?: number;
+  threshold?: number;
+  cacheKey?: string;
+  cacheHit?: boolean;
+  contentLength?: number;
+  dbCleanup?: any;
+  file?: string;
+  directory?: string;
+  totalOriginalSizeMB?: number;
+  defaultTTL?: number;
+  key?: string;
+  previousSize?: number;
+  expiredItems?: number;
+  evictedKey?: string;
+  table?: string;
+  slowQueriesFound?: number;
+  path?: string;
+  spaceSavedMB?: number;
+  totalFilesDeleted?: number;
+  filesProcessed?: number;
+  original?: string;
+  compressionRatio?: number;
+  projectPath?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface PerformanceMetrics {
@@ -42,9 +72,9 @@ export interface UsageMetrics {
 }
 
 class LoggingService {
-  private logger: winston.Logger;
-  private metricsLogger: winston.Logger;
-  private errorLogger: winston.Logger;
+  private logger!: winston.Logger;
+  private metricsLogger!: winston.Logger;
+  private errorLogger!: winston.Logger;
   private performanceMetrics: PerformanceMetrics[] = [];
   private usageMetrics: Map<string, UsageMetrics> = new Map();
 
@@ -220,9 +250,9 @@ class LoggingService {
   }
 
   // Rate limiting logging
-  public logRateLimit(licenseId: string, endpoint: string, exceeded: boolean): void {
+  public logRateLimit(licenseId: string | number, endpoint: string, exceeded: boolean): void {
     const meta: LogMetrics = {
-      licenseId,
+      licenseId: String(licenseId),
       endpoint,
       success: !exceeded
     };
@@ -235,9 +265,10 @@ class LoggingService {
   }
 
   // License validation logging
-  public logLicenseValidation(licenseId: string, domain: string, valid: boolean, reason?: string): void {
+  public logLicenseValidation(licenseId: string | number, domain: string, valid: boolean, reason?: string): void {
     const meta: LogMetrics = {
-      licenseId,
+      licenseId: String(licenseId),
+      domain,
       success: valid,
       error: reason
     };
@@ -315,7 +346,6 @@ class LoggingService {
     for (const [licenseId, metrics] of this.usageMetrics.entries()) {
       this.metricsLogger.info('Usage metrics', {
         type: 'usage',
-        licenseId,
         ...metrics
       });
     }
@@ -386,8 +416,8 @@ class LoggingService {
       pattern.test(error.message) || pattern.test(error.stack || '')
     );
 
-    const isCriticalStatus = meta?.statusCode && meta.statusCode >= 500;
-    const isHighFrequency = meta?.endpoint && this.getErrorFrequency(meta.endpoint) > 10;
+    const isCriticalStatus = Boolean(meta?.statusCode && meta.statusCode >= 500);
+    const isHighFrequency = Boolean(meta?.endpoint && this.getErrorFrequency(meta.endpoint) > 10);
 
     return isCriticalPattern || isCriticalStatus || isHighFrequency;
   }

@@ -80,7 +80,7 @@ async function testModels() {
     process.exit(1);
   } finally {
     // Close database connection
-    const { closeConnection } = await import('../config/database');
+    const { closeConnection } = await import('../config/database') as any;
     await closeConnection();
     process.exit(0);
   }

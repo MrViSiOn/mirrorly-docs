@@ -105,7 +105,7 @@ const startServer = async () => {
     if (process.env.NODE_ENV !== 'test') {
       app.listen(PORT, () => {
         loggingService.info('Mirrorly API Server started', {
-          port: PORT,
+          port: Number(PORT),
           environment: process.env.NODE_ENV || 'development',
           nodeVersion: process.version,
           pid: process.pid

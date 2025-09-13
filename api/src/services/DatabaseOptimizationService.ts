@@ -64,8 +64,8 @@ export class DatabaseOptimizationService {
   ): Promise<void> {
     try {
       // Check if index exists
-      const indexes = await this.queryInterface.showIndex(tableName);
-      const indexExists = indexes.some(index => index.name === indexName);
+      const indexes = await this.queryInterface.showIndex(tableName) as any[];
+      const indexExists = indexes.some((index: any) => index.name === indexName);
 
       if (!indexExists) {
         await this.queryInterface.addIndex(tableName, columns, {
@@ -110,7 +110,19 @@ export class DatabaseOptimizationService {
     recommendations: string[];
   }> {
     try {
-      const analysis = {
+      const analysis: {
+        slowQueries: Array<{
+          query: string;
+          executionTime: number;
+          suggestions: string[];
+        }>;
+        indexUsage: Array<{
+          table: string;
+          index: string;
+          usage: number;
+        }>;
+        recommendations: string[];
+      } = {
         slowQueries: [],
         indexUsage: [],
         recommendations: []
@@ -355,7 +367,24 @@ export class DatabaseOptimizationService {
     };
   }> {
     try {
-      const stats = {
+      const stats: {
+        tableStats: Array<{
+          table: string;
+          rows: number;
+          size: string;
+          indexes: number;
+        }>;
+        connectionStats: {
+          active: number;
+          idle: number;
+          total: number;
+        };
+        performance: {
+          avgQueryTime: number;
+          slowQueries: number;
+          cacheHitRate: number;
+        };
+      } = {
         tableStats: [],
         connectionStats: { active: 0, idle: 0, total: 0 },
         performance: { avgQueryTime: 0, slowQueries: 0, cacheHitRate: 0 }
@@ -373,7 +402,7 @@ export class DatabaseOptimizationService {
           const count = (result as any[])[0].count;
 
           // Get indexes for this table
-          const indexes = await this.queryInterface.showIndex(table);
+          const indexes = await this.queryInterface.showIndex(table) as any[];
 
           stats.tableStats.push({
             table,
@@ -387,8 +416,8 @@ export class DatabaseOptimizationService {
       }
 
       // Connection pool stats
-      if (this.sequelize.connectionManager && this.sequelize.connectionManager.pool) {
-        const pool = this.sequelize.connectionManager.pool as any;
+      if (this.sequelize.connectionManager && (this.sequelize.connectionManager as any).pool) {
+        const pool = (this.sequelize.connectionManager as any).pool;
         stats.connectionStats = {
           active: pool.used || 0,
           idle: pool.available || 0,

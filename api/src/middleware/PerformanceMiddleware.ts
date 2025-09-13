@@ -54,7 +54,8 @@ export const responseCacheMiddleware = (ttl: number = 5 * 60 * 1000) => {
       res.setHeader('X-Cache', 'HIT');
       res.setHeader('X-Cache-Key', cacheKey);
 
-      return res.json(cachedResponse);
+      res.json(cachedResponse);
+      return;
     }
 
     req.cacheHit = false;
@@ -156,7 +157,7 @@ export const performanceMonitoringMiddleware = (req: Request, res: Response, nex
   req.performanceStart = Date.now();
 
   // Override res.end to measure response time
-  const originalEnd = res.end;
+  const originalEnd = res.end.bind(res);
   res.end = function (chunk?: any, encoding?: any, cb?: any) {
     const responseTime = Date.now() - (req.performanceStart || Date.now());
 
@@ -190,8 +191,8 @@ export const performanceMonitoringMiddleware = (req: Request, res: Response, nex
       });
     }
 
-    originalEnd.call(this, chunk, encoding, cb);
-  };
+    return originalEnd(chunk, encoding, cb);
+  } as any;
 
   next();
 };
@@ -207,14 +208,14 @@ export const rateLimitCacheMiddleware = (req: Request, res: Response, next: Next
   }
 
   // Try to get cached rate limit data
-  const cachedRateLimit = rateLimitCache.getCachedRateLimit(licenseId);
+  const cachedRateLimit = rateLimitCache.getCachedRateLimit(String(licenseId));
 
   if (cachedRateLimit) {
     req.rateLimitData = cachedRateLimit;
 
     loggingService.debug('Rate limit cache hit', {
       requestId: req.id,
-      licenseId
+      licenseId: String(licenseId)
     });
   }
 
@@ -282,7 +283,7 @@ export const requestSizeLimitMiddleware = (maxSize: number = 10 * 1024 * 1024) =
         endpoint: req.originalUrl
       });
 
-      return res.status(413).json({
+      res.status(413).json({
         error: 'PAYLOAD_TOO_LARGE',
         message: 'Request entity too large',
         maxSize: `${Math.round(maxSize / 1024 / 1024)}MB`

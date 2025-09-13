@@ -63,7 +63,7 @@ export class AuthController {
       // Log successful registration
       loggingService.info('FREE license registered', {
         requestId: req.id,
-        licenseId: license.id,
+        licenseId: String(license.id),
         domain: normalizedDomain,
         licenseType: 'free'
       });
@@ -175,7 +175,7 @@ export class AuthController {
           // Log license upgrade
           loggingService.info('License upgraded to PRO', {
             requestId: req.id,
-            licenseId: existingDomain.id,
+            licenseId: String(existingDomain.id),
             domain: normalizedDomain,
             licenseType: type,
             previousType: 'free'
@@ -232,7 +232,7 @@ export class AuthController {
       // Log successful PRO registration
       loggingService.info('PRO license registered', {
         requestId: req.id,
-        licenseId: license.id,
+        licenseId: String(license.id),
         domain: normalizedDomain,
         licenseType: type
       });
@@ -444,7 +444,7 @@ export class AuthController {
     } catch (error) {
       loggingService.error('Failed to get authentication status', error as Error, {
         requestId: req.id,
-        licenseId: req.license?.id
+        licenseId: req.license?.id ? String(req.license.id) : undefined
       });
 
       res.status(500).json({
@@ -485,7 +485,7 @@ export class AuthController {
     } catch (error) {
       loggingService.error('Failed to refresh token', error as Error, {
         requestId: req.id,
-        licenseId: req.license?.id
+        licenseId: req.license?.id ? String(req.license.id) : undefined
       });
 
       res.status(500).json({
