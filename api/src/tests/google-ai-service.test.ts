@@ -15,15 +15,54 @@ jest.mock('@google/generative-ai', () => ({
   }))
 }));
 
+// Mock de Sharp para ImageProcessor
+jest.mock('sharp', () => {
+  const mockSharp = jest.fn().mockImplementation(() => ({
+    metadata: jest.fn().mockResolvedValue({
+      width: 800,
+      height: 600,
+      format: 'jpeg',
+      hasAlpha: false,
+      density: 72
+    }),
+    resize: jest.fn().mockReturnThis(),
+    jpeg: jest.fn().mockReturnThis(),
+    png: jest.fn().mockReturnThis(),
+    webp: jest.fn().mockReturnThis(),
+    withMetadata: jest.fn().mockReturnThis(),
+    toBuffer: jest.fn().mockResolvedValue(Buffer.from('mock-processed-image-data'))
+  }));
+  
+  return mockSharp;
+});
+
 describe('GoogleAIService', () => {
   let googleAIService: GoogleAIService;
-  // let imageProcessor: ImageProcessor; // Not used in current tests
+
+  beforeAll(() => {
+    // Usar fake timers para controlar timeouts en tests
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    // Restaurar timers reales
+    jest.useRealTimers();
+  });
 
   beforeEach(() => {
+    // Limpiar todos los mocks antes de cada test
+    jest.clearAllMocks();
+    
     googleAIService = new GoogleAIService({
-      apiKey: 'test-api-key'
+      apiKey: 'test-api-key',
+      timeout: 5000, // Timeout más corto para tests
+      maxRetries: 1 // Menos reintentos para tests más rápidos
     });
-    // imageProcessor = new ImageProcessor(); // Not used in current tests
+  });
+
+  afterEach(() => {
+    // Limpiar timeouts pendientes
+    jest.clearAllTimers();
   });
 
   describe('Configuration Validation', () => {
@@ -65,7 +104,13 @@ describe('GoogleAIService', () => {
       const userImage = Buffer.from('mock-user-image-data');
       const productImage = Buffer.from('mock-product-image-data');
 
-      const result = await googleAIService.generateImage(userImage, productImage);
+      // Ejecutar la generación de imagen de forma asíncrona
+      const resultPromise = googleAIService.generateImage(userImage, productImage);
+      
+      // Avanzar los timers para que los timeouts no interfieran
+      jest.advanceTimersByTime(1000);
+      
+      const result = await resultPromise;
 
       expect(result.success).toBe(true);
       expect(result.imageUrl).toBeDefined();
@@ -84,24 +129,38 @@ describe('GoogleAIService', () => {
         productType: 'jewelry'
       };
 
-      const result = await googleAIService.generateImage(userImage, productImage, options);
+      const resultPromise = googleAIService.generateImage(userImage, productImage, options);
+      jest.advanceTimersByTime(1000);
+      const result = await resultPromise;
 
       expect(result.success).toBe(true);
+      expect(result.imageUrl).toBeDefined();
       expect(result.metadata?.optimizedPrompt).toBeDefined();
     });
 
     it('should handle errors gracefully', async () => {
-      // Crear servicio con configuración que causará error
+      // Mock para simular error en generateContent
+      const mockGenerateContent = jest.fn().mockRejectedValue(new Error('API Error'));
+      
       const faultyService = new GoogleAIService({
-        apiKey: 'invalid-key',
+        apiKey: 'test-key', // Usar key válida pero mockear el error
         maxRetries: 1,
-        timeout: 100
+        timeout: 5000
       });
+
+      // Sobrescribir el mock para este test específico
+      require('@google/generative-ai').GoogleGenerativeAI.mockImplementation(() => ({
+        getGenerativeModel: jest.fn().mockReturnValue({
+          generateContent: mockGenerateContent
+        })
+      }));
 
       const userImage = Buffer.from('mock-user-image-data');
       const productImage = Buffer.from('mock-product-image-data');
 
-      const result = await faultyService.generateImage(userImage, productImage);
+      const resultPromise = faultyService.generateImage(userImage, productImage);
+      jest.advanceTimersByTime(1000);
+      const result = await resultPromise;
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -115,16 +174,24 @@ describe('Integration: GoogleAIService + ImageProcessor', () => {
   let imageProcessor: ImageProcessor;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    
     googleAIService = new GoogleAIService({
-      apiKey: 'test-api-key'
+      apiKey: 'test-api-key',
+      timeout: 5000,
+      maxRetries: 1
     });
     imageProcessor = new ImageProcessor();
   });
 
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   it('should work together for complete image processing workflow', async () => {
-    // Simular imágenes de entrada
-    const mockUserImage = Buffer.from('mock-large-user-image-data'.repeat(1000));
-    const mockProductImage = Buffer.from('mock-large-product-image-data'.repeat(1000));
+    // Simular imágenes de entrada más pequeñas para tests
+    const mockUserImage = Buffer.from('mock-user-image-data');
+    const mockProductImage = Buffer.from('mock-product-image-data');
 
     // Paso 1: Optimizar imágenes
     const optimizedUserResult = await imageProcessor.compressForAPI(mockUserImage);
@@ -132,6 +199,8 @@ describe('Integration: GoogleAIService + ImageProcessor', () => {
 
     expect(optimizedUserResult.success).toBe(true);
     expect(optimizedProductResult.success).toBe(true);
+    expect(optimizedUserResult.processedImage).toBeDefined();
+    expect(optimizedProductResult.processedImage).toBeDefined();
 
     // Paso 2: Generar imagen con Google AI (usando imágenes optimizadas)
     if (optimizedUserResult.processedImage && optimizedProductResult.processedImage) {
@@ -146,6 +215,7 @@ describe('Integration: GoogleAIService + ImageProcessor', () => {
       );
 
       expect(generationResult.success).toBe(true);
+      expect(generationResult.imageUrl).toBeDefined();
       expect(generationResult.metadata?.twoStepProcess).toBe(true);
     }
   });

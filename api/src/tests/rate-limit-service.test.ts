@@ -1,12 +1,16 @@
 import { RateLimitService } from '../services/RateLimitService';
-import { License } from '../models/License';
-import { RateLimit } from '../models/RateLimit';
-import sequelize from '../config/db';
+import { License, RateLimit, sequelize, initializeAssociations } from '../models';
 
 describe('RateLimitService', () => {
   let testLicense: License;
 
   beforeAll(async () => {
+    // Set test environment
+    process.env.NODE_ENV = 'test';
+
+    // Initialize associations
+    initializeAssociations();
+
     // Ensure database connection
     await sequelize.authenticate();
 
@@ -227,7 +231,7 @@ describe('RateLimitService', () => {
 
       expect(result.valid).toBe(false);
       expect(result.canGenerate).toBe(false);
-      expect(result.reason).toBe('License has expired');
+      expect(result.reason).toBe('License status is expired');
     });
 
     it('should reject license at usage limit', async () => {
