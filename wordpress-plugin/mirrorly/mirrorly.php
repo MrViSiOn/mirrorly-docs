@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Mirrorly - AI Product Visualization
- * Plugin URI: https://mirrorly.com
+ * Plugin URI: https://mirrorly.pro
  * Description: Permite a los usuarios visualizarse usando productos mediante inteligencia artificial. Integra con Google Generative AI para generar imágenes realistas.
  * Version: 1.0.0
  * Author: Mirrorly Team
- * Author URI: https://mirrorly.com
+ * Author URI: https://mirrorly.pro
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: mirrorly
@@ -13,14 +13,17 @@
  * Requires at least: 5.0
  * Tested up to: 6.4
  * Requires PHP: 7.4
- * WC requires at least: 5.0
- * WC tested up to: 8.0
+ *
+ * WC requires at least: 3.9.4
+ * WC tested up to: 9.0.2
  */
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Automattic\WooCommerce\Utilities\FeaturesUtil;
 
 // Define plugin constants
 define( 'MIRRORLY_VERSION', '1.0.0' );
@@ -122,11 +125,57 @@ final class Mirrorly {
 	 * Mirrorly Constructor
 	 */
 	public function __construct() {
+		add_action( 'before_woocommerce_init', [ $this, 'handle_features_compatibility' ] );
 		$this->define_constants();
 		$this->includes();
 		$this->init_hooks();
 
 		do_action( 'mirrorly_loaded' );
+	}
+
+	/**
+	 * Declares compatibility with specific WooCommerce features.
+	 *
+	 * @internal
+	 *
+	 * @since 5.12.0
+	 *
+	 * @return void
+	 */
+	public function handle_features_compatibility() : void {
+
+		if ( ! class_exists( FeaturesUtil::class ) ) {
+			return;
+		}
+
+		FeaturesUtil::declare_compatibility( 'custom_order_tables', $this->get_plugin_file(), true );
+	}
+
+	
+	/**
+	 * Gets the main plugin file.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_file() {
+
+		$slug = dirname( plugin_basename( $this->get_file() ) );
+
+		return trailingslashit( $slug ) . $slug . '.php';
+	}
+
+	
+	/**
+	 * Gets the full path and filename of the plugin file.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
+	protected function get_file() {
+		return __FILE__;
 	}
 
 	/**
