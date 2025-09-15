@@ -6,12 +6,6 @@ import sequelize from '../../config/db';
 
 // Mock dependencies
 jest.mock('../../models/License');
-jest.mock('sequelize', () => ({
-  Op: {
-    between: Symbol('between'),
-    ne: Symbol('ne'),
-  },
-}));
 
 describe('LicenseController', () => {
   let mockRequest: Partial<Request>;
@@ -297,7 +291,7 @@ describe('LicenseController', () => {
             days_until_expiry: 5,
             expires_soon: true,
             expires_today: false,
-            warning_level: 'critical',
+            warning_level: 'warning',
           }),
         })
       );

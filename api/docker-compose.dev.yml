@@ -60,7 +60,7 @@ services:
     volumes:
       - redis_dev_data:/data
     ports:
-      - "6380:6379"  # Different port to avoid conflicts
+      - "7380:6379"  # Different port to avoid conflicts
     networks:
       - mirrorly-network
 
