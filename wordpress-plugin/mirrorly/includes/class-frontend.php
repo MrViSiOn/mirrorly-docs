@@ -22,16 +22,24 @@ class Mirrorly_Frontend {
 	 * Initialize frontend
 	 */
 	public function init() {
+		// Always register AJAX handlers
+		add_action( 'wp_ajax_mirrorly_generate_image', array( $this, 'ajax_generate_image' ) );
+		add_action( 'wp_ajax_nopriv_mirrorly_generate_image', array( $this, 'ajax_generate_image' ) );
+		add_action( 'wp_ajax_mirrorly_check_generation_status', array( $this, 'ajax_check_generation_status' ) );
+		add_action( 'wp_ajax_nopriv_mirrorly_check_generation_status', array( $this, 'ajax_check_generation_status' ) );
+		
+		// Use template_redirect hook to check if we're on a product page
+		add_action( 'template_redirect', array( $this, 'setup_product_page_hooks' ) );
+	}
+
+	/**
+	 * Setup hooks for product pages (called after query is parsed)
+	 */
+	public function setup_product_page_hooks() {
 		// Only load on WooCommerce product pages
-		if ( is_product() || wp_doing_ajax() ) {
+		if ( is_product() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'woocommerce_single_product_summary', array( $this, 'display_widget' ), $this->get_widget_priority() );
-
-			// AJAX handlers
-			add_action( 'wp_ajax_mirrorly_generate_image', array( $this, 'ajax_generate_image' ) );
-			add_action( 'wp_ajax_nopriv_mirrorly_generate_image', array( $this, 'ajax_generate_image' ) );
-			add_action( 'wp_ajax_mirrorly_check_generation_status', array( $this, 'ajax_check_generation_status' ) );
-			add_action( 'wp_ajax_nopriv_mirrorly_check_generation_status', array( $this, 'ajax_check_generation_status' ) );
 		}
 	}
 

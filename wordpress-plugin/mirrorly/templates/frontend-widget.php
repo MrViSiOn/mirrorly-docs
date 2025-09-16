@@ -42,7 +42,7 @@ if ( $license->is_pro() ) {
 }
 ?>
 
-<div id="mirrorly-widget" class="<?php echo esc_attr( implode( ' ', $widget_classes ) ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>"
+<div id="mirrorly-widget" class="<?php echo esc_attr( implode( ' ', $widget_classes ) ); ?>" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">
 	<div class="mirrorly-header">
 		<h3 class="mirrorly-title"><?php echo esc_html( $custom_message ); ?></h3>
 
@@ -169,266 +169,266 @@ if ( $license->is_pro() ) {
 </div>
 
 <style>
-#mirrorly-widget {
-	--mirrorly-primary: <?php echo esc_attr( $widget_colors['primary'] ); ?>;
-	--mirrorly-secondary: <?php echo esc_attr( $widget_colors['secondary'] ); ?>;
-	--mirrorly-text: <?php echo esc_attr( $widget_colors['text'] ); ?>;
-	<?php if ( $license->is_pro() ) : ?>
-	--mirrorly-radius: <?php echo esc_attr( $widget_styling['border_radius'] ); ?>px;
-	<?php endif; ?>
-}
-
-.mirrorly-widget {
-	background: #fff;
-	border: 1px solid #e1e1e1;
-	border-radius: 8px;
-	padding: 20px;
-	margin: 20px 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.mirrorly-header {
-	text-align: center;
-	margin-bottom: 20px;
-}
-
-.mirrorly-title {
-	color: var(--mirrorly-text);
-	font-size: 18px;
-	font-weight: 600;
-	margin: 0 0 10px 0;
-}
-
-.mirrorly-usage-info {
-	font-size: 14px;
-	color: #666;
-}
-
-.mirrorly-remaining strong {
-	color: var(--mirrorly-primary);
-}
-
-.mirrorly-upload-area {
-	border: 2px dashed #ddd;
-	border-radius: 8px;
-	padding: 40px 20px;
-	text-align: center;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background: #fafafa;
-}
-
-.mirrorly-upload-area:hover {
-	border-color: var(--mirrorly-primary);
-	background: #f0f8ff;
-}
-
-.mirrorly-upload-area.dragover {
-	border-color: var(--mirrorly-primary);
-	background: #e6f3ff;
-}
-
-.mirrorly-upload-icon {
-	color: #999;
-	margin-bottom: 15px;
-}
-
-.mirrorly-upload-text {
-	font-size: 16px;
-	color: var(--mirrorly-text);
-	margin: 0 0 5px 0;
-	font-weight: 500;
-}
-
-.mirrorly-upload-hint {
-	font-size: 14px;
-	color: #666;
-	margin: 0;
-}
-
-.mirrorly-preview-container {
-	text-align: center;
-}
-
-.mirrorly-preview-container img {
-	max-width: 200px;
-	max-height: 200px;
-	border-radius: 8px;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-	margin-bottom: 15px;
-}
-
-.mirrorly-preview-actions {
-	display: flex;
-	gap: 10px;
-	justify-content: center;
-	flex-wrap: wrap;
-}
-
-.mirrorly-btn {
-	padding: 10px 20px;
-	border: none;
-	border-radius: 6px;
-	font-size: 14px;
-	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	text-decoration: none;
-}
-
-.mirrorly-btn-primary {
-	background: var(--mirrorly-primary);
-	color: white;
-}
-
-.mirrorly-btn-primary:hover {
-	opacity: 0.9;
-	transform: translateY(-1px);
-}
-
-.mirrorly-btn-secondary {
-	background: #f5f5f5;
-	color: var(--mirrorly-text);
-	border: 1px solid #ddd;
-}
-
-.mirrorly-btn-secondary:hover {
-	background: #e9e9e9;
-}
-
-.mirrorly-btn-outline {
-	background: transparent;
-	color: var(--mirrorly-primary);
-	border: 1px solid var(--mirrorly-primary);
-}
-
-.mirrorly-btn-outline:hover {
-	background: var(--mirrorly-primary);
-	color: white;
-}
-
-.mirrorly-loading {
-	text-align: center;
-	padding: 40px 20px;
-}
-
-.mirrorly-spinner {
-	width: 40px;
-	height: 40px;
-	border: 4px solid #f3f3f3;
-	border-top: 4px solid var(--mirrorly-primary);
-	border-radius: 50%;
-	animation: mirrorly-spin 1s linear infinite;
-	margin: 0 auto 20px;
-}
-
-@keyframes mirrorly-spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
-}
-
-.mirrorly-loading-text {
-	font-size: 16px;
-	font-weight: 500;
-	color: var(--mirrorly-text);
-	margin: 0 0 5px 0;
-}
-
-.mirrorly-loading-hint {
-	font-size: 14px;
-	color: #666;
-	margin: 0;
-}
-
-.mirrorly-result-container {
-	text-align: center;
-}
-
-.mirrorly-result-container img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-	margin-bottom: 20px;
-}
-
-.mirrorly-result-actions {
-	display: flex;
-	gap: 10px;
-	justify-content: center;
-	flex-wrap: wrap;
-}
-
-.mirrorly-error-content {
-	text-align: center;
-	padding: 20px;
-}
-
-.mirrorly-error-icon {
-	font-size: 48px;
-	margin-bottom: 15px;
-}
-
-.mirrorly-error-message {
-	color: #dc3232;
-	font-size: 16px;
-	margin: 0 0 20px 0;
-}
-
-.mirrorly-limit-notice {
-	background: #fff3cd;
-	border: 1px solid #ffeaa7;
-	border-radius: 6px;
-	padding: 15px;
-	margin-bottom: 20px;
-}
-
-.mirrorly-error {
-	color: #dc3232;
-	margin: 0;
-}
-
-.mirrorly-upgrade-link {
-	color: var(--mirrorly-primary);
-	text-decoration: none;
-	font-weight: 500;
-}
-
-.mirrorly-upgrade-link:hover {
-	text-decoration: underline;
-}
-
-.mirrorly-footer {
-	text-align: center;
-	margin-top: 20px;
-	padding-top: 15px;
-	border-top: 1px solid #eee;
-}
-
-.mirrorly-upgrade-notice {
-	font-size: 14px;
-	color: #666;
-	margin: 0;
-}
-
-@media (max-width: 768px) {
-	.mirrorly-widget {
-		padding: 15px;
+	#mirrorly-widget {
+		--mirrorly-primary: <?php echo esc_attr( $widget_colors['primary'] ); ?>;
+		--mirrorly-secondary: <?php echo esc_attr( $widget_colors['secondary'] ); ?>;
+		--mirrorly-text: <?php echo esc_attr( $widget_colors['text'] ); ?>;
+		<?php if ( $license->is_pro() ) : ?>
+		--mirrorly-radius: <?php echo esc_attr( $widget_styling['border_radius'] ); ?>px;
+		<?php endif; ?>
 	}
 
-	.mirrorly-preview-actions,
-	.mirrorly-result-actions {
-		flex-direction: column;
-		align-items: center;
+	.mirrorly-widget {
+		background: #fff;
+		border: 1px solid #e1e1e1;
+		border-radius: 8px;
+		padding: 20px;
+		margin: 20px 0;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	}
+
+	.mirrorly-header {
+		text-align: center;
+		margin-bottom: 20px;
+	}
+
+	.mirrorly-title {
+		color: var(--mirrorly-text);
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 10px 0;
+	}
+
+	.mirrorly-usage-info {
+		font-size: 14px;
+		color: #666;
+	}
+
+	.mirrorly-remaining strong {
+		color: var(--mirrorly-primary);
+	}
+
+	.mirrorly-upload-area {
+		border: 2px dashed #ddd;
+		border-radius: 8px;
+		padding: 40px 20px;
+		text-align: center;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		background: #fafafa;
+	}
+
+	.mirrorly-upload-area:hover {
+		border-color: var(--mirrorly-primary);
+		background: #f0f8ff;
+	}
+
+	.mirrorly-upload-area.dragover {
+		border-color: var(--mirrorly-primary);
+		background: #e6f3ff;
+	}
+
+	.mirrorly-upload-icon {
+		color: #999;
+		margin-bottom: 15px;
+	}
+
+	.mirrorly-upload-text {
+		font-size: 16px;
+		color: var(--mirrorly-text);
+		margin: 0 0 5px 0;
+		font-weight: 500;
+	}
+
+	.mirrorly-upload-hint {
+		font-size: 14px;
+		color: #666;
+		margin: 0;
+	}
+
+	.mirrorly-preview-container {
+		text-align: center;
+	}
+
+	.mirrorly-preview-container img {
+		max-width: 200px;
+		max-height: 200px;
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		margin-bottom: 15px;
+	}
+
+	.mirrorly-preview-actions {
+		display: flex;
+		gap: 10px;
+		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.mirrorly-btn {
-		width: 100%;
-		max-width: 200px;
-		justify-content: center;
+		padding: 10px 20px;
+		border: none;
+		border-radius: 6px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		text-decoration: none;
 	}
-}
+
+	.mirrorly-btn-primary {
+		background: var(--mirrorly-primary);
+		color: white;
+	}
+
+	.mirrorly-btn-primary:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
+
+	.mirrorly-btn-secondary {
+		background: #f5f5f5;
+		color: var(--mirrorly-text);
+		border: 1px solid #ddd;
+	}
+
+	.mirrorly-btn-secondary:hover {
+		background: #e9e9e9;
+	}
+
+	.mirrorly-btn-outline {
+		background: transparent;
+		color: var(--mirrorly-primary);
+		border: 1px solid var(--mirrorly-primary);
+	}
+
+	.mirrorly-btn-outline:hover {
+		background: var(--mirrorly-primary);
+		color: white;
+	}
+
+	.mirrorly-loading {
+		text-align: center;
+		padding: 40px 20px;
+	}
+
+	.mirrorly-spinner {
+		width: 40px;
+		height: 40px;
+		border: 4px solid #f3f3f3;
+		border-top: 4px solid var(--mirrorly-primary);
+		border-radius: 50%;
+		animation: mirrorly-spin 1s linear infinite;
+		margin: 0 auto 20px;
+	}
+
+	@keyframes mirrorly-spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	.mirrorly-loading-text {
+		font-size: 16px;
+		font-weight: 500;
+		color: var(--mirrorly-text);
+		margin: 0 0 5px 0;
+	}
+
+	.mirrorly-loading-hint {
+		font-size: 14px;
+		color: #666;
+		margin: 0;
+	}
+
+	.mirrorly-result-container {
+		text-align: center;
+	}
+
+	.mirrorly-result-container img {
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		margin-bottom: 20px;
+	}
+
+	.mirrorly-result-actions {
+		display: flex;
+		gap: 10px;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	.mirrorly-error-content {
+		text-align: center;
+		padding: 20px;
+	}
+
+	.mirrorly-error-icon {
+		font-size: 48px;
+		margin-bottom: 15px;
+	}
+
+	.mirrorly-error-message {
+		color: #dc3232;
+		font-size: 16px;
+		margin: 0 0 20px 0;
+	}
+
+	.mirrorly-limit-notice {
+		background: #fff3cd;
+		border: 1px solid #ffeaa7;
+		border-radius: 6px;
+		padding: 15px;
+		margin-bottom: 20px;
+	}
+
+	.mirrorly-error {
+		color: #dc3232;
+		margin: 0;
+	}
+
+	.mirrorly-upgrade-link {
+		color: var(--mirrorly-primary);
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.mirrorly-upgrade-link:hover {
+		text-decoration: underline;
+	}
+
+	.mirrorly-footer {
+		text-align: center;
+		margin-top: 20px;
+		padding-top: 15px;
+		border-top: 1px solid #eee;
+	}
+
+	.mirrorly-upgrade-notice {
+		font-size: 14px;
+		color: #666;
+		margin: 0;
+	}
+
+	@media (max-width: 768px) {
+		.mirrorly-widget {
+			padding: 15px;
+		}
+
+		.mirrorly-preview-actions,
+		.mirrorly-result-actions {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.mirrorly-btn {
+			width: 100%;
+			max-width: 200px;
+			justify-content: center;
+		}
+	}
 </style>
