@@ -11,6 +11,7 @@ export interface GenerationOptions {
 export interface GenerationResult {
   success: boolean;
   imageUrl?: string;
+  imageBase64?: string;
   error?: string;
   processingTime?: number;
   usedPrompt?: string;

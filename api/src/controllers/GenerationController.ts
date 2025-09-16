@@ -154,7 +154,7 @@ export class GenerationController {
           licenseType: license.type,
           imageSize: userImageFile.size + productImageFile.size,
           processingTime: Date.now() - startTime,
-          googleAIModel: 'gemini-pro-vision',
+          googleAIModel: process.env.GOOGLE_AI_MODEL_VISION || 'gemini-1.0-pro-vision',
           promptLength: 0,
           success: false,
           error: result.error
@@ -190,7 +190,7 @@ export class GenerationController {
         licenseType: license.type,
         imageSize: userImageFile.size + productImageFile.size,
         processingTime: totalTime,
-        googleAIModel: result.metadata?.model || 'gemini-pro-vision',
+        googleAIModel: result.metadata?.model || process.env.GOOGLE_AI_MODEL_VISION || 'gemini-1.0-pro-vision',
         promptLength: result.usedPrompt?.length || 0,
         success: true
       });
@@ -200,6 +200,7 @@ export class GenerationController {
         success: true,
         generationId: generation.id,
         imageUrl: result.imageUrl,
+        imageBase64: result.imageBase64,
         processingTime: totalTime,
         metadata: {
           ...result.metadata,

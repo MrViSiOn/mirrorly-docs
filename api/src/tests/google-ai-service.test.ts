@@ -44,16 +44,17 @@ describe('GoogleAIService', () => {
 
     mockGoogleAIService.getModelInfo = jest.fn().mockReturnValue({
       textModel: 'gemini-pro',
-      visionModel: 'gemini-pro-vision'
+      visionModel: 'gemini-1.0-pro-vision'
     });
 
     mockGoogleAIService.generateImage = jest.fn().mockResolvedValue({
       success: true,
       imageUrl: 'https://generated-images.mirrorly.com/test-image.jpg',
+      imageBase64: 'base64encodedimagedata',
       processingTime: 1500,
       usedPrompt: 'Mocked optimized prompt for e-commerce image generation',
       metadata: {
-        model: 'gemini-pro-vision',
+        model: 'gemini-1.0-pro-vision',
         twoStepProcess: true,
         promptGenerationTime: 800,
         imageGenerationTime: 700,
@@ -76,7 +77,7 @@ describe('GoogleAIService', () => {
     it('should return correct model information', () => {
       const modelInfo = mockGoogleAIService.getModelInfo();
       expect(modelInfo.textModel).toBe('gemini-pro');
-      expect(modelInfo.visionModel).toBe('gemini-pro-vision');
+      expect(modelInfo.visionModel).toBe('gemini-1.0-pro-vision');
     });
   });
 

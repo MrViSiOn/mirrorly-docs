@@ -73,6 +73,7 @@ class Mirrorly_API_Mock {
 			$response = array(
 				'success'        => true,
 				'imageUrl'       => 'https://example.com/generated-image.jpg',
+				'imageBase64'    => 'base64encodedimagedata',
 				'processingTime' => 5000,
 				'generationId'   => 'gen_' . uniqid(),
 			);

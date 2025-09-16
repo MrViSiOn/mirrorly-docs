@@ -68,6 +68,10 @@ DB_DIALECT=mysql
 
 # Google Generative AI
 GOOGLE_AI_API_KEY=your_google_ai_api_key
+GOOGLE_AI_MODEL_TEXT=gemini-1.0-pro
+GOOGLE_AI_MODEL_VISION=gemini-1.0-pro-vision
+GOOGLE_AI_TIMEOUT=30000
+GOOGLE_AI_MAX_RETRIES=3
 
 # Seguridad
 JWT_SECRET=your_super_secret_jwt_key_here
@@ -97,6 +101,24 @@ ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
 ### Base de Datos
 
 La API usa MySQL con Sequelize ORM. Las migraciones se ejecutan automáticamente en el primer inicio.
+
+### Configuración de Google Generative AI
+
+La API utiliza Google Generative AI para el procesamiento de imágenes. Es importante configurar correctamente los modelos:
+
+```bash
+# Configuración de modelos de Google AI
+GOOGLE_AI_MODEL_TEXT=gemini-1.0-pro      # Modelo para generación de texto
+GOOGLE_AI_MODEL_VISION=gemini-1.0-pro-vision  # Modelo para análisis de imágenes
+GOOGLE_AI_TIMEOUT=30000                  # Timeout en milisegundos
+GOOGLE_AI_MAX_RETRIES=3                  # Número máximo de reintentos
+```
+
+#### Solución de problemas comunes
+
+- **Error 404**: Si recibes un error 404 al usar el modelo `gemini-1.0-pro-vision`, verifica que estás usando la versión correcta del modelo en las variables de entorno.
+- **Timeouts**: Si experimentas timeouts frecuentes, considera aumentar el valor de `GOOGLE_AI_TIMEOUT` y `GOOGLE_AI_MAX_RETRIES`.
+- **Errores de autenticación**: Asegúrate de que tu `GOOGLE_AI_API_KEY` es válida y tiene permisos para acceder a los modelos configurados.
 
 ```sql
 -- Crear base de datos

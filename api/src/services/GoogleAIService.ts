@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import {
   GenerationOptions,
   GenerationResult,
@@ -21,16 +21,42 @@ export class GoogleAIService {
 
   constructor(config: GoogleAIConfig) {
     this.config = {
-      textModel: 'gemini-pro',
-      visionModel: 'gemini-pro-vision',
-      timeout: 30000, // 30 segundos
-      maxRetries: 3,
+      textModel: process.env.GOOGLE_AI_MODEL_TEXT || 'gemini-1.0-pro',
+      visionModel: process.env.GOOGLE_AI_MODEL_VISION || 'gemini-2.5-flash-image-preview',
+      timeout: parseInt(process.env.GOOGLE_AI_TIMEOUT || '30000'), // 30 segundos
+      maxRetries: parseInt(process.env.GOOGLE_AI_MAX_RETRIES || '3'),
       ...config
     };
 
     this.genAI = new GoogleGenerativeAI(this.config.apiKey);
     this.textModel = this.genAI.getGenerativeModel({ model: this.config.textModel! });
-    this.visionModel = this.genAI.getGenerativeModel({ model: this.config.visionModel! });
+    this.visionModel = this.genAI.getGenerativeModel({
+      model: this.config.visionModel!,
+      generationConfig: {
+        temperature: 0.4,
+        topK: 32,
+        topP: 1,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+    });
   }
 
   /**
@@ -79,6 +105,7 @@ export class GoogleAIService {
       return {
         success: true,
         imageUrl: finalResult.imageUrl,
+        imageBase64: finalResult.imageBase64,
         processingTime: totalTime,
         usedPrompt: promptAnalysis.optimizedPrompt,
         metadata: {
@@ -162,7 +189,7 @@ export class GoogleAIService {
     productImage: Buffer,
     optimizedPrompt: string,
     options: GenerationOptions
-  ): Promise<{ imageUrl: string }> {
+  ): Promise<{ imageUrl: string, imageBase64?: string }> {
     const imageParts = [
       {
         inlineData: {
@@ -181,20 +208,23 @@ export class GoogleAIService {
     const finalPrompt = this.buildFinalPrompt(optimizedPrompt, options);
 
     try {
-      await this.executeWithRetry(async () => {
+      const response = await this.executeWithRetry(async () => {
         return await this.visionModel.generateContent([finalPrompt, ...imageParts]);
       });
-
-      // Nota: En la implementación real, Google Generative AI no devuelve imágenes directamente
-      // Este es un placeholder para la estructura. En producción necesitarías:
-      // 1. Usar un servicio que genere imágenes (como DALL-E, Midjourney API, etc.)
-      // 2. O usar Google AI para generar descripciones detalladas y luego otro servicio para las imágenes
-
-      // Por ahora, simulamos una URL de imagen generada
-      const mockImageUrl = `https://generated-images.mirrorly.com/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.jpg`;
+      
+      const result = await response.response;
+      const imageBase64 = result.candidates?.[0]?.content?.parts?.[1]?.inlineData?.data;
+      
+      if (!imageBase64) {
+        throw new Error('No image data received from Google AI');
+      }
+      
+      // Generamos una URL para mantener compatibilidad con el código existente
+      const imageUrl = `https://generated-images.mirrorly.com/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.jpg`;
 
       return {
-        imageUrl: mockImageUrl
+        imageUrl,
+        imageBase64
       };
 
     } catch (error) {

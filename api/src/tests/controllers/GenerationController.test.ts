@@ -129,6 +129,7 @@ describe('GenerationController', () => {
         generateImage: jest.fn().mockResolvedValue({
           success: true,
           imageUrl: 'https://example.com/generated-image.jpg',
+          imageBase64: 'base64encodedimagedata',
           processingTime: 5000,
           usedPrompt: 'Professional e-commerce image prompt',
           metadata: {

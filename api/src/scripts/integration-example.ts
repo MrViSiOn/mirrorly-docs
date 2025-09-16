@@ -101,10 +101,11 @@ async function integrationExample() {
     const mockResult = {
       success: true,
       imageUrl: `https://generated-images.mirrorly.com/${Date.now()}-composite.jpg`,
+      imageBase64: 'base64encodedimagedata', // Datos de imagen en base64
       processingTime: 15000, // 15 segundos
       usedPrompt: 'Professional e-commerce photo showing person wearing elegant clothing item, studio lighting, clean background, high quality, realistic, commercial photography style',
       metadata: {
-        model: 'gemini-pro-vision',
+        model: 'gemini-1.0-pro-vision',
         twoStepProcess: true,
         promptGenerationTime: 3000,
         imageGenerationTime: 12000,
@@ -115,6 +116,7 @@ async function integrationExample() {
     console.log('   ✅ Generation completed successfully!');
     console.log('   📊 Processing time:', mockResult.processingTime, 'ms');
     console.log('   📊 Generated image URL:', mockResult.imageUrl);
+    console.log('   📊 Base64 image data available:', !!mockResult.imageBase64);
     console.log('   📊 Two-step process:', mockResult.metadata.twoStepProcess);
 
     // Paso 7: Post-procesamiento (opcional)
