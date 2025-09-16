@@ -268,7 +268,7 @@ class Mirrorly_API_Client {
 			return $cached_result;
 		}
 
-		$endpoint = 'limits/usage';
+		$endpoint = 'limits/current';
 		$response = $this->make_request( $endpoint, array(), 'GET' );
 
 		if ( ! is_wp_error( $response ) ) {

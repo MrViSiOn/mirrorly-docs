@@ -50,10 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php settings_errors(); ?>
 
 	<form method="post" action="options.php">
-		<?php
-		settings_fields( 'mirrorly_settings' );
-		do_settings_sections( 'mirrorly_settings' );
-		?>
+		<?php settings_fields( 'mirrorly_settings' ); ?>
 
 		<div class="mirrorly-settings-grid">
 			<div class="mirrorly-settings-main">
