@@ -2,6 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "ts-node-current-file",
+      "type": "node",
+      "request": "launch",
+      "args": [
+        "${workspaceFolder}/api/src/app.ts",
+      ],
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register",
+      ],
+      "cwd": "${workspaceFolder}/api",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "Debug API Current Test File",
       "type": "node",
       "request": "launch",

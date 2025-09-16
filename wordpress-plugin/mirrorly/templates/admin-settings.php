@@ -344,6 +344,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	background: #fff;
 	border: 1px solid #ccd0d4;
 	border-radius: 4px;
+	padding: 20px;
 }
 
 .mirrorly-settings-sidebar {

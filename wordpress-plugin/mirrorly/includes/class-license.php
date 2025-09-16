@@ -114,9 +114,10 @@ class Mirrorly_License {
 		// Update options with free license data
 		$options                 = get_option( 'mirrorly_options', array() );
 		$options['license_type'] = self::LICENSE_FREE;
-		$options['api_key']      = isset( $response['apiKey'] ) ? $response['apiKey'] : '';
-		$options['license_key']  = isset( $response['licenseKey'] ) ? $response['licenseKey'] : '';
-		$options['max_products'] = isset( $response['limits']['maxProducts'] ) ? $response['limits']['maxProducts'] : 3;
+		$options['api_key']      = $response['license']['license_key'] ?? '';
+		$options['license_key']  = '';
+		$options['max_products'] = isset( $response['limits']['monthly_generations'] ) 
+			? $response['limits']['monthly_generations'] : 3;
 
 		update_option( 'mirrorly_options', $options );
 

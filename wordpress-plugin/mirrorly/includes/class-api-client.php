@@ -41,7 +41,7 @@ class Mirrorly_API_Client {
 	 */
 	public function __construct() {
 		$options          = get_option( 'mirrorly_options', array() );
-		$this->api_url    = defined( 'MIRRORLY_API_URL' ) ? MIRRORLY_API_URL : 'https://api.mirrorly.com/v1/';
+		$this->api_url    = defined( 'MIRRORLY_API_URL' ) ? MIRRORLY_API_URL : 'http://localhost:3000/v1/';
 		$this->api_key    = isset( $options['api_key'] ) ? $options['api_key'] : '';
 		$this->debug_mode = defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'MIRRORLY_DEBUG' ) && MIRRORLY_DEBUG;
 	}
@@ -225,9 +225,8 @@ class Mirrorly_API_Client {
 		$cached_result = get_transient( $cache_key );
 
 		if ( $cached_result !== false ) {
-			return $cached_result;
+			// return $cached_result;
 		}
-
 		$endpoint = 'limits/current';
 		$response = $this->make_request( $endpoint, array(), 'GET' );
 
@@ -329,15 +328,16 @@ class Mirrorly_API_Client {
 	 * @return array|WP_Error
 	 */
 	private function make_request( $endpoint, $body = array(), $method = 'POST' ) {
+		$debug = strpos( $endpoint, 'limits' ) !== false ? true : $this->debug_mode;
+
 		$url = trailingslashit( $this->api_url ) . $endpoint;
 
 		$headers = array(
 			'Content-Type' => 'application/json',
 			'User-Agent'   => 'Mirrorly-WordPress/' . MIRRORLY_VERSION,
 		);
-
 		if ( ! empty( $this->api_key ) ) {
-			$headers['Authorization'] = 'Bearer ' . $this->api_key;
+			$headers['x-api-key'] = $this->api_key;
 		}
 
 		$args = array(
@@ -352,7 +352,6 @@ class Mirrorly_API_Client {
 		} elseif ( $method === 'GET' && ! empty( $body ) ) {
 			$url = add_query_arg( $body, $url );
 		}
-
 		// Log request if debug mode is enabled
 		if ( $this->debug_mode ) {
 			$this->log_request( $method, $url, $body );
