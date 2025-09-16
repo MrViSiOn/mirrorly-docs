@@ -183,7 +183,7 @@ final class Mirrorly {
 	 */
 	private function define_constants() {
 		$this->define( 'MIRRORLY_ABSPATH', dirname( MIRRORLY_PLUGIN_FILE ) . '/' );
-		$this->define( 'MIRRORLY_API_URL', 'https://api.mirrorly.com/v1/' );
+		$this->define( 'MIRRORLY_API_URL', 'http://localhost:3000/v1/' );
 	}
 
 	/**

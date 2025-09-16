@@ -214,7 +214,8 @@ export class RateLimitMiddleware {
       }
 
       // Get product count from request (this would be set by the calling controller)
-      const productCount = req.body.productCount || 1;
+      // Preguntar a la AI sobre esto: ¿viene el product count desde WP, qué sentido tiene?
+      const productCount =  1;
 
       if (!RateLimitService.canUseProducts(license.type, productCount)) {
         const config = RateLimitService.getLimitConfig(license.type);

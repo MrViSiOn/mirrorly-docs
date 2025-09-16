@@ -178,7 +178,7 @@ class Mirrorly_API_Mock {
 	 */
 	public static function intercept_http_request( $preempt, $args, $url ) {
 		// Only intercept Mirrorly API requests
-		if ( strpos( $url, 'api.mirrorly.com' ) === false && strpos( $url, 'mirrorly' ) === false ) {
+		if ( strpos( $url, 'localhost:3000' ) === false && strpos( $url, 'mirrorly' ) === false ) {
 			return $preempt;
 		}
 

@@ -461,10 +461,11 @@ export class GenerationController {
 
   /**
    * Generar hash de imagen para tracking
+    * Genera un hash SHA-256 de 64 caracteres para cumplir con la validación del modelo
    */
   private generateImageHash(imageBuffer: Buffer): string {
     const crypto = require('crypto');
-    return crypto.createHash('sha256').update(imageBuffer).digest('hex').substring(0, 16);
+    return crypto.createHash('sha256').update(imageBuffer).digest('hex');
   }
 
   /**

@@ -65,8 +65,7 @@ class Mirrorly_API_Client {
 		if ( is_wp_error( $limits_check ) ) {
 			return $limits_check;
 		}
-
-		if ( ! $limits_check['can_generate'] ) {
+		if ( ! $limits_check['canGenerate'] ) {
 			return new WP_Error( 'rate_limit_exceeded', $limits_check['message'] );
 		}
 
@@ -93,7 +92,6 @@ class Mirrorly_API_Client {
 			'domain'    => home_url(),
 			'options'   => wp_json_encode( $options ),
 		);
-
 		$response = $this->make_multipart_request( $endpoint, $body, $files );
 
 		if ( is_wp_error( $response ) ) {
@@ -432,7 +430,7 @@ class Mirrorly_API_Client {
 		);
 
 		if ( ! empty( $this->api_key ) ) {
-			$headers['Authorization'] = 'Bearer ' . $this->api_key;
+			$headers['x-api-key'] = $this->api_key;
 		}
 
 		// Build multipart body
@@ -462,7 +460,8 @@ class Mirrorly_API_Client {
 			'timeout'   => 60, // Longer timeout for file uploads
 			'sslverify' => true,
 		);
-
+echo "<textarea>";print_r($url);echo "</textarea>";
+echo "<textarea>";print_r($args);echo "</textarea>";exit();
 		$response = wp_remote_request( $url, $args );
 
 		return $this->process_response( $response );

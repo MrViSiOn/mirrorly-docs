@@ -105,11 +105,16 @@ class Mirrorly_License {
 	 * @return bool|WP_Error
 	 */
 	public function register_free_license() {
+		error_log( 'Mirrorly License: Registrando licencia FREE...' );
+		
 		$response = $this->api_client->register_free_license();
 
 		if ( is_wp_error( $response ) ) {
+			error_log( 'Mirrorly License: Error registrando licencia FREE: ' . $response->get_error_message() );
 			return $response;
 		}
+
+		error_log( 'Mirrorly License: Respuesta de registro FREE: ' . print_r( $response, true ) );
 
 		// Update options with free license data
 		$options                 = get_option( 'mirrorly_options', array() );
@@ -119,12 +124,16 @@ class Mirrorly_License {
 		$options['max_products'] = isset( $response['limits']['monthly_generations'] ) 
 			? $response['limits']['monthly_generations'] : 3;
 
+		error_log( 'Mirrorly License: Opciones actualizadas: ' . print_r( $options, true ) );
+
 		update_option( 'mirrorly_options', $options );
 
 		// Update API client with new key
 		$this->api_client->set_api_key( $options['api_key'] );
 
 		do_action( 'mirrorly_free_license_registered', $response );
+
+		error_log( 'Mirrorly License: Licencia FREE registrada exitosamente' );
 
 		return true;
 	}
@@ -320,21 +329,32 @@ class Mirrorly_License {
 	 * @return int|string Returns number or 'unlimited'
 	 */
 	public function get_remaining_generations() {
+		error_log( 'Mirrorly License: get_remaining_generations() - obteniendo estadísticas de uso...' );
+		
 		$usage_stats = $this->api_client->get_usage_stats();
 
 		if ( is_wp_error( $usage_stats ) ) {
+			error_log( 'Mirrorly License: get_remaining_generations() - error en usage_stats: ' . $usage_stats->get_error_message() );
 			return 0;
 		}
+
+		error_log( 'Mirrorly License: get_remaining_generations() - usage_stats: ' . print_r( $usage_stats, true ) );
 
 		$limits        = $this->get_license_limits();
 		$monthly_limit = $limits['monthly_generations'];
 		$current_usage = isset( $usage_stats['currentUsage'] ) ? $usage_stats['currentUsage'] : 0;
 
+		error_log( 'Mirrorly License: get_remaining_generations() - monthly_limit: ' . $monthly_limit . ', current_usage: ' . $current_usage );
+
 		if ( $monthly_limit === -1 ) {
+			error_log( 'Mirrorly License: get_remaining_generations() - unlimited license' );
 			return 'unlimited';
 		}
 
-		return max( 0, $monthly_limit - $current_usage );
+		$remaining = max( 0, $monthly_limit - $current_usage );
+		error_log( 'Mirrorly License: get_remaining_generations() - remaining: ' . $remaining );
+		
+		return $remaining;
 	}
 
 	/**
@@ -344,12 +364,19 @@ class Mirrorly_License {
 	 */
 	public function can_generate() {
 		$remaining = $this->get_remaining_generations();
+		
+		// Debug log
+		error_log( 'Mirrorly License: can_generate() - remaining: ' . print_r( $remaining, true ) );
 
 		if ( $remaining === 'unlimited' ) {
+			error_log( 'Mirrorly License: can_generate() - unlimited, returning true' );
 			return true;
 		}
 
-		return $remaining > 0;
+		$can_generate = $remaining > 0;
+		error_log( 'Mirrorly License: can_generate() - returning: ' . ( $can_generate ? 'true' : 'false' ) );
+		
+		return $can_generate;
 	}
 
 	/**

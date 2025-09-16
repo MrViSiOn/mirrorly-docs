@@ -172,6 +172,8 @@
 		initFileUpload: function () {
 			var self = this;
 
+	
+
 			// Remove any existing event handlers to prevent conflicts
 			this.$fileInput.off('.mirrorly');
 			this.$uploadArea.off('.mirrorly');
@@ -179,11 +181,21 @@
 			// File input change handler
 			this.$fileInput.on('change.mirrorly', function (e) {
 				console.log('Mirrorly: File input changed');
+				console.log('Mirrorly: Files array:', e.target.files);
+				console.log('Mirrorly: Files length:', e.target.files.length);
+
 				var file = e.target.files[0];
+				console.log('Mirrorly: Selected file:', file);
+
 				if (file) {
+					console.log('Mirrorly: File exists, calling handleFileSelection');
 					self.handleFileSelection(file);
+				} else {
+					console.log('Mirrorly: No file selected');
 				}
 			});
+
+
 
 			// Upload area click handler - simplified approach
 			this.$uploadArea.on('click.mirrorly', function (e) {
@@ -204,6 +216,8 @@
 			// Make upload area focusable for accessibility
 			this.$uploadArea.attr('tabindex', '0').attr('role', 'button')
 				.attr('aria-label', (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.upload_image : 'Subir imagen');
+
+
 		},
 
 		/**
@@ -304,6 +318,9 @@
 		initButtons: function () {
 			var self = this;
 
+			console.log('Mirrorly: initButtons called');
+			console.log('Mirrorly: Generate button element:', $('#mirrorly-generate-btn'));
+
 			// Change image button
 			$('#mirrorly-change-image').on(
 				'click',
@@ -316,6 +333,7 @@
 			$('#mirrorly-generate-btn').on(
 				'click',
 				function () {
+					console.log('Mirrorly: Generate button clicked!');
 					self.generateImage();
 				}
 			);
@@ -351,19 +369,31 @@
 					self.generateImage();
 				}
 			);
+
+			console.log('Mirrorly: All button event handlers registered');
 		},
 
 		/**
 		 * Handle file selection
 		 */
 		handleFileSelection: function (file) {
+			console.log('Mirrorly: handleFileSelection called with file:', {
+				name: file.name,
+				size: file.size,
+				type: file.type
+			});
+
 			// Validate file
 			var validation = this.validateFile(file);
+			console.log('Mirrorly: File validation result:', validation);
+
 			if (!validation.valid) {
+				console.error('Mirrorly: File validation failed:', validation.message);
 				this.showError(validation.message);
 				return;
 			}
 
+			console.log('Mirrorly: File validated successfully, setting currentFile and showing preview');
 			this.currentFile = file;
 			this.showPreview(file);
 		},
@@ -397,14 +427,22 @@
 		 * Show file preview
 		 */
 		showPreview: function (file) {
+			console.log('Mirrorly: showPreview called with file:', file.name);
+
 			var reader = new FileReader();
 			var self = this;
 
 			reader.onload = function (e) {
+				console.log('Mirrorly: FileReader loaded, setting preview image and showing preview section');
 				$('#mirrorly-user-preview').attr('src', e.target.result);
 				self.showSection('preview');
 			};
 
+			reader.onerror = function (e) {
+				console.error('Mirrorly: FileReader error:', e);
+			};
+
+			console.log('Mirrorly: Starting FileReader.readAsDataURL');
 			reader.readAsDataURL(file);
 		},
 
@@ -438,6 +476,17 @@
 
 			var self = this;
 
+			// Debug log para verificar que se está enviando la solicitud
+			console.log('Mirrorly: Enviando solicitud de generación con datos:', {
+				action: 'mirrorly_generate_image',
+				product_id: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.product_id : '',
+				file_size: this.currentFile ? this.currentFile.size : 0,
+				file_type: this.currentFile ? this.currentFile.type : '',
+				ajax_url: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.ajax_url : '/wp-admin/admin-ajax.php',
+				nonce: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.nonce : '',
+				can_generate: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.can_generate : 'undefined'
+			});
+
 			// Simulate progress for better UX
 			this.simulateProgress();
 
@@ -465,6 +514,7 @@
 						return xhr;
 					},
 					success: function (response) {
+						console.log('Mirrorly: Respuesta AJAX recibida:', response);
 						self.updateProgress(100);
 
 						if (response.success) {
@@ -492,6 +542,12 @@
 						}
 					},
 					error: function (xhr, status) {
+						console.error('Mirrorly: Error AJAX:', {
+							status: status,
+							statusCode: xhr.status,
+							responseText: xhr.responseText,
+							readyState: xhr.readyState
+						});
 						if (status === 'timeout') {
 							self.handleGenerationError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.timeout_error : 'Tiempo de espera agotado', true);
 						} else if (status === 'error' && xhr.status >= 500) {
@@ -720,6 +776,8 @@
 		 * Show specific section with smooth transitions
 		 */
 		showSection: function (section) {
+			console.log('Mirrorly: showSection called with section:', section);
+
 			const sections = {
 				'upload': '#mirrorly-upload-area',
 				'preview': '#mirrorly-preview-section',
@@ -727,6 +785,9 @@
 				'result': '#mirrorly-result',
 				'error': '#mirrorly-error'
 			};
+
+			console.log('Mirrorly: Available sections:', sections);
+			console.log('Mirrorly: Target selector for section "' + section + '":', sections[section]);
 
 			// Add animating class for performance optimization
 			this.$widget.addClass('animating');
@@ -745,16 +806,25 @@
 			setTimeout(
 				() => {
 					const targetSelector = sections[section];
+					console.log('Mirrorly: Showing section with selector:', targetSelector);
+
 					if (targetSelector) {
-						$(targetSelector).fadeIn(
+						const $targetElement = $(targetSelector);
+						console.log('Mirrorly: Target element found:', $targetElement.length > 0);
+						console.log('Mirrorly: Target element HTML:', $targetElement.length > 0 ? $targetElement[0].outerHTML.substring(0, 200) : 'Not found');
+
+						$targetElement.fadeIn(
 							300,
 							() => {
+								console.log('Mirrorly: Section fade in complete for:', section);
 								// Remove animating class after animation
 								this.$widget.removeClass('animating');
 								// Focus management for accessibility
 								this.manageFocus(section);
 							}
 						);
+					} else {
+						console.error('Mirrorly: No target selector found for section:', section);
 					}
 					// Special handling for generation section
 					if (['loading', 'result', 'error'].includes(section)) {
@@ -763,7 +833,8 @@
 						$('#mirrorly-generation-section').hide();
 					}
 
-					if (section === 'upload') {
+					// Show upload section container for both upload and preview
+					if (section === 'upload' || section === 'preview') {
 						$('#mirrorly-upload-area').parent().show();
 					} else {
 						$('#mirrorly-upload-area').parent().hide();

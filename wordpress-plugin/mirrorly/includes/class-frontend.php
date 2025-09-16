@@ -75,37 +75,42 @@ class Mirrorly_Frontend {
 		$widget_styling   = isset( $options['widget_styling'] ) ? $options['widget_styling'] : array();
 		$widget_animation = isset( $widget_styling['animation'] ) ? $widget_styling['animation'] : 'fade';
 
+		// Debug log para verificar los datos que se están enviando al frontend
+		$frontend_data = array(
+			'ajax_url'              => admin_url( 'admin-ajax.php' ),
+			'nonce'                 => wp_create_nonce( 'mirrorly_frontend_nonce' ),
+			'product_id'            => get_the_ID(),
+			'license_type'          => $license_status['type'],
+			'can_generate'          => $license_status['can_generate'],
+			'remaining_generations' => $license_status['remaining_generations'],
+			'widget_animation'      => $widget_animation,
+			'generation_style'      => isset( $options['generation_style'] ) ? $options['generation_style'] : 'realistic',
+			'preload_images'        => array(), // Could be populated with common icons
+			'strings'               => array(
+				'upload_image'        => __( 'Sube tu foto', 'mirrorly' ),
+				'generating'          => __( 'Generando imagen...', 'mirrorly' ),
+				'generation_complete' => __( '¡Imagen generada!', 'mirrorly' ),
+				'generation_failed'   => __( 'Error al generar imagen', 'mirrorly' ),
+				'invalid_file'        => __( 'Por favor selecciona una imagen válida', 'mirrorly' ),
+				'file_too_large'      => __( 'La imagen es demasiado grande', 'mirrorly' ),
+				'rate_limit_exceeded' => __( 'Has alcanzado el límite de generaciones. Intenta de nuevo más tarde.', 'mirrorly' ),
+				'upgrade_to_pro'      => __( 'Actualiza a PRO para más generaciones', 'mirrorly' ),
+				'download_image'      => __( 'Descargar imagen', 'mirrorly' ),
+				'share_image'         => __( 'Compartir imagen', 'mirrorly' ),
+				'processing_image'    => __( 'Procesando tu imagen...', 'mirrorly' ),
+				'status_check_error'  => __( 'Error al verificar el estado de la generación', 'mirrorly' ),
+				'network_error'       => __( 'Error de conexión. Por favor, verifica tu conexión a internet.', 'mirrorly' ),
+				'server_error'        => __( 'Error del servidor. Por favor, inténtalo de nuevo más tarde.', 'mirrorly' ),
+				'timeout_error'       => __( 'La generación está tomando más tiempo del esperado. Por favor, inténtalo de nuevo.', 'mirrorly' ),
+			),
+		);
+
+		error_log( 'Mirrorly Frontend: Datos enviados al JavaScript: ' . print_r( $frontend_data, true ) );
+
 		wp_localize_script(
 			'mirrorly-frontend',
 			'mirrorly_frontend',
-			array(
-				'ajax_url'              => admin_url( 'admin-ajax.php' ),
-				'nonce'                 => wp_create_nonce( 'mirrorly_frontend_nonce' ),
-				'product_id'            => get_the_ID(),
-				'license_type'          => $license_status['type'],
-				'can_generate'          => $license_status['can_generate'],
-				'remaining_generations' => $license_status['remaining_generations'],
-				'widget_animation'      => $widget_animation,
-				'generation_style'      => isset( $options['generation_style'] ) ? $options['generation_style'] : 'realistic',
-				'preload_images'        => array(), // Could be populated with common icons
-				'strings'               => array(
-					'upload_image'        => __( 'Sube tu foto', 'mirrorly' ),
-					'generating'          => __( 'Generando imagen...', 'mirrorly' ),
-					'generation_complete' => __( '¡Imagen generada!', 'mirrorly' ),
-					'generation_failed'   => __( 'Error al generar imagen', 'mirrorly' ),
-					'invalid_file'        => __( 'Por favor selecciona una imagen válida', 'mirrorly' ),
-					'file_too_large'      => __( 'La imagen es demasiado grande', 'mirrorly' ),
-					'rate_limit_exceeded' => __( 'Has alcanzado el límite de generaciones. Intenta de nuevo más tarde.', 'mirrorly' ),
-					'upgrade_to_pro'      => __( 'Actualiza a PRO para más generaciones', 'mirrorly' ),
-					'download_image'      => __( 'Descargar imagen', 'mirrorly' ),
-					'share_image'         => __( 'Compartir imagen', 'mirrorly' ),
-					'processing_image'    => __( 'Procesando tu imagen...', 'mirrorly' ),
-					'status_check_error'  => __( 'Error al verificar el estado de la generación', 'mirrorly' ),
-					'network_error'       => __( 'Error de conexión. Por favor, verifica tu conexión a internet.', 'mirrorly' ),
-					'server_error'        => __( 'Error del servidor. Por favor, inténtalo de nuevo más tarde.', 'mirrorly' ),
-					'timeout_error'       => __( 'La generación está tomando más tiempo del esperado. Por favor, inténtalo de nuevo.', 'mirrorly' ),
-				),
-			)
+			$frontend_data
 		);
 	}
 
@@ -141,8 +146,10 @@ class Mirrorly_Frontend {
 	/**
 	 * Check if widget should be shown for current product
 	 */
-	private function should_show_widget() {
-		global $product;
+	private function should_show_widget($product = null) {
+		if ( ! $product ) {
+			global $product;
+		}
 
 		if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
 			return false;
@@ -234,6 +241,8 @@ class Mirrorly_Frontend {
 	 * AJAX: Generate image
 	 */
 	public function ajax_generate_image() {
+		// Debug log
+		
 		check_ajax_referer( 'mirrorly_frontend_nonce', 'nonce' );
 
 		// Validate required data
@@ -242,30 +251,37 @@ class Mirrorly_Frontend {
 		}
 
 		$product_id = intval( $_POST['product_id'] );
+		
 		$product    = wc_get_product( $product_id );
 
 		if ( ! $product ) {
 			wp_send_json_error( __( 'Producto no encontrado', 'mirrorly' ) );
 		}
 
+
 		// Check if widget should be shown for this product
-		if ( ! $this->should_show_widget() ) {
+		if ( ! $this->should_show_widget($product) ) {
 			wp_send_json_error( __( 'Mirrorly no está habilitado para este producto', 'mirrorly' ) );
 		}
 
+
 		// Validate user image
 		$user_image        = $_FILES['user_image'];
+		
 		$validation_result = $this->validate_uploaded_image( $user_image );
 
 		if ( is_wp_error( $validation_result ) ) {
 			wp_send_json_error( $validation_result->get_error_message() );
 		}
 
+
 		// Check license and limits
 		$license = new Mirrorly_License();
+		
 		if ( ! $license->can_generate() ) {
 			wp_send_json_error( __( 'Has alcanzado el límite de generaciones para este mes', 'mirrorly' ) );
 		}
+
 
 		// Get product image
 		$mirrorly_image_id = get_post_meta( $product_id, '_mirrorly_image_id', true );
@@ -285,6 +301,7 @@ class Mirrorly_Frontend {
 		}
 
 		// Generate image via API
+		
 		$api_client         = new Mirrorly_API_Client();
 		$generation_options = array(
 			'style'   => isset( $_POST['style'] ) ? sanitize_text_field( $_POST['style'] ) : 'realistic',

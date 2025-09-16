@@ -141,7 +141,7 @@ $api_client->set_api_key( 'test_api_key_123' );
 echo "✓ API key set successfully\n";
 
 // Test URL setting
-$api_client->set_api_url( 'https://test-api.mirrorly.com/v1/' );
+$api_client->set_api_url( 'http://localhost:3000/v1/' );
 echo "✓ API URL set successfully\n";
 
 // Test timeout setting
