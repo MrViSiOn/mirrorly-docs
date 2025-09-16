@@ -5,8 +5,17 @@
 (function ($) {
 	'use strict';
 
-	$( document ).ready(
+	$(document).ready(
 		function () {
+			// Check if mirrorly_frontend is available
+			if (typeof mirrorly_frontend === 'undefined') {
+				console.warn('Mirrorly: Frontend variables not loaded');
+				return;
+			}
+
+			// Debug log
+			console.log('Mirrorly: Initializing frontend with config:', mirrorly_frontend);
+
 			// Initialize frontend functionality
 			MirrorlyFrontend.init();
 		}
@@ -21,6 +30,7 @@
 		statusCheckInterval: null,
 		retryCount: 0,
 		maxRetries: 3,
+		isClickingFileInput: false, // Flag to prevent recursive clicks
 
 		// Performance tracking
 		startTime: null,
@@ -31,10 +41,20 @@
 		$uploadArea: null,
 
 		init: function () {
+			console.log('Mirrorly: Starting initialization');
+
 			// Cache frequently used elements
-			this.$widget     = $( '.mirrorly-widget' );
-			this.$fileInput  = $( '#mirrorly-file-input' );
-			this.$uploadArea = $( '#mirrorly-upload-area' );
+			this.$widget = $('.mirrorly-widget');
+			this.$fileInput = $('#mirrorly-file-input');
+			this.$uploadArea = $('#mirrorly-upload-area');
+
+			// Debug element availability
+			console.log('Mirrorly: Elements found - Widget:', this.$widget.length, 'FileInput:', this.$fileInput.length, 'UploadArea:', this.$uploadArea.length);
+
+			if (this.$widget.length === 0) {
+				console.warn('Mirrorly: Widget element not found');
+				return;
+			}
 
 			// Add entrance animation
 			this.addEntranceAnimation();
@@ -48,17 +68,20 @@
 
 			// Preload critical resources
 			this.preloadResources();
+
+			console.log('Mirrorly: Initialization complete');
 		},
 
 		/**
 		 * Add entrance animation to widget
 		 */
 		addEntranceAnimation: function () {
-			if (this.$widget.length && mirrorly_frontend.widget_animation && mirrorly_frontend.widget_animation !== 'none') {
+			var self = this;
+			if (this.$widget.length && typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.widget_animation && mirrorly_frontend.widget_animation !== 'none') {
 				// Add animation class after a small delay to ensure proper rendering
 				setTimeout(
-					() => {
-                    this.$widget.addClass( 'animation-' + mirrorly_frontend.widget_animation );
+					function () {
+						self.$widget.addClass('animation-' + mirrorly_frontend.widget_animation);
 					},
 					100
 				);
@@ -69,22 +92,21 @@
 		 * Initialize intersection observer for performance
 		 */
 		initIntersectionObserver: function () {
+			var self = this;
 			if ('IntersectionObserver' in window && this.$widget.length) {
-				const observer = new IntersectionObserver(
-					(entries) => {
-                    entries.forEach(
-							entry => {
-                            if (entry.isIntersecting) {
-                                // Widget is visible, can perform expensive operations
-                                this.$widget.addClass( 'visible' );
-                            }
+				var observer = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							if (entry.isIntersecting) {
+								// Widget is visible, can perform expensive operations
+								self.$widget.addClass('visible');
 							}
-						);
+						});
 					},
 					{ threshold: 0.1 }
 				);
 
-				observer.observe( this.$widget[0] );
+				observer.observe(this.$widget[0]);
 			}
 		},
 
@@ -93,13 +115,11 @@
 		 */
 		preloadResources: function () {
 			// Preload common icons or images if needed
-			if (mirrorly_frontend.preload_images) {
-				mirrorly_frontend.preload_images.forEach(
-					src => {
-                    const img = new Image();
-                    img.src   = src;
-					}
-				);
+			if (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.preload_images) {
+				mirrorly_frontend.preload_images.forEach(function (src) {
+					var img = new Image();
+					img.src = src;
+				});
 			}
 		},
 
@@ -107,24 +127,30 @@
 		 * Initialize keyboard navigation
 		 */
 		initKeyboardNavigation: function () {
+			var self = this;
+
+			// Remove existing handlers
+			this.$uploadArea.off('keydown.mirrorly');
+			$(document).off('keydown.mirrorly');
+
 			// Allow Enter key to trigger file selection
 			this.$uploadArea.on(
-				'keydown',
-				(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.$fileInput.click();
-                }
+				'keydown.mirrorly',
+				function (e) {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						self.openFileDialog();
+					}
 				}
 			);
 
 			// ESC key to reset
-			$( document ).on(
-				'keydown',
-				(e) => {
-                if (e.key === 'Escape' && this.currentFile && ! this.isGenerating) {
-                    this.resetToUpload();
-                }
+			$(document).on(
+				'keydown.mirrorly',
+				function (e) {
+					if (e.key === 'Escape' && self.currentFile && !self.isGenerating) {
+						self.resetToUpload();
+					}
 				}
 			);
 		},
@@ -133,10 +159,10 @@
 		 * Check initial state and show appropriate section
 		 */
 		checkInitialState: function () {
-			if ( ! mirrorly_frontend.can_generate) {
-				this.showSection( 'limit-notice' );
+			if (typeof mirrorly_frontend !== 'undefined' && !mirrorly_frontend.can_generate) {
+				this.showSection('limit-notice');
 			} else {
-				this.showSection( 'upload' );
+				this.showSection('upload');
 			}
 		},
 
@@ -146,64 +172,127 @@
 		initFileUpload: function () {
 			var self = this;
 
-			this.$fileInput.on(
-				'change',
-				function (e) {
-					var file = e.target.files[0];
-					if (file) {
-						self.handleFileSelection( file );
-					}
-				}
-			);
+			// Remove any existing event handlers to prevent conflicts
+			this.$fileInput.off('.mirrorly');
+			this.$uploadArea.off('.mirrorly');
 
-			// Click to upload
-			this.$uploadArea.on(
-				'click',
-				function () {
-					self.$fileInput.click();
+			// File input change handler
+			this.$fileInput.on('change.mirrorly', function (e) {
+				console.log('Mirrorly: File input changed');
+				var file = e.target.files[0];
+				if (file) {
+					self.handleFileSelection(file);
 				}
-			);
+			});
+
+			// Upload area click handler - simplified approach
+			this.$uploadArea.on('click.mirrorly', function (e) {
+				console.log('Mirrorly: Upload area clicked');
+
+				// Prevent recursive clicks
+				if (self.isClickingFileInput) {
+					console.log('Mirrorly: Preventing recursive click');
+					return;
+				}
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				self.openFileDialog();
+			});
 
 			// Make upload area focusable for accessibility
-			this.$uploadArea.attr( 'tabindex', '0' ).attr( 'role', 'button' )
-			.attr( 'aria-label', mirrorly_frontend.strings.upload_image || 'Subir imagen' );
+			this.$uploadArea.attr('tabindex', '0').attr('role', 'button')
+				.attr('aria-label', (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.upload_image : 'Subir imagen');
+		},
+
+		/**
+		 * Safely open file dialog
+		 */
+		openFileDialog: function () {
+			var self = this;
+
+			if (self.isClickingFileInput) {
+				console.log('Mirrorly: File dialog already opening');
+				return;
+			}
+
+			console.log('Mirrorly: Opening file dialog');
+			self.isClickingFileInput = true;
+
+			// Use requestAnimationFrame to ensure we're not in a recursive call
+			requestAnimationFrame(function () {
+				try {
+					var fileInputElement = self.$fileInput[0];
+					if (fileInputElement) {
+						// Try multiple methods for maximum compatibility
+						if (typeof fileInputElement.click === 'function') {
+							fileInputElement.click();
+						} else {
+							// Fallback for older browsers
+							var event = document.createEvent('MouseEvents');
+							event.initEvent('click', true, false);
+							fileInputElement.dispatchEvent(event);
+						}
+						console.log('Mirrorly: File dialog opened successfully');
+					} else {
+						console.error('Mirrorly: File input element not found');
+					}
+				} catch (error) {
+					console.error('Mirrorly: Error opening file dialog:', error);
+					// Try alternative approach
+					try {
+						self.$fileInput.trigger('click');
+					} catch (fallbackError) {
+						console.error('Mirrorly: Fallback method also failed:', fallbackError);
+					}
+				}
+
+				// Reset flag after a delay
+				setTimeout(function () {
+					self.isClickingFileInput = false;
+				}, 500);
+			});
 		},
 
 		/**
 		 * Initialize drag and drop functionality
 		 */
 		initDragAndDrop: function () {
-			var self        = this;
-			var $uploadArea = $( '#mirrorly-upload-area' );
+			var self = this;
+			var $uploadArea = this.$uploadArea;
+
+			// Remove existing handlers to prevent conflicts
+			$uploadArea.off('.mirrorly-drag');
 
 			$uploadArea.on(
-				'dragover dragenter',
+				'dragover.mirrorly-drag dragenter.mirrorly-drag',
 				function (e) {
 					e.preventDefault();
 					e.stopPropagation();
-					$( this ).addClass( 'dragover' );
+					$(this).addClass('dragover');
 				}
 			);
 
 			$uploadArea.on(
-				'dragleave dragend',
+				'dragleave.mirrorly-drag dragend.mirrorly-drag',
 				function (e) {
 					e.preventDefault();
 					e.stopPropagation();
-					$( this ).removeClass( 'dragover' );
+					$(this).removeClass('dragover');
 				}
 			);
 
 			$uploadArea.on(
-				'drop',
+				'drop.mirrorly-drag',
 				function (e) {
 					e.preventDefault();
 					e.stopPropagation();
-					$( this ).removeClass( 'dragover' );
+					$(this).removeClass('dragover');
 
 					var files = e.originalEvent.dataTransfer.files;
 					if (files.length > 0) {
-						self.handleFileSelection( files[0] );
+						self.handleFileSelection(files[0]);
 					}
 				}
 			);
@@ -216,7 +305,7 @@
 			var self = this;
 
 			// Change image button
-			$( '#mirrorly-change-image' ).on(
+			$('#mirrorly-change-image').on(
 				'click',
 				function () {
 					self.resetToUpload();
@@ -224,7 +313,7 @@
 			);
 
 			// Generate button
-			$( '#mirrorly-generate-btn' ).on(
+			$('#mirrorly-generate-btn').on(
 				'click',
 				function () {
 					self.generateImage();
@@ -232,7 +321,7 @@
 			);
 
 			// Download button
-			$( '#mirrorly-download-btn' ).on(
+			$('#mirrorly-download-btn').on(
 				'click',
 				function () {
 					self.downloadImage();
@@ -240,7 +329,7 @@
 			);
 
 			// Share button
-			$( '#mirrorly-share-btn' ).on(
+			$('#mirrorly-share-btn').on(
 				'click',
 				function () {
 					self.shareImage();
@@ -248,15 +337,15 @@
 			);
 
 			// Try again button
-			$( '#mirrorly-try-again-btn' ).on(
+			$('#mirrorly-try-again-btn').on(
 				'click',
 				function () {
-					self.showSection( 'preview' );
+					self.showSection('preview');
 				}
 			);
 
 			// Retry button
-			$( '#mirrorly-retry-btn' ).on(
+			$('#mirrorly-retry-btn').on(
 				'click',
 				function () {
 					self.generateImage();
@@ -269,14 +358,14 @@
 		 */
 		handleFileSelection: function (file) {
 			// Validate file
-			var validation = this.validateFile( file );
-			if ( ! validation.valid) {
-				this.showError( validation.message );
+			var validation = this.validateFile(file);
+			if (!validation.valid) {
+				this.showError(validation.message);
 				return;
 			}
 
 			this.currentFile = file;
-			this.showPreview( file );
+			this.showPreview(file);
 		},
 
 		/**
@@ -285,19 +374,19 @@
 		validateFile: function (file) {
 			// Check file type
 			var allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-			if ( ! allowedTypes.includes( file.type )) {
+			if (!allowedTypes.includes(file.type)) {
 				return {
 					valid: false,
-					message: mirrorly_frontend.strings.invalid_file
+					message: (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.invalid_file : 'Archivo no válido'
 				};
 			}
 
 			// Check file size
-			var maxSize = mirrorly_frontend.license_type === 'free' ? 2 * 1024 * 1024 : 5 * 1024 * 1024; // 2MB for free, 5MB for pro
+			var maxSize = (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.license_type === 'free') ? 2 * 1024 * 1024 : 5 * 1024 * 1024; // 2MB for free, 5MB for pro
 			if (file.size > maxSize) {
 				return {
 					valid: false,
-					message: mirrorly_frontend.strings.file_too_large
+					message: (typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.file_too_large : 'Archivo demasiado grande'
 				};
 			}
 
@@ -309,43 +398,43 @@
 		 */
 		showPreview: function (file) {
 			var reader = new FileReader();
-			var self   = this;
+			var self = this;
 
 			reader.onload = function (e) {
-				$( '#mirrorly-user-preview' ).attr( 'src', e.target.result );
-				self.showSection( 'preview' );
+				$('#mirrorly-user-preview').attr('src', e.target.result);
+				self.showSection('preview');
 			};
 
-			reader.readAsDataURL( file );
+			reader.readAsDataURL(file);
 		},
 
 		/**
 		 * Generate image via API
 		 */
 		generateImage: function () {
-			if (this.isGenerating || ! this.currentFile) {
+			if (this.isGenerating || !this.currentFile) {
 				return;
 			}
 
 			// Check if can generate
-			if ( ! mirrorly_frontend.can_generate) {
-				this.showError( mirrorly_frontend.strings.rate_limit_exceeded );
+			if (typeof mirrorly_frontend !== 'undefined' && !mirrorly_frontend.can_generate) {
+				this.showError((mirrorly_frontend.strings && mirrorly_frontend.strings.rate_limit_exceeded) || 'Límite de generaciones alcanzado');
 				return;
 			}
 
 			this.isGenerating = true;
-			this.startTime    = performance.now();
-			this.retryCount   = 0;
+			this.startTime = performance.now();
+			this.retryCount = 0;
 
-			this.showSection( 'loading' );
-			this.updateProgress( 0 );
+			this.showSection('loading');
+			this.updateProgress(0);
 
 			var formData = new FormData();
-			formData.append( 'action', 'mirrorly_generate_image' );
-			formData.append( 'nonce', mirrorly_frontend.nonce );
-			formData.append( 'product_id', mirrorly_frontend.product_id );
-			formData.append( 'user_image', this.currentFile );
-			formData.append( 'style', mirrorly_frontend.generation_style || 'realistic' );
+			formData.append('action', 'mirrorly_generate_image');
+			formData.append('nonce', (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.nonce : '');
+			formData.append('product_id', (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.product_id : '');
+			formData.append('user_image', this.currentFile);
+			formData.append('style', (typeof mirrorly_frontend !== 'undefined') ? (mirrorly_frontend.generation_style || 'realistic') : 'realistic');
 
 			var self = this;
 
@@ -354,7 +443,7 @@
 
 			$.ajax(
 				{
-					url: mirrorly_frontend.ajax_url,
+					url: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.ajax_url : '/wp-admin/admin-ajax.php',
 					type: 'POST',
 					data: formData,
 					processData: false,
@@ -368,7 +457,7 @@
 							function (evt) {
 								if (evt.lengthComputable) {
 									var percentComplete = (evt.loaded / evt.total) * 30; // Upload is 30% of total
-									self.updateProgress( percentComplete );
+									self.updateProgress(percentComplete);
 								}
 							},
 							false
@@ -376,13 +465,13 @@
 						return xhr;
 					},
 					success: function (response) {
-						self.updateProgress( 100 );
+						self.updateProgress(100);
 
 						if (response.success) {
 							// Track performance
 							if (self.startTime) {
 								const duration = performance.now() - self.startTime;
-								self.trackPerformance( 'generation_success', duration );
+								self.trackPerformance('generation_success', duration);
 							}
 
 							// Check if this is an async response with generation ID
@@ -391,26 +480,26 @@
 								self.startStatusChecking();
 							} else {
 								// Immediate result
-								self.showResult( response.data );
+								self.showResult(response.data);
 
 								// Update remaining generations
 								if (response.data.remaining_generations !== undefined) {
-									self.updateRemainingGenerations( response.data.remaining_generations );
+									self.updateRemainingGenerations(response.data.remaining_generations);
 								}
 							}
 						} else {
-							self.handleGenerationError( response.data || mirrorly_frontend.strings.generation_failed );
+							self.handleGenerationError(response.data || ((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.generation_failed : 'Error al generar imagen'));
 						}
 					},
 					error: function (xhr, status) {
 						if (status === 'timeout') {
-							self.handleGenerationError( mirrorly_frontend.strings.timeout_error, true );
+							self.handleGenerationError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.timeout_error : 'Tiempo de espera agotado', true);
 						} else if (status === 'error' && xhr.status >= 500) {
-							self.handleGenerationError( mirrorly_frontend.strings.server_error, true );
+							self.handleGenerationError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.server_error : 'Error del servidor', true);
 						} else if (status === 'error' && xhr.status === 0) {
-							self.handleGenerationError( mirrorly_frontend.strings.network_error, true );
+							self.handleGenerationError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.network_error : 'Error de conexión', true);
 						} else {
-							self.handleGenerationError( mirrorly_frontend.strings.generation_failed, true );
+							self.handleGenerationError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.generation_failed : 'Error al generar imagen', true);
 						}
 					},
 					complete: function () {
@@ -428,12 +517,12 @@
 				this.retryCount++;
 
 				// Show retry message
-				$( '#mirrorly-loading .mirrorly-loading-text' ).text( 'Reintentando... (' + this.retryCount + '/' + this.maxRetries + ')' );
+				$('#mirrorly-loading .mirrorly-loading-text').text('Reintentando... (' + this.retryCount + '/' + this.maxRetries + ')');
 
 				// Retry after delay
 				setTimeout(
 					() => {
-                    this.generateImage();
+						this.generateImage();
 					},
 					2000 * this.retryCount
 				); // Exponential backoff
@@ -444,25 +533,25 @@
 			// Track error
 			if (this.startTime) {
 				const duration = performance.now() - this.startTime;
-				this.trackPerformance( 'generation_error', duration );
+				this.trackPerformance('generation_error', duration);
 			}
 
-			this.showError( message );
+			this.showError(message);
 		},
 
 		/**
 		 * Simulate progress for better UX
 		 */
 		simulateProgress: function () {
-			let progress      = 0;
-			const interval    = setInterval(
+			let progress = 0;
+			const interval = setInterval(
 				() => {
-                progress += Math.random() * 10;
-                if (progress > 70) {
-                    clearInterval( interval );
-                    return;
-                }
-                this.updateProgress( progress );
+					progress += Math.random() * 10;
+					if (progress > 70) {
+						clearInterval(interval);
+						return;
+					}
+					this.updateProgress(progress);
 				},
 				500
 			);
@@ -472,9 +561,9 @@
 		 * Update progress bar
 		 */
 		updateProgress: function (percent) {
-			const $progressBar = $( '.mirrorly-progress-bar' );
+			const $progressBar = $('.mirrorly-progress-bar');
 			if ($progressBar.length) {
-				$progressBar.css( 'width', Math.min( percent, 100 ) + '%' );
+				$progressBar.css('width', Math.min(percent, 100) + '%');
 			}
 		},
 
@@ -495,15 +584,15 @@
 			}
 
 			// Log for debugging
-			console.log( 'Mirrorly Performance:', event, duration + 'ms' );
+			console.log('Mirrorly Performance:', event, duration + 'ms');
 		},
 
 		/**
 		 * Show generation result
 		 */
 		showResult: function (data) {
-			$( '#mirrorly-result-image' ).attr( 'src', data.image_url );
-			this.showSection( 'result' );
+			$('#mirrorly-result-image').attr('src', data.image_url);
+			this.showSection('result');
 
 			// Store result data for download/share
 			this.resultData = data;
@@ -513,27 +602,27 @@
 		 * Download generated image
 		 */
 		downloadImage: function () {
-			if ( ! this.resultData || ! this.resultData.image_url) {
+			if (!this.resultData || !this.resultData.image_url) {
 				return;
 			}
 
 			// Create download link
-			var link      = document.createElement( 'a' );
-			link.href     = this.resultData.image_url;
+			var link = document.createElement('a');
+			link.href = this.resultData.image_url;
 			link.download = 'mirrorly-generated-image.jpg';
-			link.target   = '_blank';
+			link.target = '_blank';
 
 			// Trigger download
-			document.body.appendChild( link );
+			document.body.appendChild(link);
 			link.click();
-			document.body.removeChild( link );
+			document.body.removeChild(link);
 		},
 
 		/**
 		 * Share generated image
 		 */
 		shareImage: function () {
-			if ( ! this.resultData || ! this.resultData.image_url) {
+			if (!this.resultData || !this.resultData.image_url) {
 				return;
 			}
 
@@ -547,7 +636,7 @@
 					}
 				).catch(
 					function (error) {
-						console.log( 'Error sharing:', error );
+						console.log('Error sharing:', error);
 					}
 				);
 			} else {
@@ -561,37 +650,37 @@
 		 */
 		showShareOptions: function () {
 			var imageUrl = this.resultData.image_url;
-			var text     = encodeURIComponent( '¡Mira cómo me queda este producto!' );
-			var url      = encodeURIComponent( imageUrl );
+			var text = encodeURIComponent('¡Mira cómo me queda este producto!');
+			var url = encodeURIComponent(imageUrl);
 
 			var shareOptions = [
-			{
-				name: 'Facebook',
-				url: 'https://www.facebook.com/sharer/sharer.php?u=' + url
-			},
-			{
-				name: 'Twitter',
-				url: 'https://twitter.com/intent/tweet?text=' + text + '&url=' + url
-			},
-			{
-				name: 'WhatsApp',
-				url: 'https://wa.me/?text=' + text + ' ' + url
-			}
+				{
+					name: 'Facebook',
+					url: 'https://www.facebook.com/sharer/sharer.php?u=' + url
+				},
+				{
+					name: 'Twitter',
+					url: 'https://twitter.com/intent/tweet?text=' + text + '&url=' + url
+				},
+				{
+					name: 'WhatsApp',
+					url: 'https://wa.me/?text=' + text + ' ' + url
+				}
 			];
 
-			var modal = $( '<div class="mirrorly-share-modal"><div class="mirrorly-share-content"><h3>Compartir imagen</h3><div class="mirrorly-share-options"></div><button class="mirrorly-share-close">Cerrar</button></div></div>' );
+			var modal = $('<div class="mirrorly-share-modal"><div class="mirrorly-share-content"><h3>Compartir imagen</h3><div class="mirrorly-share-options"></div><button class="mirrorly-share-close">Cerrar</button></div></div>');
 
 			shareOptions.forEach(
 				function (option) {
-					modal.find( '.mirrorly-share-options' ).append(
+					modal.find('.mirrorly-share-options').append(
 						'<a href="' + option.url + '" target="_blank" class="mirrorly-share-option">' + option.name + '</a>'
 					);
 				}
 			);
 
-			$( 'body' ).append( modal );
+			$('body').append(modal);
 
-			modal.find( '.mirrorly-share-close' ).on(
+			modal.find('.mirrorly-share-close').on(
 				'click',
 				function () {
 					modal.remove();
@@ -613,8 +702,8 @@
 		 */
 		showError: function (message) {
 			this.stopStatusChecking();
-			$( '#mirrorly-error-message' ).text( message );
-			this.showSection( 'error' );
+			$('#mirrorly-error-message').text(message);
+			this.showSection('error');
 		},
 
 		/**
@@ -623,8 +712,8 @@
 		resetToUpload: function () {
 			this.stopStatusChecking();
 			this.currentFile = null;
-			$( '#mirrorly-file-input' ).val( '' );
-			this.showSection( 'upload' );
+			$('#mirrorly-file-input').val('');
+			this.showSection('upload');
 		},
 
 		/**
@@ -640,44 +729,44 @@
 			};
 
 			// Add animating class for performance optimization
-			this.$widget.addClass( 'animating' );
+			this.$widget.addClass('animating');
 
 			// Hide all sections with fade out
-			Object.values( sections ).forEach(
+			Object.values(sections).forEach(
 				selector => {
-                const $element = $( selector );
-                if ($element.is( ':visible' )) {
-                    $element.fadeOut( 200 );
-                }
+					const $element = $(selector);
+					if ($element.is(':visible')) {
+						$element.fadeOut(200);
+					}
 				}
 			);
 
 			// Show requested section with fade in
 			setTimeout(
 				() => {
-                const targetSelector = sections[section];
+					const targetSelector = sections[section];
 					if (targetSelector) {
-						$( targetSelector ).fadeIn(
-						300,
-						() => {
-							// Remove animating class after animation
-							this.$widget.removeClass( 'animating' );
-							// Focus management for accessibility
-							this.manageFocus( section );
+						$(targetSelector).fadeIn(
+							300,
+							() => {
+								// Remove animating class after animation
+								this.$widget.removeClass('animating');
+								// Focus management for accessibility
+								this.manageFocus(section);
 							}
-							);
+						);
 					}
 					// Special handling for generation section
-					if (['loading', 'result', 'error'].includes( section )) {
-						$( '#mirrorly-generation-section' ).show();
+					if (['loading', 'result', 'error'].includes(section)) {
+						$('#mirrorly-generation-section').show();
 					} else {
-						$( '#mirrorly-generation-section' ).hide();
+						$('#mirrorly-generation-section').hide();
 					}
 
 					if (section === 'upload') {
-						$( '#mirrorly-upload-area' ).parent().show();
+						$('#mirrorly-upload-area').parent().show();
 					} else {
-						$( '#mirrorly-upload-area' ).parent().hide();
+						$('#mirrorly-upload-area').parent().hide();
 					}
 				},
 				200
@@ -693,16 +782,16 @@
 			switch (section) {
 				case 'upload':
 					focusTarget = this.$uploadArea;
-				break;
+					break;
 				case 'preview':
-					focusTarget = $( '#mirrorly-generate-btn' );
-				break;
+					focusTarget = $('#mirrorly-generate-btn');
+					break;
 				case 'result':
-					focusTarget = $( '#mirrorly-download-btn' );
-				break;
+					focusTarget = $('#mirrorly-download-btn');
+					break;
 				case 'error':
-					focusTarget = $( '#mirrorly-try-again-btn' );
-				break;
+					focusTarget = $('#mirrorly-try-again-btn');
+					break;
 			}
 
 			if (focusTarget && focusTarget.length) {
@@ -714,17 +803,19 @@
 		 * Update remaining generations display
 		 */
 		updateRemainingGenerations: function (remaining) {
-			var $remaining = $( '.mirrorly-remaining strong' );
+			var $remaining = $('.mirrorly-remaining strong');
 			if ($remaining.length) {
 				if (remaining === 'unlimited') {
-					$remaining.text( 'Ilimitadas' );
+					$remaining.text('Ilimitadas');
 				} else {
-					$remaining.text( remaining );
+					$remaining.text(remaining);
 
 					// If no generations left, disable functionality
 					if (remaining <= 0) {
-							this.showError( mirrorly_frontend.strings.rate_limit_exceeded );
+						this.showError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.rate_limit_exceeded : 'Límite de generaciones alcanzado');
+						if (typeof mirrorly_frontend !== 'undefined') {
 							mirrorly_frontend.can_generate = false;
+						}
 					}
 				}
 			}
@@ -734,15 +825,15 @@
 		 * Start checking generation status for async generations
 		 */
 		startStatusChecking: function () {
-			if ( ! this.currentGenerationId) {
+			if (!this.currentGenerationId) {
 				return;
 			}
 
 			var self = this;
 
 			// Update loading text for async generation
-			$( '#mirrorly-loading .mirrorly-loading-text' ).text( 'Procesando tu imagen...' );
-			$( '#mirrorly-loading .mirrorly-loading-hint' ).text( 'Te notificaremos cuando esté lista' );
+			$('#mirrorly-loading .mirrorly-loading-text').text('Procesando tu imagen...');
+			$('#mirrorly-loading .mirrorly-loading-hint').text('Te notificaremos cuando esté lista');
 
 			// Check status every 3 seconds
 			this.statusCheckInterval = setInterval(
@@ -760,7 +851,7 @@
 		 * Check generation status via AJAX
 		 */
 		checkGenerationStatus: function () {
-			if ( ! this.currentGenerationId) {
+			if (!this.currentGenerationId) {
 				this.stopStatusChecking();
 				return;
 			}
@@ -769,11 +860,11 @@
 
 			$.ajax(
 				{
-					url: mirrorly_frontend.ajax_url,
+					url: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.ajax_url : '/wp-admin/admin-ajax.php',
 					type: 'POST',
 					data: {
 						action: 'mirrorly_check_generation_status',
-						nonce: mirrorly_frontend.nonce,
+						nonce: (typeof mirrorly_frontend !== 'undefined') ? mirrorly_frontend.nonce : '',
 						generation_id: this.currentGenerationId
 					},
 					success: function (response) {
@@ -782,26 +873,26 @@
 
 							if (data.status === 'completed') {
 								self.stopStatusChecking();
-								self.showResult( data );
+								self.showResult(data);
 
 								// Update remaining generations
 								if (data.remaining_generations !== undefined) {
-									self.updateRemainingGenerations( data.remaining_generations );
+									self.updateRemainingGenerations(data.remaining_generations);
 								}
 							} else if (data.status === 'failed') {
 								self.stopStatusChecking();
-								self.showError( data.error || 'La generación falló' );
+								self.showError(data.error || 'La generación falló');
 							}
 							// If still processing, continue checking
 						} else {
 							// If there's an error checking status, stop and show error
 							self.stopStatusChecking();
-							self.showError( mirrorly_frontend.strings.status_check_error );
+							self.showError((typeof mirrorly_frontend !== 'undefined' && mirrorly_frontend.strings) ? mirrorly_frontend.strings.status_check_error : 'Error al verificar el estado');
 						}
 					},
 					error: function () {
 						// Continue checking on network errors
-						console.log( 'Error checking generation status, will retry...' );
+						console.log('Error checking generation status, will retry...');
 					}
 				}
 			);
@@ -812,7 +903,7 @@
 		 */
 		stopStatusChecking: function () {
 			if (this.statusCheckInterval) {
-				clearInterval( this.statusCheckInterval );
+				clearInterval(this.statusCheckInterval);
 				this.statusCheckInterval = null;
 			}
 			this.currentGenerationId = null;
@@ -820,10 +911,10 @@
 	};
 
 	// Add share modal styles
-	$( '<style>' )
-	.prop( 'type', 'text/css' )
-	.html(
-		`
+	$('<style>')
+		.prop('type', 'text/css')
+		.html(
+			`
 			.mirrorly - share - modal {
 				position: fixed;
 				top: 0;
@@ -875,7 +966,7 @@
 				cursor: pointer;
 			}
 		`
-	)
-	.appendTo( 'head' );
+		)
+		.appendTo('head');
 
-})( jQuery );
+})(jQuery);

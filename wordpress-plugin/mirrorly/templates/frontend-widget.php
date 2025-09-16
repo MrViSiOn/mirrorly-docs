@@ -93,8 +93,8 @@ if ( $license->is_pro() ) {
 						?>
 					</p>
 				</div>
-				<input type="file" id="mirrorly-file-input" accept="image/*" style="display: none;">
 			</div>
+			<input type="file" id="mirrorly-file-input" accept="image/*" style="display: none;">
 
 			<div class="mirrorly-preview-section" id="mirrorly-preview-section" style="display: none;">
 				<div class="mirrorly-preview-container">
