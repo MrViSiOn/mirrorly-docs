@@ -75,6 +75,12 @@ router.get('/status/:id',
   (req, res) => generationController.getGenerationStatus(req, res)
 );
 
+/**
+ * GET /generate/image/:fileName
+ * Servir una imagen generada desde el sistema de archivos
+ */
+router.get('/image/:fileName', AuthMiddleware.validateApiKey, generationController.serveGeneratedImage.bind(generationController));
+
 // Middleware de manejo de errores específico para multer
 router.use((error: any, req: any, res: any, next: any) => {
   if (error instanceof Error) {

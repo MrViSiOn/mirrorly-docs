@@ -15,6 +15,7 @@ import { performanceMiddlewareStack } from './middleware/PerformanceMiddleware';
 import { loggingService } from './services/LoggingService';
 import { imageCleanupService } from './services/ImageCleanupService';
 import DatabaseOptimizationService from './services/DatabaseOptimizationService';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,21 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   credentials: process.env.CORS_CREDENTIALS === 'true'
 }));
+
+app.use((req, res, next) => {
+  const host = req.hostname;
+
+  if (host === 'generated-images.mirrorly.com') {
+    // Redirigir todas las solicitudes a la ruta de imágenes generadas
+    req.url = `/upl${req.url}`;
+  }
+
+  next();
+});
+
+
+const uploadsDir = path.join(__dirname, '../uploads/generated');
+app.use('/uploads', express.static(uploadsDir))
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

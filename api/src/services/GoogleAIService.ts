@@ -100,12 +100,18 @@ export class GoogleAIService {
       imageStep.success = true;
       steps.push(imageStep);
 
+      // PASO 3: Guardar la imagen como archivo PNG si hay datos base64
+      let savedImagePath: string | undefined;
+      if (finalResult.imageBase64) {
+        savedImagePath = await this.saveBase64AsFile(finalResult.imageBase64, finalResult.fileName);
+      }
+
       const totalTime = Date.now() - startTime;
 
       return {
         success: true,
         imageUrl: finalResult.imageUrl,
-        imageBase64: finalResult.imageBase64,
+        imagePath: savedImagePath, // Añadimos la ruta del archivo guardado
         processingTime: totalTime,
         usedPrompt: promptAnalysis.optimizedPrompt,
         metadata: {
@@ -113,7 +119,8 @@ export class GoogleAIService {
           twoStepProcess: true,
           promptGenerationTime: promptAnalysis.analysisTime,
           imageGenerationTime: imageStep.endTime! - imageStep.startTime,
-          optimizedPrompt: promptAnalysis.optimizedPrompt
+          optimizedPrompt: promptAnalysis.optimizedPrompt,
+          savedToFile: !!savedImagePath // Indicamos si se guardó en archivo
         }
       };
 
@@ -189,7 +196,7 @@ export class GoogleAIService {
     productImage: Buffer,
     optimizedPrompt: string,
     options: GenerationOptions
-  ): Promise<{ imageUrl: string, imageBase64?: string }> {
+  ): Promise<{ imageUrl: string, imageBase64?: string, fileName: string }> {
     const imageParts = [
       {
         inlineData: {
@@ -211,20 +218,26 @@ export class GoogleAIService {
       const response = await this.executeWithRetry(async () => {
         return await this.visionModel.generateContent([finalPrompt, ...imageParts]);
       });
-      
+
       const result = await response.response;
       const imageBase64 = result.candidates?.[0]?.content?.parts?.[1]?.inlineData?.data;
-      
+
       if (!imageBase64) {
         throw new Error('No image data received from Google AI');
       }
+
+      // Generamos un nombre de archivo único para la imagen
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substr(2, 9);
+      const fileName = `${timestamp}-${randomString}.jpg`;
       
-      // Generamos una URL para mantener compatibilidad con el código existente
-      const imageUrl = `https://generated-images.mirrorly.com/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.jpg`;
+      // Generamos una URL para acceder a la imagen guardada
+      const imageUrl = `https://generated-images.mirrorly.com/${fileName}`;
 
       return {
         imageUrl,
-        imageBase64
+        imageBase64,
+        fileName
       };
 
     } catch (error) {
@@ -333,6 +346,38 @@ La imagen final debe ser perfecta para mostrar en una tienda online y ayudar al 
     }
 
     throw lastError!;
+  }
+
+  /**
+   * Guarda una imagen base64 como archivo PNG
+   * @param base64Data Datos de la imagen en formato base64
+   * @param fileName Nombre del archivo a guardar
+   * @returns Ruta del archivo guardado
+   */
+  private async saveBase64AsFile(base64Data: string, fileName: string): Promise<string> {
+    const fs = require('fs');
+    const path = require('path');
+
+    // Crear directorio de imágenes si no existe
+    const uploadsDir = path.join(__dirname, '../../uploads/generated');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Eliminar el prefijo de datos base64 si existe
+    const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
+
+    // Crear buffer desde los datos base64
+    const imageBuffer = Buffer.from(base64Image, 'base64');
+
+    // Generar nombre de archivo único si no se proporciona
+    const finalFileName = fileName || `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.png`;
+    const filePath = path.join(uploadsDir, finalFileName);
+
+    // Escribir el archivo
+    await fs.promises.writeFile(filePath, imageBuffer);
+
+    return filePath;
   }
 
   /**

@@ -13,6 +13,7 @@ export interface GenerationResult {
   imageUrl?: string;
   error?: string;
   imageBase64?: string;
+  imagePath?: string;
   processingTime?: number;
   usedPrompt?: string;
   metadata?: GenerationMetadata;
@@ -24,6 +25,7 @@ export interface GenerationMetadata {
   promptGenerationTime?: number;
   imageGenerationTime?: number;
   optimizedPrompt?: string;
+  savedToFile?: boolean;
 }
 
 export interface PromptAnalysisResult {

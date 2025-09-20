@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { GoogleAIService } from '../services/GoogleAIService';
 import { RateLimitService } from '../services/RateLimitService';
 import { ImageProcessor } from '../services/ImageProcessor';
@@ -195,33 +197,14 @@ export class GenerationController {
         success: true
       });
 
-      // Respuesta exitosa
+      // Enviar respuesta exitosa al cliente
       res.status(200).json({
         success: true,
-        generationId: generation.id,
         imageUrl: result.imageUrl,
         processingTime: totalTime,
-        metadata: {
-          ...result.metadata,
-          compressionStats: {
-            userImage: {
-              originalSize: userImageFile.size,
-              processedSize: processedUserImage.processedImage!.length,
-              compressionRatio: processedUserImage.compressionRatio
-            },
-            productImage: {
-              originalSize: productImageFile.size,
-              processedSize: processedProductImage.processedImage!.length,
-              compressionRatio: processedProductImage.compressionRatio
-            }
-          }
-        },
-        usage: {
-          currentUsage: license.current_usage + 1,
-          monthlyLimit: license.monthly_limit,
-          remaining: license.monthly_limit - (license.current_usage + 1)
-        }
+        generationId: generation.id
       });
+
 
     } catch (error) {
       const totalTime = Date.now() - startTime;
@@ -308,9 +291,62 @@ export class GenerationController {
   }
 
   /**
-   * GET /limits/current
-   * Consultar límites actuales de uso
+   * GET /generate/image/:fileName
+   * Servir una imagen generada desde el sistema de archivos
    */
+  async serveGeneratedImage(req: Request, res: Response): Promise<void> {
+    try {
+      const { fileName } = req.params;
+
+      // Validar el nombre del archivo para evitar path traversal
+      if (!fileName || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+        res.status(400).json({
+          error: 'INVALID_FILENAME',
+          message: 'Invalid file name',
+          code: 'INVALID_REQUEST'
+        });
+        return;
+      }
+
+      // Construir la ruta al archivo
+      const filePath = path.join(__dirname, '../../uploads/generated', fileName);
+
+      // Verificar si el archivo existe
+      if (!fs.existsSync(filePath)) {
+        res.status(404).json({
+          error: 'FILE_NOT_FOUND',
+          message: 'Generated image not found',
+          code: 'IMAGE_NOT_FOUND'
+        });
+        return;
+      }
+
+      // Determinar el tipo MIME basado en la extensión
+      const ext = path.extname(fileName).toLowerCase();
+      const mimeType = ext === '.png' ? 'image/png' :
+        ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
+          'application/octet-stream';
+
+      // Configurar headers
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache por 1 año
+
+      // Enviar el archivo
+      fs.createReadStream(filePath).pipe(res);
+
+    } catch (error) {
+      loggingService.error('Failed to serve generated image', error as Error, {
+        requestId: req.id,
+        fileName: req.params.fileName
+      });
+
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to serve generated image',
+        code: 'IMAGE_SERVE_ERROR'
+      });
+    }
+  }
   async getCurrentLimits(req: Request, res: Response): Promise<void> {
     try {
       const authReq = req as AuthenticatedRequest;
