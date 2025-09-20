@@ -116,7 +116,6 @@ async function integrationExample() {
     console.log('   ✅ Generation completed successfully!');
     console.log('   📊 Processing time:', mockResult.processingTime, 'ms');
     console.log('   📊 Generated image URL:', mockResult.imageUrl);
-    console.log('   📊 Base64 image data available:', !!mockResult.imageBase64);
     console.log('   📊 Two-step process:', mockResult.metadata.twoStepProcess);
 
     // Paso 7: Post-procesamiento (opcional)

@@ -200,7 +200,6 @@ export class GenerationController {
         success: true,
         generationId: generation.id,
         imageUrl: result.imageUrl,
-        imageBase64: result.imageBase64,
         processingTime: totalTime,
         metadata: {
           ...result.metadata,

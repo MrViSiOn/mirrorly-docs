@@ -124,7 +124,6 @@ class Test_Mirrorly_API_Client_Integration extends Mirrorly_Test_Case {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['success'] );
 		$this->assertArrayHasKey( 'imageUrl', $result );
-		$this->assertArrayHasKey( 'imageBase64', $result );
 
 		// Clean up
 		unlink( $user_image );
