@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ts-node-current-file",
+      "name": "ts-node-debug-api",
       "type": "node",
       "request": "launch",
       "args": [

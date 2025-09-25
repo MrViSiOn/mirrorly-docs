@@ -460,8 +460,7 @@ class Mirrorly_API_Client {
 			'timeout'   => 60, // Longer timeout for file uploads
 			'sslverify' => true,
 		);
-echo "<textarea>";print_r($url);echo "</textarea>";
-echo "<textarea>";print_r($args);echo "</textarea>";exit();
+
 		$response = wp_remote_request( $url, $args );
 
 		return $this->process_response( $response );
