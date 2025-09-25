@@ -98,6 +98,11 @@ final class Mirrorly {
 	public $license = null;
 
 	/**
+	 * Cron manager instance
+	 */
+	public $cron_manager = null;
+
+	/**
 	 * Main Mirrorly Instance
 	 */
 	public static function instance() {
@@ -202,6 +207,8 @@ final class Mirrorly {
 		// Core classes
 		include_once MIRRORLY_ABSPATH . 'includes/class-api-client.php';
 		include_once MIRRORLY_ABSPATH . 'includes/class-license.php';
+		include_once MIRRORLY_ABSPATH . 'includes/class-image-manager.php';
+		include_once MIRRORLY_ABSPATH . 'includes/class-cron-manager.php';
 
 		if ( is_admin() ) {
 			include_once MIRRORLY_ABSPATH . 'includes/class-admin.php';
@@ -236,6 +243,9 @@ final class Mirrorly {
 
 		// Initialize license manager
 		$this->license = new Mirrorly_License();
+
+		// Initialize cron manager
+		$this->cron_manager = new Mirrorly_Cron_Manager();
 
 		// Initialize admin
 		if ( is_admin() ) {
@@ -273,6 +283,13 @@ final class Mirrorly {
 		// Set default options
 		$this->set_default_options();
 
+		// Initialize image manager to create directories
+		$image_manager = new Mirrorly_Image_Manager();
+		$image_manager->init();
+
+		// Schedule cron jobs
+		Mirrorly_Cron_Manager::schedule_daily_cleanup();
+
 		// Flush rewrite rules
 		flush_rewrite_rules();
 
@@ -283,6 +300,9 @@ final class Mirrorly {
 	 * Plugin deactivation
 	 */
 	public function deactivate() {
+		// Unschedule cron jobs
+		Mirrorly_Cron_Manager::unschedule_daily_cleanup();
+
 		// Clear any cached data
 		wp_cache_flush();
 

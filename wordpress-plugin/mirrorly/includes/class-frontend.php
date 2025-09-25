@@ -319,10 +319,22 @@ class Mirrorly_Frontend {
 			wp_send_json_error( $result->get_error_message() );
 		}
 
-		// Return success with image URL
+		// Save image locally using Image Manager
+		$image_manager = new Mirrorly_Image_Manager();
+		$local_image_url = $image_manager->save_image_from_url( $result['imageUrl'] );
+		
+		if ( $local_image_url === false ) {
+			// Fallback to original URL if local save fails
+			error_log( 'Mirrorly: Failed to save image locally, using original URL' );
+			$final_image_url = $result['imageUrl'];
+		} else {
+			$final_image_url = $local_image_url;
+		}
+
+		// Return success with local image URL
 		wp_send_json_success(
 			array(
-				'image_url'             => $result['imageUrl'],
+				'image_url'             => $final_image_url,
 				'processing_time'       => isset( $result['processingTime'] ) ? $result['processingTime'] : null,
 				'remaining_generations' => $license->get_remaining_generations(),
 			)
@@ -353,11 +365,23 @@ class Mirrorly_Frontend {
 			$result = $api_client->get_generation_result( $generation_id );
 
 			if ( ! is_wp_error( $result ) ) {
+				// Save image locally using Image Manager
+				$image_manager = new Mirrorly_Image_Manager();
+				$local_image_url = $image_manager->save_image_from_url( $result['imageUrl'] );
+				
+				if ( $local_image_url === false ) {
+					// Fallback to original URL if local save fails
+					error_log( 'Mirrorly: Failed to save async image locally, using original URL' );
+					$final_image_url = $result['imageUrl'];
+				} else {
+					$final_image_url = $local_image_url;
+				}
+				
 				$license = new Mirrorly_License();
 				wp_send_json_success(
 					array(
 						'status'                => 'completed',
-						'image_url'             => $result['imageUrl'],
+						'image_url'             => $final_image_url,
 						'processing_time'       => isset( $result['processingTime'] ) ? $result['processingTime'] : null,
 						'remaining_generations' => $license->get_remaining_generations(),
 					)

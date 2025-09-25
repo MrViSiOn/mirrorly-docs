@@ -103,3 +103,5 @@ api/temp/
 # Temporary files
 tmp/
 temp/
+
+wordpress-plugin/mirrorly/uploads/mirrorly/*.jpg
