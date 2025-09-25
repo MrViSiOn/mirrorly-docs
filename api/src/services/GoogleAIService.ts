@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import {
   GenerationOptions,
   GenerationResult,
@@ -14,9 +14,7 @@ import {
  * 2. Generación de imagen final usando el prompt optimizado
  */
 export class GoogleAIService {
-  private genAI: GoogleGenerativeAI;
-  private textModel: any;
-  private visionModel: any;
+  private genAI: GoogleGenAI;
   private config: GoogleAIConfig;
 
   constructor(config: GoogleAIConfig) {
@@ -28,35 +26,7 @@ export class GoogleAIService {
       ...config
     };
 
-    this.genAI = new GoogleGenerativeAI(this.config.apiKey);
-    this.textModel = this.genAI.getGenerativeModel({ model: this.config.textModel! });
-    this.visionModel = this.genAI.getGenerativeModel({
-      model: this.config.visionModel!,
-      generationConfig: {
-        temperature: 0.4,
-        topK: 32,
-        topP: 1,
-        maxOutputTokens: 2048,
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-      ],
-    });
+    this.genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
   }
 
   /**
@@ -65,7 +35,8 @@ export class GoogleAIService {
   async generateImage(
     userImage: Buffer,
     productImage: Buffer,
-    options: GenerationOptions = {}
+    options: GenerationOptions = {},
+    baseUrl: string
   ): Promise<GenerationResult> {
     const startTime = Date.now();
     const steps: GenerationStep[] = [];
@@ -93,7 +64,8 @@ export class GoogleAIService {
         userImage,
         productImage,
         promptAnalysis.optimizedPrompt,
-        options
+        options,
+        baseUrl
       );
 
       imageStep.endTime = Date.now();
@@ -168,16 +140,25 @@ export class GoogleAIService {
 
     try {
       const result = await this.executeWithRetry(async () => {
-        return await this.visionModel.generateContent([analysisPrompt, ...imageParts]);
+        return await this.genAI.models.generateContent({
+          model: this.config.textModel!,
+          contents: [{
+            role: 'user',
+            parts: [{ text: analysisPrompt }, ...imageParts]
+          }]
+        });
       });
 
-      const response = await result.response;
-      const optimizedPrompt = response.text().trim();
+      const optimizedPrompt = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!optimizedPrompt) {
+        throw new Error('No optimized prompt received from Google AI');
+      }
 
       const analysisTime = Date.now() - startTime;
 
       return {
-        optimizedPrompt,
+        optimizedPrompt: optimizedPrompt.trim(),
         detectedProductType: this.extractProductType(optimizedPrompt, options.productType),
         confidence: 0.85, // Placeholder - en producción se podría calcular basado en la respuesta
         analysisTime
@@ -195,7 +176,8 @@ export class GoogleAIService {
     userImage: Buffer,
     productImage: Buffer,
     optimizedPrompt: string,
-    options: GenerationOptions
+    options: GenerationOptions,
+    baseUrl: string
   ): Promise<{ imageUrl: string, imageBase64?: string, fileName: string }> {
     const imageParts = [
       {
@@ -216,11 +198,38 @@ export class GoogleAIService {
 
     try {
       const response = await this.executeWithRetry(async () => {
-        return await this.visionModel.generateContent([finalPrompt, ...imageParts]);
+        return await this.genAI.models.generateContent({
+          model: this.config.visionModel!,
+          contents: [{
+            role: 'user',
+            parts: [{ text: finalPrompt }, ...imageParts]
+          }]
+        });
       });
+      // Buscar el elemento que contiene la imagen en formato PNG
+      let imageBase64: string | undefined;
 
-      const result = await response.response;
-      const imageBase64 = result.candidates?.[0]?.content?.parts?.[1]?.inlineData?.data;
+      // Recorrer todos los elementos de parts para encontrar el que tiene mimeType=image/png
+      if (response.candidates?.[0]?.content?.parts) {
+        const parts = response.candidates[0].content.parts;
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i]?.inlineData?.mimeType === 'image/png' && parts[i]?.inlineData?.data) {
+            imageBase64 = parts[i].inlineData?.data;
+            break;
+          }
+        }
+      }
+
+      // Si no se encontró ninguna imagen PNG, intentar con el primer elemento que tenga datos
+      if (!imageBase64 && response.candidates?.[0]?.content?.parts) {
+        const parts = response.candidates[0].content.parts;
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i]?.inlineData?.data) {
+            imageBase64 = parts[i].inlineData?.data;
+            break;
+          }
+        }
+      }
 
       if (!imageBase64) {
         throw new Error('No image data received from Google AI');
@@ -230,9 +239,9 @@ export class GoogleAIService {
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substr(2, 9);
       const fileName = `${timestamp}-${randomString}.jpg`;
-      
+
       // Generamos una URL para acceder a la imagen guardada
-      const imageUrl = `https://generated-images.mirrorly.com/${fileName}`;
+      const imageUrl = `${baseUrl}/uploads/${fileName}`;
 
       return {
         imageUrl,
@@ -276,18 +285,18 @@ El prompt debe ser específico, detallado y orientado a generar una imagen de al
   private buildFinalPrompt(optimizedPrompt: string, options: GenerationOptions): string {
     return `${optimizedPrompt}
 
-INSTRUCCIONES TÉCNICAS ADICIONALES:
-- Mantén la calidad profesional de e-commerce
-- Asegúrate de que la composición sea atractiva para ventas
-- La imagen debe verse natural y creíble
-- Mantén la resolución alta para uso web
-- Estilo: ${options.style || 'profesional'}
-- Calidad: ${options.quality || 'high'}
-- Iluminación: profesional y uniforme
-- Fondo: apropiado para e-commerce
+ADDITIONAL TECHNICAL INSTRUCTIONS:
+- Maintain professional e-commerce quality
+- Ensure the composition is appealing for sales
+- The image must look natural and believable
+- Keep high resolution for web use
+- Style: ${options.style || 'professional'}
+- Quality: ${options.quality || 'high'}
+- Lighting: professional and even
+- Background: suitable for e-commerce
 
-La imagen final debe ser perfecta para mostrar en una tienda online y ayudar al cliente a visualizarse usando el producto.
-    `.trim();
+The final image must be perfect to showcase in an online store and help the customer visualize themselves using the product.
+`.trim();
   }
 
   /**

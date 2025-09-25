@@ -986,54 +986,54 @@
 		.prop('type', 'text/css')
 		.html(
 			`
-			.mirrorly - share - modal {
+			.mirrorly-share-modal {
 				position: fixed;
 				top: 0;
 				left: 0;
 				right: 0;
 				bottom: 0;
-				background: rgba( 0,0,0,0.7 );
-				z - index: 10000;
+				background: rgba(0,0,0,0.7);
+				z-index: 10000;
 				display: flex;
-				align - items: center;
-				justify - content: center;
+				align-items: center;
+				justify-content: center;
 			}
-			.mirrorly - share - content {
+			.mirrorly-share-content {
 				background: #fff;
-				border - radius: 8px;
+				border-radius: 8px;
 				padding: 20px;
-				max - width: 400px;
-				width: 90 %;
-				text - align: center;
+				max-width: 400px;
+				width: 90%;
+				text-align: center;
 			}
-			.mirrorly - share - content h3 {
-				margin - top: 0;
-				margin - bottom: 20px;
+			.mirrorly-share-content h3 {
+				margin-top: 0;
+				margin-bottom: 20px;
 			}
-			.mirrorly - share - options {
+			.mirrorly-share-options {
 				display: flex;
-				flex - direction: column;
+				flex-direction: column;
 				gap: 10px;
-				margin - bottom: 20px;
+				margin-bottom: 20px;
 			}
-			.mirrorly - share - option {
+			.mirrorly-share-option {
 				display: block;
 				padding: 10px 20px;
 				background: #007cba;
 				color: white;
-				text - decoration: none;
-				border - radius: 4px;
+				text-decoration: none;
+				border-radius: 4px;
 				transition: background 0.3s ease;
 			}
-			.mirrorly - share - option:hover {
+			.mirrorly-share-option:hover {
 				background: #005a87;
 				color: white;
 			}
-			.mirrorly - share - close {
+			.mirrorly-share-close {
 				background: #f5f5f5;
 				border: 1px solid #ddd;
 				padding: 8px 16px;
-				border - radius: 4px;
+				border-radius: 4px;
 				cursor: pointer;
 			}
 		`

@@ -198,9 +198,6 @@ Generation.init(
     result_image_url: {
       type: DataTypes.STRING(500),
       allowNull: true,
-      validate: {
-        isUrl: true,
-      },
     },
     status: {
       type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed'),

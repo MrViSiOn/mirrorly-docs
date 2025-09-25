@@ -42,7 +42,7 @@
     "optimize:assets": "ts-node src/scripts/optimize-performance.ts -- --assets-only"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.20.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",

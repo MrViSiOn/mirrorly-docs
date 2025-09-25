@@ -140,7 +140,8 @@ export class GenerationController {
       const result = await this.googleAI.generateImage(
         processedUserImage.processedImage!,
         processedProductImage.processedImage!,
-        generationOptions
+        generationOptions,
+        `${req.protocol}://${req.get('host')}`
       );
 
       if (!result.success) {
