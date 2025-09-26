@@ -163,7 +163,7 @@ class Test_Mirrorly_API_Client_Integration extends Mirrorly_Test_Case {
 		$result = $this->api_client->generate_image( $user_image, $product_image, 123 );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertEquals( 'no_api_key', $result->get_error_code() );
+		$this->assertEquals( 'no_license_key', $result->get_error_code() );
 
 		// Clean up
 		unlink( $user_image );

@@ -47,6 +47,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 
+	<?php
+	// Get plugin options once for the entire form
+	$options = get_option( 'mirrorly_options', array() );
+	$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
+	$has_key = ! empty( $api_key );
+
+	// Show warning if Google API Key is not configured
+	if ( ! $has_key ) :
+	?>
+	<div class="notice notice-warning">
+		<p>
+			<strong><?php esc_html_e( 'Atención: Debes configurar tu clave API de Google Generative AI para que Mirrorly funcione correctamente.', 'mirrorly' ); ?></strong>
+			<a href="https://docs.mirrorly.com/setup" target="_blank">
+				<?php esc_html_e( 'Ver guía de configuración', 'mirrorly' ); ?>
+			</a>
+		</p>
+	</div>
+	<?php endif; ?>
+
 	<?php settings_errors(); ?>
 
 	<form method="post" action="options.php">
@@ -58,53 +77,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<tbody>
 						<tr>
 							<th scope="row">
-								<label for="license_key"><?php esc_html_e( 'Clave de Licencia PRO', 'mirrorly' ); ?></label>
+								<label for="api_key"><?php esc_html_e( 'Clave API de Google Generative AI', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
-								$options     = get_option( 'mirrorly_options', array() );
-								$license_key = isset( $options['license_key'] ) ? $options['license_key'] : '';
-								?>
-								<input type="text" id="license_key" name="mirrorly_options[license_key]"
-										value="<?php echo esc_attr( $license_key ); ?>" class="regular-text"
-										placeholder="<?php esc_attr_e( 'Ingresa tu clave de licencia PRO', 'mirrorly' ); ?>" />
-								<button type="button" id="validate-license" class="button">
-									<?php esc_html_e( 'Validar', 'mirrorly' ); ?>
-								</button>
-								<p class="description">
-									<?php esc_html_e( 'Ingresa tu clave de licencia PRO para desbloquear todas las funciones. Déjalo vacío para usar la versión FREE.', 'mirrorly' ); ?>
-									<br>
-									<a href="https://mirrorly.com/pricing" target="_blank">
-										<?php esc_html_e( '¿No tienes una licencia PRO? Consigue una aquí', 'mirrorly' ); ?>
-									</a>
-								</p>
-								<div id="license-validation-result"></div>
-							</td>
-						</tr>
-
-						<tr>
-							<th scope="row">
-								<label for="api_key"><?php esc_html_e( 'Google API Key', 'mirrorly' ); ?></label>
-							</th>
-							<td>
-								<?php
-								$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
 								$masked_key = '';
 								if ( ! empty( $api_key ) ) {
 									$masked_key = str_repeat( '*', max( 0, strlen( $api_key ) - 4 ) ) . substr( $api_key, -4 );
 								}
-								$has_key = ! empty( $api_key );
 								?>
 								<div class="mirrorly-api-key-container">
-									<input type="password" id="api_key_display" 
-										   value="<?php echo esc_attr( $masked_key ); ?>" 
-										   class="regular-text" readonly 
+									<input type="password" id="api_key_display"
+										   value="<?php echo esc_attr( $masked_key ); ?>"
+										   class="regular-text" readonly
 										   placeholder="<?php esc_attr_e( 'No configurado', 'mirrorly' ); ?>" />
 									<input type="text" id="api_key_edit" name="mirrorly_options[api_key]"
-										   value="<?php echo esc_attr( $api_key ); ?>" 
-										   class="regular-text" style="display: none;" 
-										   placeholder="<?php esc_attr_e( 'Ingresa tu Google API Key', 'mirrorly' ); ?>" />
-									
+										   value="<?php echo esc_attr( $api_key ); ?>"
+										   class="regular-text" style="display: none;"
+										   placeholder="<?php esc_attr_e( 'Ingresa tu clave API de Google Generative AI', 'mirrorly' ); ?>" />
+
 									<div class="mirrorly-api-buttons">
 										<?php if ( $has_key ) : ?>
 											<button type="button" id="edit-api-key" class="button">
@@ -127,15 +118,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 												<?php esc_html_e( 'Cancelar', 'mirrorly' ); ?>
 											</button>
 										<?php endif; ?>
-										
+
 										<button type="button" id="test-connection" class="button" <?php echo $has_key ? '' : 'disabled'; ?>>
 											<?php esc_html_e( 'Probar Conexión', 'mirrorly' ); ?>
 										</button>
 									</div>
 								</div>
-								
+
 								<p class="description">
-									<?php esc_html_e( 'Configura tu Google API Key para habilitar la generación de imágenes con IA.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Ingresa tu clave API de Google Generative AI para habilitar la generación de imágenes con IA. Esta clave es diferente a la licencia del plugin.', 'mirrorly' ); ?>
 									<br>
 									<a href="https://docs.mirrorly.com/setup" target="_blank">
 										<?php esc_html_e( 'Ver tutorial de configuración completo', 'mirrorly' ); ?>
@@ -523,7 +514,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script>
 jQuery(document).ready(function($) {
 	var originalApiKey = $('#api_key_edit').val();
-	
+
 	// Función para mostrar/ocultar elementos
 	function toggleEditMode(editing) {
 		if (editing) {
@@ -544,7 +535,7 @@ jQuery(document).ready(function($) {
 			}
 		}
 	}
-	
+
 	// Función para actualizar la máscara
 	function updateMaskedKey(key) {
 		if (key && key.length > 4) {
@@ -556,44 +547,44 @@ jQuery(document).ready(function($) {
 			$('#api_key_display').val('');
 		}
 	}
-	
+
 	// Función para mostrar resultado
 	function showResult(message, type) {
 		var $result = $('#api-key-save-result');
 		$result.removeClass('success error loading').addClass(type);
 		$result.text(message).show();
-		
+
 		if (type !== 'loading') {
 			setTimeout(function() {
 				$result.fadeOut();
 			}, 5000);
 		}
 	}
-	
+
 	// Botón Editar/Configurar
 	$('#edit-api-key, #add-api-key').on('click', function() {
 		originalApiKey = $('#api_key_edit').val();
 		toggleEditMode(true);
 	});
-	
+
 	// Botón Cancelar
 	$('#cancel-edit-api-key').on('click', function() {
 		$('#api_key_edit').val(originalApiKey);
 		toggleEditMode(false);
 		$('#api-key-save-result').hide();
 	});
-	
+
 	// Botón Guardar
 	$('#save-api-key').on('click', function() {
 		var apiKey = $('#api_key_edit').val().trim();
-		
+
 		if (!apiKey) {
 			showResult('<?php esc_html_e( "Por favor, ingresa una API Key válida.", "mirrorly" ); ?>', 'error');
 			return;
 		}
-		
+
 		showResult('<?php esc_html_e( "Guardando API Key...", "mirrorly" ); ?>', 'loading');
-		
+
 		// Enviar a la API
 		$.ajax({
 			url: ajaxurl,
@@ -619,7 +610,7 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
-	
+
 	// Actualizar estado del botón de prueba cuando cambie el campo
 	$('#api_key_edit').on('input', function() {
 		var hasKey = $(this).val().trim().length > 0;

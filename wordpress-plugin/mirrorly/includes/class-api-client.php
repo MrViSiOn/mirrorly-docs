@@ -17,7 +17,7 @@ class Mirrorly_API_Client {
 	private $api_url;
 
 	/**
-	 * API key
+	 * License key (used as API key for central API authentication)
 	 */
 	private $api_key;
 
@@ -42,7 +42,7 @@ class Mirrorly_API_Client {
 	public function __construct() {
 		$options          = get_option( 'mirrorly_options', array() );
 		$this->api_url    = defined( 'MIRRORLY_API_URL' ) ? MIRRORLY_API_URL : 'http://localhost:3000/v1/';
-		$this->api_key    = isset( $options['api_key'] ) ? $options['api_key'] : '';
+		$this->api_key    = isset( $options['license_key'] ) ? $options['license_key'] : '';
 		$this->debug_mode = defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'MIRRORLY_DEBUG' ) && MIRRORLY_DEBUG;
 	}
 
@@ -57,7 +57,7 @@ class Mirrorly_API_Client {
 	 */
 	public function generate_image( $user_image_path, $product_image_path, $product_id, $options = array() ) {
 		if ( empty( $this->api_key ) ) {
-			return new WP_Error( 'no_api_key', __( 'API key no configurada', 'mirrorly' ) );
+			return new WP_Error( 'no_license_key', __( 'Clave de licencia no configurada', 'mirrorly' ) );
 		}
 
 		// Check rate limits first
@@ -115,7 +115,7 @@ class Mirrorly_API_Client {
 	 */
 	public function generate_image_async( $user_image_path, $product_image_path, $product_id, $options = array() ) {
 		if ( empty( $this->api_key ) ) {
-			return new WP_Error( 'no_api_key', __( 'API key no configurada', 'mirrorly' ) );
+			return new WP_Error( 'no_license_key', __( 'Clave de licencia no configurada', 'mirrorly' ) );
 		}
 
 		// Check rate limits first
@@ -675,7 +675,7 @@ class Mirrorly_API_Client {
 	 */
 	public function test_connection() {
 		if ( empty( $this->api_key ) ) {
-			return new WP_Error( 'no_api_key', __( 'API key no configurada', 'mirrorly' ) );
+			return new WP_Error( 'no_license_key', __( 'Clave de licencia no configurada', 'mirrorly' ) );
 		}
 
 		return $this->get_auth_status();
@@ -702,9 +702,9 @@ class Mirrorly_API_Client {
 	}
 
 	/**
-	 * Set API key
+	 * Set license key (used as API key for central API authentication)
 	 *
-	 * @param string $api_key New API key
+	 * @param string $api_key License key to use for API authentication
 	 */
 	public function set_api_key( $api_key ) {
 		$this->api_key = $api_key;

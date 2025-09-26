@@ -29,6 +29,12 @@ class Mirrorly_License {
 	public function __construct() {
 		$this->api_client = new Mirrorly_API_Client();
 
+		// Initialize API client with existing license key
+		$license_key = $this->get_license_key();
+		if ( ! empty( $license_key ) ) {
+			$this->api_client->set_api_key( $license_key );
+		}
+
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'wp_loaded', array( $this, 'check_license_status' ) );
 
@@ -57,7 +63,7 @@ class Mirrorly_License {
 	 */
 	public function has_license() {
 		$options = get_option( 'mirrorly_options', array() );
-		return ! empty( $options['license_key'] ) || ! empty( $options['api_key'] );
+		return ! empty( $options['license_key'] );
 	}
 
 	/**
@@ -119,8 +125,7 @@ class Mirrorly_License {
 		// Update options with free license data
 		$options                 = get_option( 'mirrorly_options', array() );
 		$options['license_type'] = self::LICENSE_FREE;
-		$options['api_key']      = $response['license']['license_key'] ?? '';
-		$options['license_key']  = '';
+		$options['license_key']  = $response['license']['license_key'] ?? '';
 		$options['max_products'] = isset( $response['limits']['monthly_generations'] ) 
 			? $response['limits']['monthly_generations'] : 3;
 
@@ -128,8 +133,8 @@ class Mirrorly_License {
 
 		update_option( 'mirrorly_options', $options );
 
-		// Update API client with new key
-		$this->api_client->set_api_key( $options['api_key'] );
+		// Update API client with new license key
+		$this->api_client->set_api_key( $options['license_key'] );
 
 		do_action( 'mirrorly_free_license_registered', $response );
 
@@ -159,13 +164,12 @@ class Mirrorly_License {
 		$options                 = get_option( 'mirrorly_options', array() );
 		$options['license_type'] = isset( $response['licenseType'] ) ? $response['licenseType'] : self::LICENSE_PRO_BASIC;
 		$options['license_key']  = $license_key;
-		$options['api_key']      = isset( $response['apiKey'] ) ? $response['apiKey'] : '';
 		$options['max_products'] = isset( $response['limits']['maxProducts'] ) ? $response['limits']['maxProducts'] : -1;
 
 		update_option( 'mirrorly_options', $options );
 
-		// Update API client with new key
-		$this->api_client->set_api_key( $options['api_key'] );
+		// Update API client with license key
+		$this->api_client->set_api_key( $options['license_key'] );
 
 		// Clear any cached data
 		$this->api_client->clear_cache();
@@ -227,10 +231,13 @@ class Mirrorly_License {
 		$options['license_type'] = self::LICENSE_FREE;
 		$options['max_products'] = 3;
 
-		// Keep API key but clear license key
+		// Clear license key when degrading
 		$options['license_key'] = '';
 
 		update_option( 'mirrorly_options', $options );
+
+		// Clear API key from client
+		$this->api_client->set_api_key( '' );
 
 		// Clear cache
 		$this->api_client->clear_cache();

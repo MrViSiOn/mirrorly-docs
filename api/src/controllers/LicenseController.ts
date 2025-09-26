@@ -506,7 +506,7 @@ export class LicenseController {
    */
   static async saveGoogleApiKey(req: Request, res: Response): Promise<void> {
     try {
-      const { google_api_key, domain } = req.body;
+      const { googleApiKey, domain } = req.body;
       const license = req.license; // From auth middleware
 
       // Check if license exists
@@ -520,7 +520,7 @@ export class LicenseController {
       }
 
       // Validate required fields
-      if (!google_api_key) {
+      if (!googleApiKey) {
         res.status(400).json({
           error: 'VALIDATION_ERROR',
           message: 'Google API key is required',
@@ -530,7 +530,7 @@ export class LicenseController {
       }
 
       // Basic API key format validation
-      if (!google_api_key.startsWith('AIza') || google_api_key.length < 30) {
+      if (!googleApiKey.startsWith('AIza') || googleApiKey.length < 30) {
         res.status(400).json({
           error: 'VALIDATION_ERROR',
           message: 'Invalid Google API key format',
@@ -540,7 +540,10 @@ export class LicenseController {
       }
 
       // Validate domain matches license domain
-      if (domain && license.domain !== domain) {
+      if (
+        domain
+        && license.domain.replace('http://', '').replace('https://', '') !== domain.replace('http://', '').replace('https://', '')
+      ) {
         res.status(403).json({
           error: 'DOMAIN_MISMATCH',
           message: 'Domain does not match license domain',
@@ -550,10 +553,10 @@ export class LicenseController {
       }
 
       // Update the Google API key (encrypted)
-      await license.updateGoogleApiKey(google_api_key);
+      await license.updateGoogleApiKey(googleApiKey);
 
       // Return success with masked API key
-      const maskedApiKey = google_api_key.substring(0, 4) + '****' + google_api_key.slice(-4);
+      const maskedApiKey = googleApiKey.substring(0, 4) + '****' + googleApiKey.slice(-4);
 
       res.status(200).json({
         success: true,
