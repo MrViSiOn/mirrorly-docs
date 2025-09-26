@@ -18,6 +18,11 @@ export class GoogleAIService {
   private config: GoogleAIConfig;
 
   constructor(config: GoogleAIConfig) {
+    // Validar que se proporcione una API key
+    if (!config.apiKey) {
+      throw new Error('Google AI API key is required');
+    }
+
     this.config = {
       textModel: process.env.GOOGLE_AI_MODEL_TEXT || 'gemini-1.0-pro',
       visionModel: process.env.GOOGLE_AI_MODEL_VISION || 'gemini-2.5-flash-image-preview',
@@ -27,6 +32,19 @@ export class GoogleAIService {
     };
 
     this.genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
+  }
+
+  /**
+   * Actualiza la API key del servicio
+   * @param apiKey Nueva API key de Google AI
+   */
+  public updateApiKey(apiKey: string): void {
+    if (!apiKey) {
+      throw new Error('API key cannot be empty');
+    }
+    
+    this.config.apiKey = apiKey;
+    this.genAI = new GoogleGenAI({ apiKey: apiKey });
   }
 
   /**

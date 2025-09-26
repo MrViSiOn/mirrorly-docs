@@ -31,8 +31,8 @@ async function testModels() {
     const testGeneration = await Generation.create({
       license_id: testLicense.id,
       product_id: 'test-product-123',
-      user_image_hash: 'user-hash-abc123',
-      product_image_hash: 'product-hash-def456',
+      user_image_hash: 'a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
+      product_image_hash: 'f6e5d4c3b2a1098765432109876543210987654321fedcba0987654321fedcba',
       status: 'pending',
     });
     console.log(`✅ Created generation: ${testGeneration.id}`);
@@ -80,8 +80,14 @@ async function testModels() {
     process.exit(1);
   } finally {
     // Close database connection
-    const { closeConnection } = await import('../config/database') as any;
-    await closeConnection();
+    try {
+      const { closeConnection } = await import('../config/database') as any;
+      if (typeof closeConnection === 'function') {
+        await closeConnection();
+      }
+    } catch (error) {
+      // Ignore connection close errors
+    }
     process.exit(0);
   }
 }

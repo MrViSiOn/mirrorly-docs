@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/db';
+import { EncryptionService } from '../services/EncryptionService';
 
 // License attributes interface
 export interface LicenseAttributes {
@@ -14,10 +15,11 @@ export interface LicenseAttributes {
   created_at: Date;
   updated_at: Date;
   expires_at?: Date;
+  google_key?: string;
 }
 
 // Optional attributes for creation
-export interface LicenseCreationAttributes extends Optional<LicenseAttributes, 'id' | 'created_at' | 'updated_at'> { }
+export interface LicenseCreationAttributes extends Optional<LicenseAttributes, 'id' | 'created_at' | 'updated_at' | 'expires_at' | 'google_key'> { }
 
 // License model class
 export class License extends Model<LicenseAttributes, LicenseCreationAttributes> implements LicenseAttributes {
@@ -32,6 +34,7 @@ export class License extends Model<LicenseAttributes, LicenseCreationAttributes>
   public created_at!: Date;
   public updated_at!: Date;
   public expires_at?: Date;
+  public google_key?: string;
 
   // Instance methods
   public isExpired(): boolean {
@@ -64,6 +67,60 @@ export class License extends Model<LicenseAttributes, LicenseCreationAttributes>
     await this.save();
   }
 
+  /**
+   * Get the decrypted Google API Key
+   * @returns Decrypted Google API Key or null if not set
+   */
+  public getDecryptedGoogleKey(): string | null {
+    if (!this.google_key) {
+      return null;
+    }
+    try {
+      return EncryptionService.safeDecrypt(this.google_key);
+    } catch (error) {
+      console.error('Failed to decrypt Google API key:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Set the Google API Key (will be encrypted automatically)
+   * @param googleApiKey The Google API Key to set (will be encrypted)
+   */
+  public setGoogleKey(googleApiKey: string): void {
+    try {
+      this.google_key = EncryptionService.safeEncrypt(googleApiKey);
+    } catch (error) {
+      console.error('Failed to encrypt Google API key:', error);
+      this.google_key = googleApiKey; // Store as-is if encryption fails
+    }
+  }
+
+  /**
+   * Update the Google API Key
+   * @param googleApiKey The Google API Key to store
+   */
+  public async updateGoogleApiKey(googleApiKey: string): Promise<void> {
+    this.setGoogleKey(googleApiKey);
+    await this.save();
+  }
+
+  /**
+   * Get the license key (API GUID) - this is not encrypted
+   * @returns The license key GUID
+   */
+  public getLicenseKey(): string {
+    return this.license_key;
+  }
+
+  /**
+   * Check if Google API Key is configured
+   * @returns True if Google API Key is set
+   */
+  public hasGoogleKey(): boolean {
+    return !!this.google_key;
+  }
+
   // Static methods
   public static async findByLicenseKey(licenseKey: string): Promise<License | null> {
     return await License.findOne({
@@ -91,16 +148,22 @@ export class License extends Model<LicenseAttributes, LicenseCreationAttributes>
     });
   }
 
+  /**
+   * Generate a unique license key in GUID format (XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX)
+   * @returns Generated license key GUID
+   */
   public static generateLicenseKey(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 32; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-      if (i > 0 && (i + 1) % 8 === 0 && i < 31) {
-        result += '-';
+    const generateSegment = (length: number): string => {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-    }
-    return result;
+      return result;
+    };
+    
+    // Generate GUID format: XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX
+    return `${generateSegment(8)}-${generateSegment(8)}-${generateSegment(8)}-${generateSegment(8)}`;
   }
 }
 
@@ -164,6 +227,11 @@ License.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    google_key: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: 'Encrypted Google API Key for AI services',
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -206,10 +274,21 @@ License.init(
           license.domain = license.domain.toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
         }
       },
+      beforeCreate: (license: License) => {
+        // Encrypt google_key before storing if provided
+        if (license.google_key) {
+          license.google_key = EncryptionService.safeEncrypt(license.google_key);
+        }
+      },
       beforeUpdate: (license: License) => {
-        // Auto-expire check
-        if (license.expires_at && new Date() > license.expires_at && license.status === 'active') {
+        // Check if license has expired and update status
+        if (license.expires_at && new Date() > license.expires_at) {
           license.status = 'expired';
+        }
+        
+        // Encrypt google_key if it's being updated
+        if (license.changed('google_key') && license.google_key) {
+          license.google_key = EncryptionService.safeEncrypt(license.google_key);
         }
       },
     },

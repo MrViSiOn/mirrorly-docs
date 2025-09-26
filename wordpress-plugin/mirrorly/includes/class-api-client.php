@@ -910,4 +910,36 @@ class Mirrorly_API_Client {
 	public function set_debug_mode( $enable ) {
 		$this->debug_mode = (bool) $enable;
 	}
+
+	/**
+	 * Save Google API Key to central API
+	 *
+	 * @param string $license_key License key
+	 * @param string $google_api_key Google API Key
+	 * @return array|WP_Error
+	 */
+	public function save_google_api_key( $license_key, $google_api_key ) {
+		if ( empty( $license_key ) ) {
+			return new WP_Error( 'no_license_key', __( 'Clave de licencia no proporcionada', 'mirrorly' ) );
+		}
+
+		if ( empty( $google_api_key ) ) {
+			return new WP_Error( 'no_google_api_key', __( 'Google API Key no proporcionada', 'mirrorly' ) );
+		}
+
+		$endpoint = 'license/save-google-api-key';
+		$body     = array(
+			'licenseKey'   => $license_key,
+			'googleApiKey' => $google_api_key,
+			'domain'       => home_url(),
+		);
+
+		$response = $this->make_request( $endpoint, $body, 'POST' );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $response;
+	}
 }

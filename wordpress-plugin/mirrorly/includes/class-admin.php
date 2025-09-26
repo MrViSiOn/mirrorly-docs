@@ -28,6 +28,7 @@ class Mirrorly_Admin {
 		add_action( 'wp_ajax_mirrorly_preview_widget', array( $this, 'ajax_preview_widget' ) );
 		add_action( 'wp_ajax_mirrorly_save_product_message', array( $this, 'ajax_save_product_message' ) );
 		add_action( 'wp_ajax_mirrorly_get_image_url', array( $this, 'ajax_get_image_url' ) );
+		add_action( 'wp_ajax_mirrorly_save_api_key', array( $this, 'ajax_save_api_key' ) );
 	}
 
 	/**
@@ -96,7 +97,7 @@ class Mirrorly_Admin {
 
 		add_settings_field(
 			'api_key',
-			__( 'API Key', 'mirrorly' ),
+			__( 'Google API Key', 'mirrorly' ),
 			array( $this, 'api_key_callback' ),
 			'mirrorly_settings',
 			'mirrorly_general'
@@ -407,11 +408,38 @@ class Mirrorly_Admin {
 	public function api_key_callback() {
 		$options = get_option( 'mirrorly_options', array() );
 		$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
+		$has_api_key = !empty( $api_key );
+		$masked_key = $has_api_key ? str_repeat( '*', strlen( $api_key ) - 4 ) . substr( $api_key, -4 ) : '';
 
-		echo '<input type="text" id="api_key" name="mirrorly_options[api_key]" value="' . esc_attr( $api_key ) . '" class="regular-text" />';
+		echo '<div id="api-key-container">';
+		
+		// Campo de visualización (máscara)
+		if ( $has_api_key ) {
+			echo '<input type="text" id="api_key_display" value="' . esc_attr( $masked_key ) . '" class="regular-text" disabled />';
+			echo '<button type="button" id="edit-api-key" class="button" style="margin-left: 5px;">' . __( 'Editar', 'mirrorly' ) . '</button>';
+		}
+		
+		// Campo de edición (oculto por defecto)
+		echo '<input type="text" id="api_key" name="mirrorly_options[api_key]" value="' . esc_attr( $api_key ) . '" class="regular-text"' . ( $has_api_key ? ' style="display: none;"' : '' ) . ' />';
+		
+		// Botones de acción
+		echo '<div id="api-key-actions" style="margin-top: 10px;">';
+		if ( $has_api_key ) {
+			echo '<button type="button" id="save-api-key" class="button button-primary" style="display: none; margin-right: 5px;">' . __( 'Guardar', 'mirrorly' ) . '</button>';
+			echo '<button type="button" id="cancel-edit-api-key" class="button" style="display: none; margin-right: 5px;">' . __( 'Cancelar', 'mirrorly' ) . '</button>';
+		} else {
+			echo '<button type="button" id="save-api-key" class="button button-primary" style="margin-right: 5px;">' . __( 'Guardar', 'mirrorly' ) . '</button>';
+		}
 		echo '<button type="button" id="test-connection" class="button">' . __( 'Probar Conexión', 'mirrorly' ) . '</button>';
-		echo '<p class="description">' . __( 'Tu API key se genera automáticamente al registrar una licencia.', 'mirrorly' ) . ' ';
+		echo '</div>';
+		
+		echo '</div>';
+		
+		echo '<p class="description">' . __( 'La API KEY de Gemini. Debe ser una clave válida para acceder a la API de Gemini.', 'mirrorly' ) . ' ';
 		echo '<a href="https://docs.mirrorly.com/setup" target="_blank">' . __( 'Ver tutorial de configuración', 'mirrorly' ) . '</a></p>';
+		
+		// Mensaje de estado
+		echo '<div id="api-key-status" style="margin-top: 10px;"></div>';
 	}
 
 	/**
@@ -676,7 +704,7 @@ class Mirrorly_Admin {
 
 		$api_client = new Mirrorly_API_Client();
 		$result     = $api_client->check_limits();
-		
+
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( $result->get_error_message() );
 		}
@@ -882,5 +910,68 @@ class Mirrorly_Admin {
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * AJAX: Save Google API Key
+	 */
+	public function ajax_save_api_key() {
+		check_ajax_referer( 'mirrorly_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'No tienes permisos para realizar esta acción.', 'mirrorly' ) );
+		}
+
+		$api_key = sanitize_text_field( $_POST['api_key'] );
+
+		if ( empty( $api_key ) ) {
+			wp_send_json_error( __( 'La API Key no puede estar vacía.', 'mirrorly' ) );
+		}
+
+		// Validar formato básico de Google API Key
+		if ( ! preg_match( '/^AIza[0-9A-Za-z-_]{35}$/', $api_key ) ) {
+			wp_send_json_error( __( 'Formato de API Key inválido.', 'mirrorly' ) );
+		}
+
+		// Obtener opciones actuales
+		$options = get_option( 'mirrorly_options', array() );
+		$options['api_key'] = $api_key;
+
+		// Guardar en WordPress
+		update_option( 'mirrorly_options', $options );
+
+		// Enviar a la API para almacenar en licenses.license_key
+		$api_client = new Mirrorly_API_Client();
+		$license = new Mirrorly_License();
+		$license_key = $license->get_license_key();
+
+		if ( empty( $license_key ) ) {
+			// Si no hay license_key, crear una licencia FREE
+			$domain = parse_url( home_url(), PHP_URL_HOST );
+			$result = $api_client->register_free_license( $domain );
+			
+			if ( is_wp_error( $result ) ) {
+				wp_send_json_error( __( 'Error al registrar la licencia: ', 'mirrorly' ) . $result->get_error_message() );
+			}
+			
+			$license_key = $result['license_key'];
+			$options['license_key'] = $license_key;
+			update_option( 'mirrorly_options', $options );
+		}
+
+		// Enviar API Key a la API central
+		$response = $api_client->save_google_api_key( $license_key, $api_key );
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( __( 'Error al guardar en la API: ', 'mirrorly' ) . $response->get_error_message() );
+		}
+
+		// Generar máscara para mostrar
+		$masked_key = '••••••••••••••••••••••••••••••••••••••••' . substr( $api_key, -4 );
+
+		wp_send_json_success( array(
+			'message' => __( 'API Key guardada correctamente.', 'mirrorly' ),
+			'masked_key' => $masked_key
+		) );
 	}
 }

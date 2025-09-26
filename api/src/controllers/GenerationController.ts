@@ -6,6 +6,7 @@ import { GoogleAIService } from '../services/GoogleAIService';
 import { RateLimitService } from '../services/RateLimitService';
 import { ImageProcessor } from '../services/ImageProcessor';
 import { Generation } from '../models/Generation';
+import { License } from '../models/License';
 import { AuthenticatedRequest } from '../middleware/AuthMiddleware';
 import { GenerationOptions } from '../types/google-ai';
 import { loggingService } from '../services/LoggingService';
@@ -15,15 +16,24 @@ import { loggingService } from '../services/LoggingService';
  * Maneja el flujo completo: validación, rate limiting, procesamiento y generación
  */
 export class GenerationController {
-  private googleAI: GoogleAIService;
   private imageProcessor: ImageProcessor;
 
   constructor() {
     // Inicializar servicios
-    this.googleAI = new GoogleAIService({
-      apiKey: process.env.GOOGLE_AI_API_KEY!
-    });
     this.imageProcessor = new ImageProcessor();
+  }
+
+  /**
+   * Obtiene una instancia de GoogleAIService con la API key de la licencia
+   * @param license Licencia que contiene la API key cifrada
+   * @returns Instancia configurada de GoogleAIService
+   */
+  private static getGoogleAIService(license: License): GoogleAIService {
+    const googleApiKey = license.getDecryptedGoogleKey();
+    if (!googleApiKey) {
+      throw new Error('Google API key not configured. Please configure your Google API key in the plugin settings.');
+    }
+    return new GoogleAIService({ apiKey: googleApiKey });
   }
 
   /**
@@ -136,8 +146,11 @@ export class GenerationController {
         productType: req.body.productType || 'automático'
       };
 
+      // Obtener instancia de GoogleAI con la API key de la licencia
+      const googleAI = GenerationController.getGoogleAIService(license);
+
       // Generar imagen con Google AI (flujo de dos pasos)
-      const result = await this.googleAI.generateImage(
+      const result = await googleAI.generateImage(
         processedUserImage.processedImage!,
         processedProductImage.processedImage!,
         generationOptions,
@@ -511,15 +524,8 @@ export class GenerationController {
   public validateConfiguration(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (!process.env.GOOGLE_AI_API_KEY) {
-      errors.push('GOOGLE_AI_API_KEY environment variable is required');
-    }
-
-    // Validar configuración de Google AI
-    const googleAIValidation = this.googleAI.validateConfig();
-    if (!googleAIValidation.valid) {
-      errors.push(...googleAIValidation.errors.map(err => `Google AI: ${err}`));
-    }
+    // Note: Google AI API key validation is now done per-license
+    // No global validation needed since each license has its own API key
 
     return {
       valid: errors.length === 0,

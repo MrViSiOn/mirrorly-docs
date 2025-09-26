@@ -33,6 +33,13 @@ router.post('/upgrade',
   LicenseController.upgradeLicense
 );
 
+// Save Google API Key
+router.post('/save-google-api-key',
+  AuthMiddleware.validateApiKey,
+  LicenseController.saveGoogleApiKey
+);
+
+
 // Admin routes (would typically require admin authentication)
 // For now, we'll use a simple admin key check
 

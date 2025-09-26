@@ -84,25 +84,65 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						<tr>
 							<th scope="row">
-								<label for="api_key"><?php esc_html_e( 'API Key', 'mirrorly' ); ?></label>
+								<label for="api_key"><?php esc_html_e( 'Google API Key', 'mirrorly' ); ?></label>
 							</th>
 							<td>
 								<?php
 								$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
+								$masked_key = '';
+								if ( ! empty( $api_key ) ) {
+									$masked_key = str_repeat( '*', max( 0, strlen( $api_key ) - 4 ) ) . substr( $api_key, -4 );
+								}
+								$has_key = ! empty( $api_key );
 								?>
-								<input type="text" id="api_key" name="mirrorly_options[api_key]"
-										value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" readonly />
-								<button type="button" id="test-connection" class="button">
-									<?php esc_html_e( 'Probar Conexión', 'mirrorly' ); ?>
-								</button>
+								<div class="mirrorly-api-key-container">
+									<input type="password" id="api_key_display" 
+										   value="<?php echo esc_attr( $masked_key ); ?>" 
+										   class="regular-text" readonly 
+										   placeholder="<?php esc_attr_e( 'No configurado', 'mirrorly' ); ?>" />
+									<input type="text" id="api_key_edit" name="mirrorly_options[api_key]"
+										   value="<?php echo esc_attr( $api_key ); ?>" 
+										   class="regular-text" style="display: none;" 
+										   placeholder="<?php esc_attr_e( 'Ingresa tu Google API Key', 'mirrorly' ); ?>" />
+									
+									<div class="mirrorly-api-buttons">
+										<?php if ( $has_key ) : ?>
+											<button type="button" id="edit-api-key" class="button">
+												<?php esc_html_e( 'Editar', 'mirrorly' ); ?>
+											</button>
+											<button type="button" id="save-api-key" class="button button-primary" style="display: none;">
+												<?php esc_html_e( 'Guardar', 'mirrorly' ); ?>
+											</button>
+											<button type="button" id="cancel-edit-api-key" class="button" style="display: none;">
+												<?php esc_html_e( 'Cancelar', 'mirrorly' ); ?>
+											</button>
+										<?php else : ?>
+											<button type="button" id="add-api-key" class="button button-primary">
+												<?php esc_html_e( 'Configurar', 'mirrorly' ); ?>
+											</button>
+											<button type="button" id="save-api-key" class="button button-primary" style="display: none;">
+												<?php esc_html_e( 'Guardar', 'mirrorly' ); ?>
+											</button>
+											<button type="button" id="cancel-edit-api-key" class="button" style="display: none;">
+												<?php esc_html_e( 'Cancelar', 'mirrorly' ); ?>
+											</button>
+										<?php endif; ?>
+										
+										<button type="button" id="test-connection" class="button" <?php echo $has_key ? '' : 'disabled'; ?>>
+											<?php esc_html_e( 'Probar Conexión', 'mirrorly' ); ?>
+										</button>
+									</div>
+								</div>
+								
 								<p class="description">
-									<?php esc_html_e( 'Tu API key se genera automáticamente al registrar una licencia.', 'mirrorly' ); ?>
+									<?php esc_html_e( 'Configura tu Google API Key para habilitar la generación de imágenes con IA.', 'mirrorly' ); ?>
 									<br>
 									<a href="https://docs.mirrorly.com/setup" target="_blank">
 										<?php esc_html_e( 'Ver tutorial de configuración completo', 'mirrorly' ); ?>
 									</a>
 								</p>
 								<div id="connection-test-result"></div>
+								<div id="api-key-save-result"></div>
 							</td>
 						</tr>
 
@@ -422,8 +462,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	height: 16px;
 }
 
+/* API Key Container Styles */
+.mirrorly-api-key-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.mirrorly-api-buttons {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+#api_key_display,
+#api_key_edit {
+	width: 100%;
+	max-width: 400px;
+}
+
 #license-validation-result,
-#connection-test-result {
+#connection-test-result,
+#api-key-save-result {
 	margin-top: 10px;
 	padding: 8px 12px;
 	border-radius: 4px;
@@ -431,17 +492,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 #license-validation-result.success,
-#connection-test-result.success {
+#connection-test-result.success,
+#api-key-save-result.success {
 	background: #d4edda;
 	color: #155724;
 	border: 1px solid #c3e6cb;
 }
 
 #license-validation-result.error,
-#connection-test-result.error {
+#connection-test-result.error,
+#api-key-save-result.error {
 	background: #f8d7da;
 	color: #721c24;
 	border: 1px solid #f5c6cb;
+}
+
+#api-key-save-result.loading {
+	background: #fff3cd;
+	color: #856404;
+	border: 1px solid #ffeaa7;
 }
 
 @media (max-width: 1200px) {
@@ -450,3 +519,111 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 }
 </style>
+
+<script>
+jQuery(document).ready(function($) {
+	var originalApiKey = $('#api_key_edit').val();
+	
+	// Función para mostrar/ocultar elementos
+	function toggleEditMode(editing) {
+		if (editing) {
+			$('#api_key_display').hide();
+			$('#api_key_edit').show().focus();
+			$('#edit-api-key, #add-api-key').hide();
+			$('#save-api-key, #cancel-edit-api-key').show();
+		} else {
+			$('#api_key_display').show();
+			$('#api_key_edit').hide();
+			$('#save-api-key, #cancel-edit-api-key').hide();
+			if ($('#api_key_edit').val()) {
+				$('#edit-api-key').show();
+				$('#add-api-key').hide();
+			} else {
+				$('#edit-api-key').hide();
+				$('#add-api-key').show();
+			}
+		}
+	}
+	
+	// Función para actualizar la máscara
+	function updateMaskedKey(key) {
+		if (key && key.length > 4) {
+			var masked = '*'.repeat(key.length - 4) + key.slice(-4);
+			$('#api_key_display').val(masked);
+		} else if (key) {
+			$('#api_key_display').val('*'.repeat(key.length));
+		} else {
+			$('#api_key_display').val('');
+		}
+	}
+	
+	// Función para mostrar resultado
+	function showResult(message, type) {
+		var $result = $('#api-key-save-result');
+		$result.removeClass('success error loading').addClass(type);
+		$result.text(message).show();
+		
+		if (type !== 'loading') {
+			setTimeout(function() {
+				$result.fadeOut();
+			}, 5000);
+		}
+	}
+	
+	// Botón Editar/Configurar
+	$('#edit-api-key, #add-api-key').on('click', function() {
+		originalApiKey = $('#api_key_edit').val();
+		toggleEditMode(true);
+	});
+	
+	// Botón Cancelar
+	$('#cancel-edit-api-key').on('click', function() {
+		$('#api_key_edit').val(originalApiKey);
+		toggleEditMode(false);
+		$('#api-key-save-result').hide();
+	});
+	
+	// Botón Guardar
+	$('#save-api-key').on('click', function() {
+		var apiKey = $('#api_key_edit').val().trim();
+		
+		if (!apiKey) {
+			showResult('<?php esc_html_e( "Por favor, ingresa una API Key válida.", "mirrorly" ); ?>', 'error');
+			return;
+		}
+		
+		showResult('<?php esc_html_e( "Guardando API Key...", "mirrorly" ); ?>', 'loading');
+		
+		// Enviar a la API
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'mirrorly_save_api_key',
+				api_key: apiKey,
+				nonce: '<?php echo wp_create_nonce( "mirrorly_admin_nonce" ); ?>'
+			},
+			success: function(response) {
+				if (response.success) {
+					updateMaskedKey(apiKey);
+					originalApiKey = apiKey;
+					toggleEditMode(false);
+					$('#test-connection').prop('disabled', false);
+					showResult(response.data.message || '<?php esc_html_e( "API Key guardada correctamente.", "mirrorly" ); ?>', 'success');
+				} else {
+					showResult(response.data.message || '<?php esc_html_e( "Error al guardar la API Key.", "mirrorly" ); ?>', 'error');
+				}
+			},
+			error: function() {
+				showResult('<?php esc_html_e( "Error de conexión. Inténtalo de nuevo.", "mirrorly" ); ?>', 'error');
+			}
+		});
+	});
+	
+	// Actualizar estado del botón de prueba cuando cambie el campo
+	$('#api_key_edit').on('input', function() {
+		var hasKey = $(this).val().trim().length > 0;
+		$('#test-connection').prop('disabled', !hasKey);
+	});
+});
+</script>

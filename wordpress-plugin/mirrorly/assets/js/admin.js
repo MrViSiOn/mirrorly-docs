@@ -23,6 +23,7 @@
 			this.initStylePreview();
 			this.initProductMessages();
 			this.initRangeSliders();
+			this.initApiKeyManagement();
 		},
 
 		/**
@@ -537,6 +538,131 @@
 					$( '#selected-products-list' ).append( html );
 				}
 			);
+		},
+
+		/**
+		 * Initialize API Key management functionality
+		 */
+		initApiKeyManagement: function () {
+			// Edit API Key button
+			$( document ).on( 'click', '#edit-api-key', function(e) {
+				e.preventDefault();
+				
+				var $container = $( '#api-key-container' );
+				var $maskedField = $container.find( '.api-key-masked' );
+				var $inputField = $container.find( '.api-key-input' );
+				var $editBtn = $container.find( '#edit-api-key' );
+				var $saveBtn = $container.find( '#save-api-key' );
+				var $cancelBtn = $container.find( '#cancel-api-key' );
+				
+				// Show input field, hide masked field
+				$maskedField.hide();
+				$inputField.show();
+				$editBtn.hide();
+				$saveBtn.show();
+				$cancelBtn.show();
+				
+				// Focus on input
+				$inputField.find( 'input' ).focus();
+			});
+			
+			// Cancel API Key edit
+			$( document ).on( 'click', '#cancel-api-key', function(e) {
+				e.preventDefault();
+				
+				var $container = $( '#api-key-container' );
+				var $maskedField = $container.find( '.api-key-masked' );
+				var $inputField = $container.find( '.api-key-input' );
+				var $editBtn = $container.find( '#edit-api-key' );
+				var $saveBtn = $container.find( '#save-api-key' );
+				var $cancelBtn = $container.find( '#cancel-api-key' );
+				
+				// Hide input field, show masked field
+				$inputField.hide();
+				$maskedField.show();
+				$saveBtn.hide();
+				$cancelBtn.hide();
+				$editBtn.show();
+				
+				// Reset input value to original
+				var originalValue = $inputField.find( 'input' ).data( 'original-value' ) || '';
+				$inputField.find( 'input' ).val( originalValue );
+			});
+			
+			// Save API Key
+			$( document ).on( 'click', '#save-api-key', function(e) {
+				e.preventDefault();
+				
+				var $button = $( this );
+				var $container = $( '#api-key-container' );
+				var $input = $container.find( '.api-key-input input' );
+				var $result = $( '#api-key-save-result' );
+				var apiKey = $input.val().trim();
+				
+				if ( !apiKey ) {
+					MirrorlyAdmin.showValidationResult( $result, 'error', 'La API Key no puede estar vacía.' );
+					return;
+				}
+				
+				// Validate API Key format
+				if ( !/^AIza[0-9A-Za-z-_]{35}$/.test( apiKey ) ) {
+					MirrorlyAdmin.showValidationResult( $result, 'error', 'Formato de API Key inválido.' );
+					return;
+				}
+				
+				// Show loading state
+				$button.prop( 'disabled', true ).text( 'Guardando...' );
+				$result.removeClass( 'success error' ).addClass( 'loading' ).text( 'Guardando API Key...' ).show();
+				
+				// Make AJAX request
+				$.ajax({
+					url: mirrorly_admin.ajax_url,
+					type: 'POST',
+					data: {
+						action: 'mirrorly_save_api_key',
+						api_key: apiKey,
+						nonce: mirrorly_admin.nonce
+					},
+					success: function( response ) {
+						if ( response.success ) {
+							MirrorlyAdmin.showValidationResult( $result, 'success', response.data.message );
+							
+							// Update masked display
+							var $maskedSpan = $container.find( '.api-key-masked span' );
+							$maskedSpan.text( response.data.masked_key );
+							
+							// Store original value
+							$input.data( 'original-value', apiKey );
+							
+							// Hide input, show masked
+							var $maskedField = $container.find( '.api-key-masked' );
+							var $inputField = $container.find( '.api-key-input' );
+							var $editBtn = $container.find( '#edit-api-key' );
+							var $saveBtn = $container.find( '#save-api-key' );
+							var $cancelBtn = $container.find( '#cancel-api-key' );
+							
+							$inputField.hide();
+							$maskedField.show();
+							$saveBtn.hide();
+							$cancelBtn.hide();
+							$editBtn.show();
+							
+							// Hide result after 3 seconds
+							setTimeout( function() {
+								$result.fadeOut();
+							}, 3000 );
+						} else {
+							MirrorlyAdmin.showValidationResult( $result, 'error', response.data );
+						}
+					},
+					error: function() {
+						MirrorlyAdmin.showValidationResult( $result, 'error', 'Error de conexión. Inténtalo de nuevo.' );
+					},
+					complete: function() {
+						$button.prop( 'disabled', false ).text( 'Guardar' );
+					}
+				});
+			});
 		}
 	};
 

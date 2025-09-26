@@ -501,6 +501,82 @@ export class LicenseController {
   }
 
   /**
+   * Save Google API Key for a license
+   * POST /license/save-google-api-key
+   */
+  static async saveGoogleApiKey(req: Request, res: Response): Promise<void> {
+    try {
+      const { google_api_key, domain } = req.body;
+      const license = req.license; // From auth middleware
+
+      // Check if license exists
+      if (!license) {
+        res.status(401).json({
+          error: 'UNAUTHORIZED',
+          message: 'License not found or invalid',
+          code: 'LICENSE_NOT_FOUND'
+        });
+        return;
+      }
+
+      // Validate required fields
+      if (!google_api_key) {
+        res.status(400).json({
+          error: 'VALIDATION_ERROR',
+          message: 'Google API key is required',
+          code: 'MISSING_GOOGLE_API_KEY'
+        });
+        return;
+      }
+
+      // Basic API key format validation
+      if (!google_api_key.startsWith('AIza') || google_api_key.length < 30) {
+        res.status(400).json({
+          error: 'VALIDATION_ERROR',
+          message: 'Invalid Google API key format',
+          code: 'INVALID_API_KEY_FORMAT'
+        });
+        return;
+      }
+
+      // Validate domain matches license domain
+      if (domain && license.domain !== domain) {
+        res.status(403).json({
+          error: 'DOMAIN_MISMATCH',
+          message: 'Domain does not match license domain',
+          code: 'DOMAIN_MISMATCH'
+        });
+        return;
+      }
+
+      // Update the Google API key (encrypted)
+      await license.updateGoogleApiKey(google_api_key);
+
+      // Return success with masked API key
+      const maskedApiKey = google_api_key.substring(0, 4) + '****' + google_api_key.slice(-4);
+
+      res.status(200).json({
+        success: true,
+        message: 'Google API key saved successfully',
+        data: {
+          license_key: license.license_key,
+          domain: license.domain,
+          google_api_key: maskedApiKey,
+          updated_at: new Date()
+        }
+      });
+
+    } catch (error) {
+      console.error('Save Google API key error:', error);
+      res.status(500).json({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to save Google API key',
+        code: 'SAVE_API_KEY_FAILED'
+      });
+    }
+  }
+
+  /**
    * Get rate limit seconds based on license type
    */
   private static getRateLimitSeconds(type: string): number {

@@ -229,6 +229,7 @@ final class Mirrorly {
 
 		add_action( 'init', array( $this, 'init' ), 0 );
 		add_action( 'plugins_loaded', array( $this, 'load_plugin_textdomain' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 	}
 
 	/**
@@ -285,7 +286,6 @@ final class Mirrorly {
 
 		// Initialize image manager to create directories
 		$image_manager = new Mirrorly_Image_Manager();
-		$image_manager->init();
 
 		// Schedule cron jobs
 		Mirrorly_Cron_Manager::schedule_daily_cleanup();
@@ -388,6 +388,15 @@ final class Mirrorly {
 	 */
 	public function ajax_url() {
 		return admin_url( 'admin-ajax.php', 'relative' );
+	}
+
+	/**
+	 * Add plugin action links
+	 */
+	public function plugin_action_links( $links ) {
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=mirrorly-settings' ) . '">' . __( 'Configuración', 'mirrorly' ) . '</a>';
+		array_unshift( $links, $settings_link );
+		return $links;
 	}
 }
 

@@ -44,6 +44,7 @@ router.get('/', (req, res) => {
         'GET /license/validate-pro': 'Validate PRO license status (requires API key)',
         'GET /license/expiration-status': 'Check expiration status (requires API key)',
         'POST /license/upgrade': 'Upgrade license from FREE to PRO (requires API key)',
+        'POST /license/save-google-api-key': 'Save Google API Key for license (requires API key)',
         'POST /license/suspend': 'Suspend a license (admin only)',
         'POST /license/reactivate': 'Reactivate a license (admin only)',
         'GET /license/expiring-soon': 'Get licenses expiring soon (admin only)'
