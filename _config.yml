@@ -1,8 +1,57 @@
-title: Just the Docs Template
-description: A starter template for a Jeykll site using the Just the Docs theme!
+title: Mirrorly
+description: Plugin de WordPress para visualización de productos con inteligencia artificial
 theme: just-the-docs
 
-url: https://just-the-docs.github.io
+url: https://docs.mirrorly.pro
+baseurl: ""
 
+# Repository
+repository: MrViSiOn/mirrorly-docs
+
+# GitHub link
 aux_links:
-  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+  "Mirrorly en GitHub":
+    - "https://github.com/MrViSiOn/mirrorly-docs"
+
+# Navigation
+nav_external_links:
+  - title: Mirrorly Pro
+    url: https://mirrorly.pro
+
+# Footer
+footer_content: "Copyright &copy; 2024 Mirrorly. Distribuido bajo la <a href=\"https://github.com/MrViSiOn/mirrorly-docs/blob/main/LICENSE\">Licencia MIT</a>."
+
+# Color scheme
+color_scheme: light
+
+# Search
+search_enabled: true
+search:
+  heading_level: 2
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  tokenizer_separator: /[\s/]+/
+  rel_url: true
+  button: false
+
+# Mermaid diagrams
+mermaid:
+  version: "9.1.6"
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+# Sass
+sass:
+  style: compressed

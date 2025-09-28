@@ -1,0 +1,289 @@
+// Mirrorly Custom Styles for Documentation
+// ========================================
+
+// Brand Colors
+$mirrorly-primary: #6366f1;      // Indigo
+$mirrorly-secondary: #8b5cf6;    // Purple  
+$mirrorly-accent: #06b6d4;       // Cyan
+$mirrorly-success: #10b981;      // Emerald
+$mirrorly-warning: #f59e0b;      // Amber
+$mirrorly-danger: #ef4444;       // Red
+
+// Override Just the Docs variables
+$link-color: $mirrorly-primary;
+$btn-primary-color: $mirrorly-primary;
+$base-button-color: $mirrorly-primary;
+
+// Custom header styling
+.site-header {
+  background: linear-gradient(135deg, $mirrorly-primary 0%, $mirrorly-secondary 100%);
+  border-bottom: 3px solid $mirrorly-accent;
+  
+  .site-title {
+    color: white !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    
+    &:hover {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+}
+
+// Navigation styling
+.navigation-list-item {
+  .navigation-list-link {
+    &:hover {
+      background-color: rgba($mirrorly-primary, 0.1);
+      border-radius: 6px;
+    }
+    
+    &.active {
+      background-color: rgba($mirrorly-primary, 0.15);
+      border-left: 3px solid $mirrorly-primary;
+      border-radius: 0 6px 6px 0;
+    }
+  }
+}
+
+// Custom buttons
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &.btn-primary {
+    background: linear-gradient(135deg, $mirrorly-primary 0%, $mirrorly-secondary 100%);
+    border: none;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($mirrorly-primary, 0.3);
+    }
+  }
+  
+  &.btn-outline {
+    border: 2px solid $mirrorly-primary;
+    color: $mirrorly-primary;
+    
+    &:hover {
+      background-color: $mirrorly-primary;
+      color: white;
+    }
+  }
+}
+
+// Custom callouts and highlights
+.highlight {
+  background: linear-gradient(135deg, rgba($mirrorly-accent, 0.1) 0%, rgba($mirrorly-primary, 0.1) 100%);
+  border-left: 4px solid $mirrorly-accent;
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  
+  &::before {
+    content: "💡";
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+}
+
+// Warning callout
+.warning {
+  background: linear-gradient(135deg, rgba($mirrorly-warning, 0.1) 0%, rgba($mirrorly-danger, 0.1) 100%);
+  border-left: 4px solid $mirrorly-warning;
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  
+  &::before {
+    content: "⚠️";
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+}
+
+// Success callout
+.success {
+  background: linear-gradient(135deg, rgba($mirrorly-success, 0.1) 0%, rgba($mirrorly-accent, 0.1) 100%);
+  border-left: 4px solid $mirrorly-success;
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  
+  &::before {
+    content: "✅";
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+}
+
+// Code blocks styling
+pre, code {
+  border-radius: 8px;
+}
+
+.highlight {
+  border-radius: 8px;
+  
+  pre {
+    border-radius: 8px;
+  }
+}
+
+// Tables styling
+table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  th {
+    background: linear-gradient(135deg, $mirrorly-primary 0%, $mirrorly-secondary 100%);
+    color: white;
+    font-weight: 600;
+  }
+  
+  tr:nth-child(even) {
+    background-color: rgba($mirrorly-primary, 0.05);
+  }
+  
+  tr:hover {
+    background-color: rgba($mirrorly-primary, 0.1);
+  }
+}
+
+// Custom badges
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  &.badge-free {
+    background-color: rgba($mirrorly-success, 0.2);
+    color: darken($mirrorly-success, 20%);
+  }
+  
+  &.badge-pro {
+    background: linear-gradient(135deg, $mirrorly-primary 0%, $mirrorly-secondary 100%);
+    color: white;
+  }
+  
+  &.badge-new {
+    background-color: rgba($mirrorly-accent, 0.2);
+    color: darken($mirrorly-accent, 20%);
+  }
+}
+
+// Hero section styling
+.hero {
+  background: linear-gradient(135deg, $mirrorly-primary 0%, $mirrorly-secondary 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+  text-align: center;
+  
+  h1, h2 {
+    color: white;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+  }
+}
+
+// Feature cards
+.feature-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba($mirrorly-primary, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba($mirrorly-primary, 0.15);
+  }
+  
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  h3 {
+    color: $mirrorly-primary;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Step indicators
+.step-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: $mirrorly-primary;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  margin-right: 0.75rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+  
+  .feature-card {
+    margin-bottom: 1rem;
+  }
+}
+
+// Footer styling
+.site-footer {
+  background: linear-gradient(135deg, darken($mirrorly-primary, 10%) 0%, darken($mirrorly-secondary, 10%) 100%);
+  color: white;
+  
+  a {
+    color: rgba(255, 255, 255, 0.8);
+    
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+// Search styling
+.search-input {
+  border-radius: 8px;
+  border: 2px solid rgba($mirrorly-primary, 0.2);
+  
+  &:focus {
+    border-color: $mirrorly-primary;
+    box-shadow: 0 0 0 3px rgba($mirrorly-primary, 0.1);
+  }
+}
+
+// Breadcrumb styling
+.breadcrumb-nav {
+  ol {
+    li {
+      a {
+        color: $mirrorly-primary;
+        
+        &:hover {
+          color: $mirrorly-secondary;
+        }
+      }
+    }
+  }
+}
