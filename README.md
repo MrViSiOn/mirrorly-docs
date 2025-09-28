@@ -1,251 +1,174 @@
-# Mirrorly Project
+# just-the-docs-template
 
-Plugin WordPress con inteligencia artificial para visualización de productos en WooCommerce que permite a los usuarios ver cómo se verían usando productos de moda, bisutería y accesorios.
+This is a *bare-minimum* template to create a [Jekyll] site that:
 
-## 🚀 Características Principales
+- uses the [Just the Docs] theme;
+- can be built and published on [GitHub Pages];
+- can be built and previewed locally, and published on other platforms.
 
-- **Inteligencia Artificial Avanzada**: Integración con Google Generative AI para generación realista de imágenes
-- **Versiones FREE y PRO**: Modelo freemium con funcionalidades escalables
-- **Integración WooCommerce**: Seamless integration con tiendas existentes
-- **Rate Limiting Inteligente**: Control de uso y prevención de abuso
-- **API REST Centralizada**: Arquitectura escalable y mantenible
-- **Personalización Avanzada**: Estilos y configuraciones personalizables (PRO)
+More specifically, the created site:
 
-## 📁 Estructura del Proyecto
+- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem;
+- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages.
 
-```
-mirrorly-project/
-├── api/                          # API Node.js/TypeScript
-│   ├── src/
-│   │   ├── controllers/          # Controladores REST
-│   │   ├── models/              # Modelos de datos (Sequelize)
-│   │   ├── services/            # Lógica de negocio
-│   │   ├── middleware/          # Middleware personalizado
-│   │   ├── routes/              # Definición de rutas
-│   │   └── config/              # Configuración de la aplicación
-│   ├── tests/                   # Tests unitarios e integración
-│   ├── dist/                    # Código compilado
-│   ├── uploads/                 # Archivos temporales
-│   ├── logs/                    # Logs de la aplicación
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── Dockerfile
-│   └── ecosystem.config.js      # Configuración PM2
-├── wordpress-plugin/             # Plugin WordPress
-│   ├── mirrorly/
-│   │   ├── mirrorly.php         # Archivo principal del plugin
-│   │   ├── includes/            # Clases PHP del plugin
-│   │   ├── assets/              # CSS, JS, imágenes
-│   │   ├── templates/           # Templates PHP
-│   │   ├── languages/           # Archivos de traducción
-│   │   └── tests/               # Tests PHPUnit
-│   ├── build/                   # Plugin empaquetado (.zip)
-│   ├── package.json
-│   └── webpack.config.js        # Build configuration
-├── docs/                        # Documentación compartida
-│   ├── ARCHITECTURE.md          # Documentación de arquitectura
-│   ├── DEVELOPMENT.md           # Guía de desarrollo
-│   ├── API.md                   # Documentación de API endpoints
-│   └── USER_GUIDE.md            # Guía de usuario
-├── scripts/                     # Scripts de build y deployment
-│   ├── build-all.js            # Build completo
-│   ├── setup-dev.js            # Setup de desarrollo
-│   ├── deploy-api.js           # Deployment de API
-│   └── release-plugin.js       # Release del plugin
-├── .github/                     # GitHub Actions CI/CD
-│   └── workflows/
-├── package.json                 # Workspace root
-├── docker-compose.yml           # Desarrollo local
-└── README.md                    # Documentación principal
-```
+To get started with creating a site, simply:
 
-## 📋 Requisitos del Sistema
+1. click "[use this template]" to create a GitHub repository
+2. go to Settings > Pages > Build and deployment > Source, and select GitHub Actions
 
-### Para Desarrollo
-- **Node.js** >= 18.0.0
-- **npm** >= 9.0.0
-- **PHP** >= 7.4
-- **Composer** >= 2.0
-- **MySQL** >= 5.7 o **MariaDB** >= 10.3
-- **Docker** (opcional, para desarrollo containerizado)
+If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](#hosting-your-docs-from-an-existing-project-repo).
 
-### Para Producción
-- **Servidor Linux** (Ubuntu 20.04+ recomendado)
-- **Node.js** >= 18.0.0 (para API)
-- **PM2** (para gestión de procesos)
-- **Nginx** (proxy reverso recomendado)
-- **SSL Certificate** (requerido para producción)
+After completing the creation of your new site on GitHub, update it as needed:
 
-### WordPress/WooCommerce
-- **WordPress** >= 5.8
-- **WooCommerce** >= 6.0
-- **PHP** >= 7.4 (8.0+ recomendado)
-- **MySQL** >= 5.7
+## Replace the content of the template pages
 
-### APIs Externas
-- **Google Generative AI API Key** (requerida)
-- Cuenta de Google Cloud con facturación habilitada
+Update the following files to your own content:
 
-## Instalación y Configuración
+- `index.md` (your new home page)
+- `README.md` (information for those who access your site repo on GitHub)
 
-### Configuración Inicial
+## Changing the version of the theme and/or Jekyll
 
-```bash
-# Clonar el repositorio
-git clone https://github.com/your-org/mirrorly-project.git
-cd mirrorly-project
+Simply edit the relevant line(s) in the `Gemfile`.
 
-# Instalar dependencias
-npm run setup
-```
+## Adding a plugin
 
-### Desarrollo de la API
+The Just the Docs theme automatically includes the [`jekyll-seo-tag`] plugin.
 
-```bash
-# Desarrollo con hot reload
-npm run dev:api
+To add an extra plugin, you need to add it in the `Gemfile` *and* in `_config.yml`. For example, to add [`jekyll-default-layout`]:
 
-# Build para producción
-npm run build:api
+- Add the following to your site's `Gemfile`:
 
-# Tests
-npm run test:api
+  ```ruby
+  gem "jekyll-default-layout"
+  ```
 
-# Deployment
-npm run deploy:api
-```
+- And add the following to your site's `_config.yml`:
 
-### Desarrollo del Plugin WordPress
+  ```yaml
+  plugins:
+    - jekyll-default-layout
+  ```
 
-```bash
-# Desarrollo con watch mode
-npm run dev:plugin
+Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
 
-# Build del plugin
-npm run build:plugin
+## Publishing your site on GitHub Pages
 
-# Generar release (.zip)
-npm run release:plugin
+1.  If your created site is `YOUR-USERNAME/YOUR-SITE-NAME`, update `_config.yml` to:
 
-# Tests
-npm run test:plugin
-```
+    ```yaml
+    title: YOUR TITLE
+    description: YOUR DESCRIPTION
+    theme: just-the-docs
 
-### Scripts Disponibles
+    url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
 
-- `npm run dev:api` - Inicia servidor de desarrollo de la API
-- `npm run dev:plugin` - Inicia desarrollo del plugin con watch mode
-- `npm run build` - Build completo de ambos componentes
-- `npm run test` - Ejecuta todos los tests
-- `npm run lint` - Linting de todo el código
-- `npm run clean` - Limpia archivos de build y node_modules
+    aux_links: # remove if you don't want this link to appear on your pages
+      Template Repository: https://github.com/YOUR-USERNAME/YOUR-SITE-NAME
+    ```
 
-## Componentes
+2.  Push your updated `_config.yml` to your site on GitHub.
 
-### API REST (Node.js/TypeScript)
+3.  In your newly created repo on GitHub:
+    - go to the `Settings` tab -> `Pages` -> `Build and deployment`, then select `Source`: `GitHub Actions`.
+    - if there were any failed Actions, go to the `Actions` tab and click on `Re-run jobs`.
 
-API centralizada que gestiona:
-- Autenticación y licencias
-- Rate limiting y control de uso
-- Integración con Google Generative AI
-- Procesamiento de imágenes
+## Building and previewing your site locally
 
-**Tecnologías:**
-- Node.js + TypeScript
-- Express.js
-- Sequelize (MySQL)
-- Google Generative AI
-- Sharp (procesamiento de imágenes)
+Assuming [Jekyll] and [Bundler] are installed on your computer:
 
-### Plugin WordPress
+1.  Change your working directory to the root directory of your site.
 
-Plugin para WordPress/WooCommerce con:
-- Versiones FREE y PRO
-- Panel de administración
-- Widget frontend para productos
-- Integración con WooCommerce
+2.  Run `bundle install`.
 
-**Tecnologías:**
-- PHP 7.4+
-- WordPress/WooCommerce APIs
-- JavaScript/CSS para frontend
+3.  Run `bundle exec jekyll serve` to build your site and preview it at `localhost:4000`.
 
-## Configuración de Desarrollo
+    The built site is stored in the directory `_site`.
 
-### Variables de Entorno
+## Publishing your built site on a different platform
 
-Crear archivos `.env` en cada componente:
+Just upload all the files in the directory `_site`.
 
-**API (`api/.env`):**
-```
-NODE_ENV=development
-PORT=3000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=mirrorly_dev
-DB_USER=root
-DB_PASS=
-GOOGLE_AI_API_KEY=your_google_ai_key
-JWT_SECRET=your_jwt_secret
-```
+## Customization
 
-**Plugin (`wordpress-plugin/.env`):**
-```
-WP_ENV=development
-API_BASE_URL=http://localhost:3000/v1
-```
+You're free to customize sites that you create with this template, however you like!
 
-### Base de Datos
+[Browse our documentation][Just the Docs] to learn more about how to use this theme.
 
-La API requiere una base de datos MySQL. Las migraciones se ejecutan automáticamente en el primer inicio.
+## Hosting your docs from an existing project repo
 
-## Deployment
+You might want to maintain your docs in an existing project repo. Instead of creating a new repo using the [just-the-docs template](https://github.com/just-the-docs/just-the-docs-template), you can copy the template files into your existing repo and configure the template's Github Actions workflow to build from a `docs` directory. You can clone the template to your local machine or download the `.zip` file to access the files.
 
-### API en Producción
+### Copy the template files
 
-```bash
-# Build y deployment
-npm run deploy:api
-```
+1.  Create a `.github/workflows` directory at your project root if your repo doesn't already have one. Copy the `pages.yml` file into this directory. GitHub Actions searches this directory for workflow files.
 
-### Plugin WordPress
+2.  Create a `docs` directory at your project root and copy all remaining template files into this directory.
 
-```bash
-# Generar archivo .zip para distribución
-npm run release:plugin
-```
+### Modify the GitHub Actions workflow
 
-El archivo generado estará en `wordpress-plugin/build/mirrorly.zip`
+The GitHub Actions workflow that builds and deploys your site to Github Pages is defined by the `pages.yml` file. You'll need to edit this file to that so that your build and deploy steps look to your `docs` directory, rather than the project root.
 
-## Testing
+1.  Set the default `working-directory` param for the build job.
 
-```bash
-# Tests completos
-npm test
+    ```yaml
+    build:
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: docs
+    ```
 
-# Tests específicos
-npm run test:api
-npm run test:plugin
+2.  Set the `working-directory` param for the Setup Ruby step.
 
-# Coverage
-npm run test:coverage
-```
+    ```yaml
+    - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          cache-version: 0
+          working-directory: '${{ github.workspace }}/docs'
+    ```
 
-## Contribución
+3.  Set the path param for the Upload artifact step:
 
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
+    ```yaml
+    - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_site/
+    ```
 
-## Licencia
+4.  Modify the trigger so that only changes within the `docs` directory start the workflow. Otherwise, every change to your project (even those that don't affect the docs) would trigger a new site build and deploy.
 
-GPL-2.0-or-later - Ver archivo [LICENSE](LICENSE) para detalles.
+    ```yaml
+    on:
+      push:
+        branches:
+          - "main"
+        paths:
+          - "docs/**"
+    ```
 
-## Soporte
+## Licensing and Attribution
 
-Para soporte técnico y documentación adicional, consultar:
-- [Documentación API](api/README.md)
-- [Documentación Plugin](wordpress-plugin/README.md)
-- [Issues en GitHub](https://github.com/your-org/mirrorly-project/issues)
+This repository is licensed under the [MIT License]. You are generally free to reuse or extend upon this code as you see fit; just include the original copy of the license (which is preserved when you "make a template"). While it's not necessary, we'd love to hear from you if you do use this template, and how we can improve it for future use!
+
+The deployment GitHub Actions workflow is heavily based on GitHub's mixed-party [starter workflows]. A copy of their MIT License is available in [actions/starter-workflows].
+
+----
+
+[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
+
+[Jekyll]: https://jekyllrb.com
+[Just the Docs]: https://just-the-docs.github.io/just-the-docs/
+[GitHub Pages]: https://docs.github.com/en/pages
+[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
+[Bundler]: https://bundler.io
+[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
+[`jekyll-default-layout`]: https://github.com/benbalter/jekyll-default-layout
+[`jekyll-seo-tag`]: https://jekyll.github.io/jekyll-seo-tag
+[MIT License]: https://en.wikipedia.org/wiki/MIT_License
+[starter workflows]: https://github.com/actions/starter-workflows/blob/main/pages/jekyll.yml
+[actions/starter-workflows]: https://github.com/actions/starter-workflows/blob/main/LICENSE
