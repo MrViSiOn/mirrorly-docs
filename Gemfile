@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem "jekyll", "~> 4.4.1"
 gem "webrick", "~> 1.7" # required when using Ruby >= 3
 
+gem "jekyll-default-layout"
 gem "just-the-docs", "0.10.1" # pinned to the current release
 
 # Jekyll plugins (compatible versions)
