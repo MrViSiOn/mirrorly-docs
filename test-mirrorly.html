@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Mirrorly Frontend</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test Mirrorly Frontend</h1>
+    
+    <div id="test-results"></div>
+    
+    <button id="test-ajax">Test AJAX Call</button>
+    
+    <script>
+    $(document).ready(function() {
+        console.log('Test page loaded');
+        
+        $('#test-ajax').click(function() {
+            console.log('Testing AJAX call...');
+            
+            $.ajax({
+                url: '/wp-admin/admin-ajax.php',
+                type: 'POST',
+                data: {
+                    action: 'mirrorly_generate_image',
+                    nonce: 'test-nonce',
+                    product_id: '1'
+                },
+                success: function(response) {
+                    console.log('AJAX Success:', response);
+                    $('#test-results').html('<p>Success: ' + JSON.stringify(response) + '</p>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+                    $('#test-results').html('<p>Error: ' + status + ' - ' + error + '</p><p>Response: ' + xhr.responseText + '</p>');
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

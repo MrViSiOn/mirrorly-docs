@@ -1,0 +1,72 @@
+{
+  "name": "mirrorly-project",
+  "version": "1.0.0",
+  "description": "Mirrorly - Plugin WordPress con IA para visualización de productos",
+  "private": true,
+  "workspaces": [
+    "api",
+    "wordpress-plugin"
+  ],
+  "scripts": {
+    "dev:api": "cd api && npm run dev",
+    "dev:plugin": "cd wordpress-plugin && npm run dev",
+    "build": "npm run build:api && npm run build:plugin",
+    "build:api": "cd api && npm run build",
+    "build:plugin": "node scripts/build-plugin.js",
+    "test": "npm run test:api && npm run test:plugin",
+    "test:api": "cd api && npm test",
+    "test:plugin": "cd wordpress-plugin && npm test",
+    "test:all": "npm run test",
+    "lint": "npm run lint:api && npm run lint:plugin",
+    "lint:api": "cd api && npm run lint",
+    "lint:plugin": "cd wordpress-plugin && npm run lint",
+    "clean": "npm run clean:api && npm run clean:plugin && npm run clean:dist",
+    "clean:api": "cd api && rm -rf dist node_modules",
+    "clean:plugin": "cd wordpress-plugin && rm -rf build node_modules",
+    "clean:dist": "rm -rf dist wordpress-plugin/build",
+    "deploy:api": "./api/scripts/deploy.sh",
+    "deploy:api:staging": "./api/scripts/deploy.sh staging",
+    "deploy:api:production": "./api/scripts/deploy.sh production",
+    "release:plugin": "node scripts/build-plugin.js",
+    "setup": "node scripts/setup-dev.js",
+    "setup:api": "cd api && npm install",
+    "setup:plugin": "cd wordpress-plugin && npm install",
+    "build:all": "node scripts/build-all.js",
+    "version:status": "node scripts/version-manager.js status",
+    "version:sync": "node scripts/version-manager.js sync",
+    "version:bump": "node scripts/version-manager.js bump",
+    "version:bump:major": "node scripts/version-manager.js bump major",
+    "version:bump:minor": "node scripts/version-manager.js bump minor",
+    "version:bump:patch": "node scripts/version-manager.js bump patch",
+    "version:set": "node scripts/version-manager.js set",
+    "docker:build": "cd api && docker build -t mirrorly-api .",
+    "docker:run": "cd api && docker run -p 3000:3000 --env-file .env.development mirrorly-api",
+    "docker:dev": "cd api && docker-compose -f docker-compose.dev.yml up",
+    "docker:prod": "cd api && docker-compose -f docker-compose.prod.yml up -d",
+    "ci:test": "npm run lint && npm run test:all",
+    "ci:build": "npm run clean && npm run build",
+    "ci:deploy": "npm run ci:build && npm run deploy:api:production"
+  },
+  "devDependencies": {
+    "archiver": "^6.0.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/mirrorly-project.git"
+  },
+  "keywords": [
+    "wordpress",
+    "woocommerce",
+    "ai",
+    "image-generation",
+    "ecommerce"
+  ],
+  "author": "Your Name",
+  "license": "GPL-2.0-or-later"
+}
