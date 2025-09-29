@@ -1,174 +1,207 @@
-# just-the-docs-template
+# Documentación de Mirrorly
 
-This is a *bare-minimum* template to create a [Jekyll] site that:
+Este repositorio contiene la documentación oficial del plugin **Mirrorly** para WordPress/WooCommerce, un plugin innovador que permite a los usuarios visualizarse usando productos mediante inteligencia artificial.
 
-- uses the [Just the Docs] theme;
-- can be built and published on [GitHub Pages];
-- can be built and previewed locally, and published on other platforms.
+## 🚀 Acerca de Mirrorly
 
-More specifically, the created site:
+Mirrorly es un plugin que integra inteligencia artificial para generar imágenes realistas donde los clientes aparecen "usando" o "portando" los productos de tu tienda WooCommerce. Utiliza Google Generative AI para crear experiencias de compra inmersivas que aumentan las conversiones y reducen las devoluciones.
 
-- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem;
-- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages.
+### Características Principales
 
-To get started with creating a site, simply:
+- **Visualización con IA**: Los clientes pueden subir su foto y ver cómo se verían con tus productos
+- **Integración WooCommerce**: Funciona perfectamente con cualquier tema de WooCommerce
+- **Versiones FREE y PRO**: Opciones flexibles para diferentes necesidades
+- **Shortcode Flexible**: Inserta el widget en cualquier lugar con `[mirrorly]`
+- **API Centralizada**: Sistema robusto de licencias y control de uso
 
-1. click "[use this template]" to create a GitHub repository
-2. go to Settings > Pages > Build and deployment > Source, and select GitHub Actions
+## 📖 Documentación Disponible
 
-If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](#hosting-your-docs-from-an-existing-project-repo).
+Esta documentación está organizada en las siguientes secciones:
 
-After completing the creation of your new site on GitHub, update it as needed:
+### 📚 Páginas de Documentación
 
-## Replace the content of the template pages
+- **[Guía de Usuario](user-guide.md)** - Introducción completa a Mirrorly y productos compatibles
+- **[Configuración de Google AI](google-ai-setup.md)** - Cómo configurar Google AI Studio para usar con Mirrorly
+- **[Guía del Shortcode](shortcode-guide.md)** - Documentación completa del shortcode `[mirrorly]`
 
-Update the following files to your own content:
+### 🔧 Archivos de Configuración
 
-- `index.md` (your new home page)
-- `README.md` (information for those who access your site repo on GitHub)
+- **[Gemfile](Gemfile)** - Dependencias de Jekyll para el sitio de documentación
+- **[_config.yml](_config.yml)** - Configuración del sitio Jekyll con tema just-the-docs
 
-## Changing the version of the theme and/or Jekyll
+## 🌐 Sitio Web de Documentación
 
-Simply edit the relevant line(s) in the `Gemfile`.
+La documentación está publicada en GitHub Pages y utiliza el tema [Just the Docs] para una navegación clara y búsqueda integrada.
 
-## Adding a plugin
+**URL del sitio**: [Visitar documentación en línea](https://tu-usuario.github.io/mirrorly/)
 
-The Just the Docs theme automatically includes the [`jekyll-seo-tag`] plugin.
+## 🛠️ Desarrollo Local
 
-To add an extra plugin, you need to add it in the `Gemfile` *and* in `_config.yml`. For example, to add [`jekyll-default-layout`]:
+Para trabajar con la documentación localmente:
 
-- Add the following to your site's `Gemfile`:
+### Prerrequisitos
 
-  ```ruby
-  gem "jekyll-default-layout"
-  ```
+- Ruby 2.5.0 o superior
+- Bundler
+- Jekyll
 
-- And add the following to your site's `_config.yml`:
+### Instalación
 
-  ```yaml
-  plugins:
-    - jekyll-default-layout
-  ```
+```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/mirrorly.git
+cd mirrorly/docs
 
-Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
+# Instalar dependencias
+bundle install
 
-## Publishing your site on GitHub Pages
+# Servir localmente
+bundle exec jekyll serve --port 4000
+```
 
-1.  If your created site is `YOUR-USERNAME/YOUR-SITE-NAME`, update `_config.yml` to:
+La documentación estará disponible en `http://localhost:4000`
 
-    ```yaml
-    title: YOUR TITLE
-    description: YOUR DESCRIPTION
-    theme: just-the-docs
+## 📝 Contribuir a la Documentación
 
-    url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
+### Estructura de Archivos
 
-    aux_links: # remove if you don't want this link to appear on your pages
-      Template Repository: https://github.com/YOUR-USERNAME/YOUR-SITE-NAME
-    ```
+```
+docs/
+├── _config.yml              # Configuración de Jekyll
+├── index.md                 # Página principal
+├── user-guide.md           # Guía de usuario
+├── google-ai-setup.md      # Configuración de Google AI
+├── shortcode-guide.md      # Documentación del shortcode
+├── Gemfile                 # Dependencias de Jekyll
+└── _sass/                  # Estilos personalizados
+```
 
-2.  Push your updated `_config.yml` to your site on GitHub.
+### Agregar Nueva Página
 
-3.  In your newly created repo on GitHub:
-    - go to the `Settings` tab -> `Pages` -> `Build and deployment`, then select `Source`: `GitHub Actions`.
-    - if there were any failed Actions, go to the `Actions` tab and click on `Re-run jobs`.
+1. Crea un archivo `.md` en el directorio `docs/`
+2. Agrega el front matter apropiado:
 
-## Building and previewing your site locally
+```yaml
+---
+title: Título de la Página
+layout: default
+nav_order: 5
+description: "Descripción de la página"
+---
+```
 
-Assuming [Jekyll] and [Bundler] are installed on your computer:
+3. Escribe el contenido en Markdown
+4. Haz commit y push de los cambios
 
-1.  Change your working directory to the root directory of your site.
+### Publicación Automática
 
-2.  Run `bundle install`.
+Los cambios en el directorio `docs/` se publican automáticamente en GitHub Pages usando GitHub Actions. Ver [SUBTREE_PUBLISHING.md](SUBTREE_PUBLISHING.md) para más detalles sobre el proceso de publicación.
 
-3.  Run `bundle exec jekyll serve` to build your site and preview it at `localhost:4000`.
+## 🚀 Publicación en GitHub Pages
 
-    The built site is stored in the directory `_site`.
+La documentación se publica automáticamente usando GitHub Actions cuando se realizan cambios en el directorio `docs/`.
 
-## Publishing your built site on a different platform
+### Configuración Inicial
 
-Just upload all the files in the directory `_site`.
+1. Ve a **Settings > Pages** en tu repositorio de GitHub
+2. Selecciona **Source**: `GitHub Actions`
+3. Los cambios se publicarán automáticamente en cada push
 
-## Customization
+### Proceso de Publicación con Git Subtree
 
-You're free to customize sites that you create with this template, however you like!
+Este proyecto utiliza Git Subtree para mantener la documentación sincronizada:
 
-[Browse our documentation][Just the Docs] to learn more about how to use this theme.
+```bash
+# Hacer commit de cambios en docs/
+git add docs/
+git commit -m "docs: actualizar documentación"
 
-## Hosting your docs from an existing project repo
+# Publicar con subtree
+git subtree push --prefix=docs origin gh-pages
+```
 
-You might want to maintain your docs in an existing project repo. Instead of creating a new repo using the [just-the-docs template](https://github.com/just-the-docs/just-the-docs-template), you can copy the template files into your existing repo and configure the template's Github Actions workflow to build from a `docs` directory. You can clone the template to your local machine or download the `.zip` file to access the files.
+Ver [SUBTREE_PUBLISHING.md](SUBTREE_PUBLISHING.md) para instrucciones detalladas.
 
-### Copy the template files
+## 🎨 Personalización del Tema
 
-1.  Create a `.github/workflows` directory at your project root if your repo doesn't already have one. Copy the `pages.yml` file into this directory. GitHub Actions searches this directory for workflow files.
+### Colores y Estilos
 
-2.  Create a `docs` directory at your project root and copy all remaining template files into this directory.
+Los estilos personalizados se encuentran en `_sass/custom/custom.scss`. Puedes modificar:
 
-### Modify the GitHub Actions workflow
+- Colores del tema
+- Tipografía
+- Espaciado
+- Componentes personalizados
 
-The GitHub Actions workflow that builds and deploys your site to Github Pages is defined by the `pages.yml` file. You'll need to edit this file to that so that your build and deploy steps look to your `docs` directory, rather than the project root.
+### Configuración del Sitio
 
-1.  Set the default `working-directory` param for the build job.
+Edita `_config.yml` para personalizar:
 
-    ```yaml
-    build:
-      runs-on: ubuntu-latest
-      defaults:
-        run:
-          working-directory: docs
-    ```
+```yaml
+title: Mirrorly Documentation
+description: Plugin de visualización con IA para WooCommerce
+url: https://tu-usuario.github.io/mirrorly
+```
 
-2.  Set the `working-directory` param for the Setup Ruby step.
+## 🔍 Funcionalidades del Sitio
 
-    ```yaml
-    - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-          bundler-cache: true
-          cache-version: 0
-          working-directory: '${{ github.workspace }}/docs'
-    ```
+### Búsqueda Integrada
 
-3.  Set the path param for the Upload artifact step:
+El tema just-the-docs incluye búsqueda en tiempo real que indexa todo el contenido automáticamente.
 
-    ```yaml
-    - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/_site/
-    ```
+### Navegación Automática
 
-4.  Modify the trigger so that only changes within the `docs` directory start the workflow. Otherwise, every change to your project (even those that don't affect the docs) would trigger a new site build and deploy.
+Las páginas se organizan automáticamente según el valor `nav_order` en el front matter.
 
-    ```yaml
-    on:
-      push:
-        branches:
-          - "main"
-        paths:
-          - "docs/**"
-    ```
+### Tabla de Contenidos
 
-## Licensing and Attribution
+Cada página puede incluir una tabla de contenidos automática:
 
-This repository is licensed under the [MIT License]. You are generally free to reuse or extend upon this code as you see fit; just include the original copy of the license (which is preserved when you "make a template"). While it's not necessary, we'd love to hear from you if you do use this template, and how we can improve it for future use!
+```markdown
+## Tabla de contenidos
+{: .no_toc .text-delta }
 
-The deployment GitHub Actions workflow is heavily based on GitHub's mixed-party [starter workflows]. A copy of their MIT License is available in [actions/starter-workflows].
+1. TOC
+{:toc}
+```
 
-----
+### Diagramas Mermaid
 
-[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
+Soporte integrado para diagramas Mermaid:
 
-[Jekyll]: https://jekyllrb.com
+```mermaid
+graph TD
+    A[Usuario sube imagen] --> B[Validación]
+    B --> C[Envío a Google AI]
+    C --> D[Generación de imagen]
+    D --> E[Mostrar resultado]
+```
+
+## 📋 Checklist de Mantenimiento
+
+- [ ] Actualizar enlaces cuando cambien las URLs
+- [ ] Revisar capturas de pantalla periódicamente
+- [ ] Mantener ejemplos de código actualizados
+- [ ] Verificar que todos los enlaces externos funcionen
+- [ ] Actualizar versiones en el Gemfile según sea necesario
+
+## 📞 Soporte y Contacto
+
+Para reportar problemas con la documentación:
+
+1. Abre un [issue en GitHub](https://github.com/tu-usuario/mirrorly/issues)
+2. Usa la etiqueta `documentation`
+3. Describe claramente el problema o mejora sugerida
+
+## 📄 Licencia
+
+Esta documentación está licenciada bajo [MIT License]. Eres libre de reutilizar o extender este código; solo incluye la copia original de la licencia.
+
+---
+
+**Mirrorly** - Transformando la experiencia de compra con inteligencia artificial 🚀
+
 [Just the Docs]: https://just-the-docs.github.io/just-the-docs/
 [GitHub Pages]: https://docs.github.com/en/pages
-[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
-[Bundler]: https://bundler.io
-[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
-[`jekyll-default-layout`]: https://github.com/benbalter/jekyll-default-layout
-[`jekyll-seo-tag`]: https://jekyll.github.io/jekyll-seo-tag
+[Jekyll]: https://jekyllrb.com
 [MIT License]: https://en.wikipedia.org/wiki/MIT_License
-[starter workflows]: https://github.com/actions/starter-workflows/blob/main/pages/jekyll.yml
-[actions/starter-workflows]: https://github.com/actions/starter-workflows/blob/main/LICENSE
