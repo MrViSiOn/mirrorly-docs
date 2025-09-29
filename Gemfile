@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Compatible with Ruby 2.5.0
-gem "jekyll", "~> 3.9.0"
+gem "jekyll", "~> 4.4.1"
 
 gem "jekyll-default-layout"
 gem "just-the-docs", "0.3.3" # compatible with Jekyll 3.9
