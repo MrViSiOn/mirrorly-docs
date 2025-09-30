@@ -2,6 +2,9 @@ title: Mirrorly
 description: Plugin de WordPress para visualización de productos con inteligencia artificial
 theme: just-the-docs
 
+# Logo
+logo: "/logo.png"
+
 url: https://docs.mirrorly.pro
 baseurl: ""
 

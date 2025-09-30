@@ -6,6 +6,10 @@ description: "Plugin de WordPress que permite a los clientes visualizarse usando
 permalink: /
 ---
 
+<div align="center">
+  <img src="logo.png" alt="Mirrorly Logo" class="main-logo">
+</div>
+
 # Mirrorly
 {: .fs-9 }
 
