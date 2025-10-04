@@ -74,7 +74,7 @@ Sistema de rate limiting y control de abuso para optimizar costos y rendimiento.
 ### Paso 4: Habilitar en Productos
 
 1. Edita cualquier producto en WooCommerce
-2. Busca la sección "Mirrorly" 
+2. Busca la sección "Mirrorly"
 3. Activa "Habilitar Mirrorly para este producto"
 4. Selecciona la imagen principal del producto
 5. Actualiza el producto
@@ -97,17 +97,7 @@ Tutorial paso a paso para configurar Google AI Studio y obtener tu API token.
 
 ## 🔧 Cómo Funciona
 
-```mermaid
-graph TD
-    A[Cliente sube foto] --> B[Plugin envía a API]
-    B --> C[Google AI analiza imágenes]
-    C --> D[Genera prompt optimizado]
-    D --> E[Crea imagen combinada]
-    E --> F[Muestra resultado al cliente]
-    
-    style A fill:#e1f5fe
-    style F fill:#e8f5e8
-```
+[![Gráfico](/assets/images/como-funciona-2025-10-04-111056.png)](/assets/images/como-funciona-2025-10-04-111056.png)
 
 1. **Subida de Imagen**: El cliente sube su foto en la ficha del producto
 2. **Procesamiento IA**: Google Generative AI analiza tanto la foto del cliente como la imagen del producto

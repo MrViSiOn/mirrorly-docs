@@ -53,6 +53,6 @@ permalink: /contact/
 
 Si prefieres otros métodos de contacto:
 
-- **GitHub Issues**: [Reportar problemas técnicos](https://github.com/tu-usuario/mirrorly/issues)
+- **GitHub Issues**: [Reportar problemas técnicos](https://github.com/MrViSiOn/mirrorly-docs/issues)
 - **Documentación**: Consulta nuestra [guía de usuario]({{ site.baseurl }}{% link user-guide.md %})
 - **Configuración**: Revisa la [guía de configuración]({{ site.baseurl }}{% link google-ai-setup.md %})

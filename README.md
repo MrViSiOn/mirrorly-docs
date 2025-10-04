@@ -49,7 +49,7 @@ Para trabajar con la documentación localmente:
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/mirrorly.git
+git clone https://github.com/MrViSiOn/mirrorly-docs.git
 cd mirrorly/docs
 
 # Instalar dependencias
@@ -189,7 +189,7 @@ graph TD
 
 Para reportar problemas con la documentación:
 
-1. Abre un [issue en GitHub](https://github.com/tu-usuario/mirrorly/issues)
+1. Abre un [issue en GitHub](https://github.com/MrViSiOn/mirrorly-docs/issues)
 2. Usa la etiqueta `documentation`
 3. Describe claramente el problema o mejora sugerida
 
