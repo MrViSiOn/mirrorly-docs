@@ -20,7 +20,8 @@ Plugin de WordPress que permite a los clientes **visualizarse usando productos**
 [Ver en GitHub](https://github.com/MrViSiOn/mirrorly-docs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 
-<img src="/assets/images/GlopLocal-Free" alt="Como funciona" width="50%" style="margin:auto; display: block;">
+
+<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="70%" style="margin:auto; display: block;max-height: 900px;">
 
 ---
 
@@ -86,7 +87,6 @@ Sistema de rate limiting y control de abuso para optimizar costos y rendimiento.
 
 ## 📖 Guías de Usuario
 
-<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="70%" style="margin:auto; display: block;max-height: 900px;">
 
 ### Para Clientes de la Tienda
 [📱 **Guía de Usuario Completa**]({{ site.baseurl }}{% link user-guide.md %}){: .btn .btn-primary }
