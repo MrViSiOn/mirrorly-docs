@@ -97,7 +97,7 @@ Tutorial paso a paso para configurar Google AI Studio y obtener tu API token.
 
 ## 🔧 Cómo Funciona
 
-<img src="{{ '/assets/images/como-funciona-2025-10-04-111056.png | relative_url }}" alt="Como funciona" width="50%">
+<img src="/assets/images/como-funciona-2025-10-04-111056.png" alt="Como funciona" width="50%">
 
 1. **Subida de Imagen**: El cliente sube su foto en la ficha del producto
 2. **Procesamiento IA**: Google Generative AI analiza tanto la foto del cliente como la imagen del producto
