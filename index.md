@@ -19,6 +19,9 @@ Plugin de WordPress que permite a los clientes **visualizarse usando productos**
 [Comenzar ahora](#instalación){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [Ver en GitHub](https://github.com/MrViSiOn/mirrorly-docs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
+
+<img src="/assets/images/GlopLocal-Free" alt="Como funciona" width="50%" style="margin:auto; display: block;">
+
 ---
 
 ## 🚀 Características Principales
@@ -27,7 +30,7 @@ Plugin de WordPress que permite a los clientes **visualizarse usando productos**
 Utiliza **Google Generative AI** para crear visualizaciones realistas donde el cliente aparece usando el producto seleccionado.
 
 ### 💰 Modelo Freemium
-- **Versión FREE**: 3 productos, 10 generaciones/mes
+- **Versión FREE**: 3 productos
 - **Versión PRO**: Productos ilimitados, hasta 2000 generaciones/mes
 
 ### 🛒 Integración WooCommerce
@@ -45,7 +48,7 @@ Sistema de rate limiting y control de abuso para optimizar costos y rendimiento.
 | **👕 Ropa** | Camisetas, vestidos, chaquetas | ⭐⭐⭐⭐⭐ |
 | **👓 Accesorios** | Sombreros, gafas, bufandas | ⭐⭐⭐⭐⭐ |
 | **💍 Bisutería** | Collares, pulseras, pendientes | ⭐⭐⭐⭐ |
-| **👟 Calzado** | Zapatos, botas, zapatillas | ⭐⭐⭐ |
+| **👟 Calzado** | Zapatos, botas, zapatillas | ⭐⭐⭐⭐ |
 
 ---
 
@@ -83,6 +86,8 @@ Sistema de rate limiting y control de abuso para optimizar costos y rendimiento.
 
 ## 📖 Guías de Usuario
 
+<img src="/assets/images/GlopLocal-Free" alt="Como funciona" width="50%" style="margin:auto; display: block;max-height: 500px;">
+
 ### Para Clientes de la Tienda
 [📱 **Guía de Usuario Completa**]({{ site.baseurl }}{% link user-guide.md %}){: .btn .btn-primary }
 
@@ -97,7 +102,7 @@ Tutorial paso a paso para configurar Google AI Studio y obtener tu API token.
 
 ## 🔧 Cómo Funciona
 
-<img src="/assets/images/como-funciona-2025-10-04-111056.png" alt="Como funciona" width="50%">
+<img src="/assets/images/como-funciona-2025-10-04-111056.png" alt="Como funciona" width="50%" style="margin:auto; display: block;">
 
 1. **Subida de Imagen**: El cliente sube su foto en la ficha del producto
 2. **Procesamiento IA**: Google Generative AI analiza tanto la foto del cliente como la imagen del producto
@@ -118,9 +123,7 @@ Tutorial paso a paso para configurar Google AI Studio y obtener tu API token.
 
 | Plan | Productos | Generaciones/mes | Velocidad | Precio |
 |:-----|:----------|:-----------------|:----------|:-------|
-| **Básico** | Ilimitados | 100 | 1 cada 30s | €19/mes |
-| **Premium** | Ilimitados | 500 | 1 cada 15s | €49/mes |
-| **Enterprise** | Ilimitados | 2000 | 1 cada 10s | €99/mes |
+| **PRO** | Ilimitados | Ilimitadas | 1 cada 30s | 19.99 €/año |
 
 ---
 

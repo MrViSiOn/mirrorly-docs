@@ -29,7 +29,7 @@ Mirrorly es un plugin de WordPress que permite a los clientes de tiendas online 
 - Camisetas, vestidos, chaquetas, pantalones
 - Funciona mejor con prendas de colores sólidos
 
-**👓 Accesorios**  
+**👓 Accesorios**
 - Sombreros, gafas, bufandas, cinturones
 - Excelente para accesorios que se "ponen" sobre la persona
 
@@ -52,6 +52,8 @@ Los productos que tienen Mirrorly habilitado mostrarán:
 - **Widget de Mirrorly** en la página del producto
 - **Mensaje personalizado** como "¡Prueba cómo te queda!"
 - **Botón "Subir tu foto"** o similar
+
+
 
 {: .highlight }
 > **💡 Consejo**: Busca el logo de Mirrorly o mensajes como "Pruébatelo virtualmente" en las fichas de producto.
@@ -247,7 +249,7 @@ Para cada producto que quieras habilitar:
 ## 🚀 Próximos Pasos
 
 1. **Si eres cliente**: Empieza a probar productos en tiendas que usen Mirrorly
-2. **Si eres administrador**: 
+2. **Si eres administrador**:
    - [Configura tu API Key]({{ site.baseurl }}{% link google-ai-setup.md %})
    - Habilita Mirrorly en tus productos más populares
    - Prueba la funcionalidad con diferentes tipos de imágenes
