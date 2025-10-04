@@ -21,7 +21,7 @@ Plugin de WordPress que permite a los clientes **visualizarse usando productos**
 
 
 
-<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="70%" style="margin:auto; display: block;max-height: 900px;">
+<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="100%" style="margin:auto; display: block;">
 
 ---
 
