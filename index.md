@@ -86,7 +86,7 @@ Sistema de rate limiting y control de abuso para optimizar costos y rendimiento.
 
 ## 📖 Guías de Usuario
 
-<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="50%" style="margin:auto; display: block;max-height: 900px;">
+<img src="/assets/images/GlopLocal-Free.png" alt="Frontend" width="70%" style="margin:auto; display: block;max-height: 900px;">
 
 ### Para Clientes de la Tienda
 [📱 **Guía de Usuario Completa**]({{ site.baseurl }}{% link user-guide.md %}){: .btn .btn-primary }
