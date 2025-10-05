@@ -224,6 +224,12 @@ Para cada producto que quieras habilitar:
 - "Visualización con IA"
 - "Prueba virtual"
 
+<div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+  <h4 style="margin-top: 0; color: #667eea;">💎 Funciones Avanzadas PRO</h4>
+  <p>La personalización completa de colores, estilos y mensajes está disponible en la versión PRO, junto con productos ilimitados y más generaciones mensuales.</p>
+  <a href="/upgrade-to-pro/" style="color: #667eea; font-weight: bold;">→ Descubre Mirrorly PRO</a>
+</div>
+
 ---
 
 ## 📱 Compatibilidad

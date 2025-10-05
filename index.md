@@ -123,7 +123,24 @@ Tutorial paso a paso para configurar Google AI Studio y obtener tu API token.
 
 | Plan | Productos | Generaciones/mes | Velocidad | Precio |
 |:-----|:----------|:-----------------|:----------|:-------|
-| **PRO** | Ilimitados | Ilimitadas | 1 cada 30s | 19.99 €/año |
+| **PRO Básico** | Ilimitados | 100 | 1 cada 30s | 29 €/mes |
+| **PRO Premium** | Ilimitados | 500 | 1 cada 15s | 79 €/mes |
+
+<div style="text-align: center; margin: 20px 0;">
+  <a href="/upgrade-to-pro/" 
+     style="display: inline-block; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            transition: all 0.3s ease;"
+     onmouseover="this.style.transform='translateY(-2px)';"
+     onmouseout="this.style.transform='translateY(0)';">
+    🚀 Ver Planes PRO
+  </a>
+</div>
 
 ---
 

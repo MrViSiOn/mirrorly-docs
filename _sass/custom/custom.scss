@@ -14,6 +14,43 @@ $link-color: $mirrorly-primary;
 $btn-primary-color: $mirrorly-primary;
 $base-button-color: $mirrorly-primary;
 
+// Custom button styles for commercial CTAs
+.mirrorly-cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  padding: 12px 25px;
+  text-decoration: none !important;
+  border-radius: 25px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white !important;
+  }
+
+  &.large {
+    padding: 18px 35px;
+    font-size: 18px;
+    border-radius: 50px;
+  }
+
+  &.success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+
+    &:hover {
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+  }
+}
+
 // Logo styling
 .site-logo {
   max-height: 40px;

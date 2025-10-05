@@ -22,6 +22,21 @@ Si estás teniendo problemas con Mirrorly (instalación, configuración, uso del
 
 Para más detalles, consulta la [Guía de Usuario]({{ site.baseurl }}{% link user-guide.md %}) y la [Guía de Configuración]({{ site.baseurl }}{% link google-ai-setup.md %}).
 
+## 🚫 Problemas de Límites
+
+### Versión FREE
+Si has alcanzado los límites de la versión gratuita (3 productos, 10 generaciones/mes), considera actualizar a PRO para:
+- **Productos ilimitados**
+- **100-500 generaciones mensuales**
+- **Velocidad mejorada**
+- **Soporte prioritario**
+
+<div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+  <h4 style="margin-top: 0; color: #856404;">⚡ ¿Necesitas más capacidad?</h4>
+  <p>Los límites de la versión FREE pueden ser restrictivos para tiendas en crecimiento. Mirrorly PRO elimina estas limitaciones.</p>
+  <a href="/upgrade-to-pro/" style="color: #856404; font-weight: bold;">→ Ver Planes PRO</a>
+</div>
+
 ---
 
 ## Formulario de Contacto

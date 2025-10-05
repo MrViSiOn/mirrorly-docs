@@ -275,6 +275,12 @@ function has_mirrorly_shortcode($post_id = null) {
 - Imágenes con alt text apropiado
 - Schema markup para productos
 
+<div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+  <h4 style="margin-top: 0; color: #155724;">🚀 Funciones Avanzadas PRO</h4>
+  <p>La versión PRO incluye optimizaciones adicionales como cache inteligente, carga prioritaria y personalización completa del shortcode.</p>
+  <a href="/upgrade-to-pro/" style="color: #155724; font-weight: bold;">→ Descubre las ventajas PRO</a>
+</div>
+
 ---
 
 ## 🆘 Solución de Problemas
