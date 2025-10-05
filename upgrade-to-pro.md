@@ -56,38 +56,28 @@ Mirrorly PRO está diseñado para tiendas serias que quieren maximizar sus conve
 
 ---
 
-## 💰 Planes disponibles
 
-### 🥉 **PRO Básico** - €29/mes
-- 100 generaciones mensuales
+### 🥉 **PRO** - 19.99€/año
 - Productos ilimitados
-- 1 generación cada 30 segundos
-- Personalización básica
+- Personalización de colores, estilos y mensajes
+- Prompt personalizado para ajustar el agente de IA
 - Soporte por email
-
-### 🥈 **PRO Premium** - €79/mes
-- 500 generaciones mensuales
-- Productos ilimitados
-- 1 generación cada 15 segundos
-- Personalización avanzada
-- Soporte prioritario
-- Acceso anticipado a funciones
 
 ---
 
 <div style="text-align: center; margin: 40px 0;">
-  <a href="https://buy.stripe.com/14A9ATg9y8Pp4No1dZ53O00" 
-     style="display: inline-block; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            padding: 20px 40px; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-size: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); 
-            transition: all 0.3s ease; 
-            text-transform: uppercase; 
+  <a href="https://buy.stripe.com/14A9ATg9y8Pp4No1dZ53O00"
+     style="display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
             letter-spacing: 1px;"
      onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 40px rgba(102, 126, 234, 0.6)';"
      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(102, 126, 234, 0.4)';">

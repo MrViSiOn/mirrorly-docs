@@ -17,18 +17,18 @@ Gestiona tu suscripción, facturas y configuración de cuenta de forma sencilla.
 ## 🔐 Acceso al Portal
 
 <div style="text-align: center; margin: 40px 0;">
-  <a href="https://billing.stripe.com/p/login/14A9ATg9y8Pp4No1dZ53O00" 
-     style="display: inline-block; 
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
-            color: white; 
-            padding: 18px 35px; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); 
-            transition: all 0.3s ease; 
-            text-transform: uppercase; 
+  <a href="https://billing.stripe.com/p/login/14A9ATg9y8Pp4No1dZ53O00"
+     style="display: inline-block;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 18px 35px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
             letter-spacing: 1px;"
      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 35px rgba(40, 167, 69, 0.6)';"
      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(40, 167, 69, 0.4)';">
@@ -46,7 +46,6 @@ Gestiona tu suscripción, facturas y configuración de cuenta de forma sencilla.
 
 ### 💳 **Gestión de Suscripción**
 - **Ver plan actual**: Consulta tu plan PRO activo y sus características
-- **Cambiar plan**: Actualiza o degrada tu suscripción según tus necesidades
 - **Método de pago**: Actualiza tu tarjeta de crédito o método de pago
 - **Historial de pagos**: Revisa todos tus pagos anteriores
 
@@ -57,13 +56,6 @@ Gestiona tu suscripción, facturas y configuración de cuenta de forma sencilla.
 
 ### ⚙️ **Configuración de Cuenta**
 - **Información personal**: Actualiza tus datos de contacto
-- **Notificaciones**: Configura qué emails quieres recibir
-- **Preferencias**: Personaliza tu experiencia en el portal
-
-### 📊 **Uso y Estadísticas**
-- **Generaciones utilizadas**: Ve cuántas generaciones has usado este mes
-- **Límites restantes**: Consulta cuántas generaciones te quedan
-- **Historial de uso**: Revisa tu actividad mensual
 
 ---
 
@@ -82,13 +74,13 @@ Si acabas de comprar Mirrorly PRO, recibirás un email de bienvenida con instruc
 
 ## 🔧 Funciones Principales
 
-### 📈 **Cambiar de Plan**
+### 📧 **Descargar Facturas**
 ```
-Portal → Suscripción → Cambiar Plan
+Portal → Facturas → Descargar PDF
 ```
-- Actualiza a un plan superior para más generaciones
-- Degrada si necesitas menos funcionalidades
-- Los cambios se aplican inmediatamente
+- Todas las facturas disponibles en PDF
+- Perfectas para contabilidad empresarial
+- Incluyen todos los detalles fiscales
 
 ### 💰 **Actualizar Método de Pago**
 ```
@@ -97,14 +89,6 @@ Portal → Métodos de Pago → Agregar/Editar
 - Cambia tu tarjeta de crédito
 - Agrega métodos de pago alternativos
 - Configura pagos automáticos
-
-### 📧 **Descargar Facturas**
-```
-Portal → Facturas → Descargar PDF
-```
-- Todas las facturas disponibles en PDF
-- Perfectas para contabilidad empresarial
-- Incluyen todos los detalles fiscales
 
 ---
 
