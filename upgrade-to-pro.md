@@ -86,7 +86,7 @@ Mirrorly PRO está diseñado para tiendas serias que quieren maximizar sus conve
 </div>
 
 <p style="text-align: center; color: #666; font-size: 14px; margin-top: 20px;">
-  ✅ Pago seguro con Stripe • ✅ Activación inmediata • ✅ 30 días de garantía
+  ✅ Pago seguro con Stripe • ✅ Activación inmediata • ✅ Soporte inmediato
 </p>
 
 ---
