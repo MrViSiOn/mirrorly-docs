@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gem "jekyll", "~> 4.4.1"
 
 gem "jekyll-default-layout"
-gem "just-the-docs", "0.10.1" # compatible with Jekyll 3.9
+gem "just-the-docs", "0.12.0" # compatible with Jekyll 3.9
 
 # Jekyll plugins (compatible versions for Ruby 2.5)
 gem "jekyll-feed", "~> 0.12"
